@@ -1,0 +1,633 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Supporting Information
+%% (Optional)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OVERVIEW
+%
+% Please note that all supporting information will be peer reviewed with your manuscript.
+% In general, the purpose of the supporting information is to enable
+% authors to provide and archive auxiliary information such as data
+% tables, method information, figures, video, or computer software,
+% in digital formats so that other scientists can use it.
+
+% The key criteria are that the data:
+% 1. supplement the main scientific conclusions of the paper but are not essential to the conclusions (with the exception of
+%    including data so the experiment can be reproducible);
+% 2. are likely to be usable or used by other scientists working in the field;
+% 3. are described with sufficient precision that other scientists can understand them, and
+% 4. are not exe files.
+%
+
+% All Supporting text and figures should be included in this document.
+
+% Data sets, large tables, movie files,
+% and audio files should be uploaded separately, following AGU naming
+% conventions. Include their captions in this document and list the
+% file name with the caption. You will be prompted to upload these
+% files on the Upload Files tab during the submission process, using
+% file type “Supporting Information (SI)”
+
+\documentclass[draft]{agujournal}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\usepackage[hyphenbreaks]{breakurl}
+% Please type in the journal name: \journalname{<Journal Name>}
+% ie,
+\journalname{Earth's Future}
+
+%% Choose from this list of Journals:
+%
+% Journal of Geophysical Research
+% JGR-Biogeosciences
+% JGR-Earth Surface
+% JGR-Planets
+% JGR-Solid Earth
+% JGR-Space Physics
+% Global Biochemical Cycles
+% Geophysical Research Letters
+% Paleoceanography
+% Radio Science
+% Reviews of Geophysics
+% Tectonics
+% Space Weather
+% Water Resource Research
+% Geochemistry, Geophysics, Geosystems
+% Journal of Advances in Modeling Earth Systems (JAMES)
+% Earth's Future
+% Earth and Space Science
+
+<<knitr_options, cache=F, echo=F, include=F, eval=T, message=F, warning=F, error=F, results='hide'>>=
+library(knitr)
+
+my_tex_chunk_hook <- function(x, options) {
+  ai = knitr:::output_asis(x, options)
+  size = if (options$size == 'normalsize') '' else sprintf('\\%s', options$size)
+  if (!ai) x = sprintf('%% jg_tex_chunk_hook\n%s\n%s\n', size, x)
+  if (options$split) {
+    name = fig_path('.tex', options, NULL)
+    if (!file.exists(dirname(name)))
+      dir.create(dirname(name))
+    cat(x, file = name)
+    sprintf('\\input{%s}', name)
+  } else x
+}
+
+my_tex_output_hook <- function(x, options) {
+  if (knitr:::output_asis(x, options)) {
+    x
+  } else knitr:::.verb.hook(x)
+}
+
+my_tex_plot_hook <- function(x, options) {
+  knitr:::hook_plot_tex(x, options)
+}
+
+
+knit_hooks$set(chunk = my_tex_chunk_hook, output = my_tex_output_hook,
+               plot = my_tex_plot_hook)
+
+opts_knit$set(progress = TRUE, verbose = TRUE,
+              header = '',
+              self.contained="FALSE"
+)
+
+do_cache = TRUE
+
+si_output_dir <- 'si_files'
+
+opts_chunk$set(cache = do_cache, echo = FALSE,
+               message = FALSE, warning = TRUE,
+               error = FALSE, # stop knitting on errors
+               out.width="0.8\\linewidth",
+               dev = 'pdf', dpi = 600,
+               cache.path="cache_si/", fig.path="figures_si/")
+@
+<<si_options, cache=F, include=F, echo=F, eval=T, results='hide'>>=
+if (!dir.exists(si_output_dir)) dir.create(si_output_dir, recursive = TRUE)
+if (!dir.exists(file.path(si_output_dir, 'tables'))) dir.create(file.path(si_output_dir, 'tables'), recursive = TRUE)
+if (!dir.exists(file.path(si_output_dir, 'figures'))) dir.create(file.path(si_output_dir, 'figures'), recursive = TRUE)
+
+
+set.seed(477668150)
+random_alpha <- TRUE # random effects on state-level intercept.
+
+sigma_sigma_delta <- 2.5 # for partial-pooling at state-level.
+
+pop_target_year <- 2014
+
+mu_phi_vwci <- 50
+sigma_phi_vwci <- 20
+mu_phi_rr <- 15
+sigma_phi_rr <- 10
+
+pop_target_year <- 2014
+bea_year <- 2014
+@
+<<setup, echo=F, include=F, eval=T, cache = F, results='hide'>>=
+library(pacman)
+p_load(tidyverse, readxl, stringr, extrafont, ggrepel, gridExtra, xtable, ggthemes, viridis)
+
+p_load(rstan, loo)
+p_load_gh('jonathan-g/jgmcmc@jgmcmc')
+p_load_gh('jonathan-g/jgally@jgally')
+
+figure_font <- choose_font('CM Sans')
+
+if (figure_font == '') {
+  font_install('fontcm')
+  figure_font <- choose_font(c('CM Sans', 'Helvetica', 'Arial', 'sans'), quiet = FALSE)
+}
+
+loadfonts(device = 'pdf', quiet = TRUE)
+if (Sys.info()['sysname'] == 'Windows') {
+  loadfonts(device = 'win', quiet = TRUE)
+}
+
+
+# theme_set(theme_bw(base_size = 15))
+theme_set(
+  theme_bw(base_size = 15, base_family = figure_font) +
+    theme(plot.title = element_text(size = rel(1)),
+          axis.text.x = element_text(size = rel(1)),
+          panel.grid.major = element_line(size = 0.5, colour = "gray90"),
+          panel.grid.minor = element_line(size = 0.25, colour = "gray90")
+    )
+)
+
+if(FALSE) {
+  opts_chunk$set(dev.args = c(opts_chunk$dev.args,
+                              list(family = figure_font)))
+}
+opts_chunk$set(dev.args = c(opts_chunk$dev.args,
+                            list(pointsize = 8)))
+
+opts_chunk$get() %>% str_c(names(.), ., sep = '=', collapse = ', ') %>% message()
+
+@
+<<set_processing_vars, echo=F, eval=T, results='hide'>>=
+script_dir <- 'scripts'
+data_dir <- 'data'
+@
+<<load_scripts, echo=F, eval=T, results='hide', cache.extra=c(file.mtime(file.path(script_dir, 'fit_model.R')))>>=
+source(file.path(script_dir, 'fit_model.R'))
+@
+<<load_data, include = FALSE, cache=do_cache, cache.extra=c(file.mtime(file.path(data_dir, "model_fits.Rds")))>>=
+filtered_data <- read_rds(file.path('data', 'filtered_data.Rds'))
+
+msa_vars <- vars_2$msa_vars
+# state_vars <- vars_2$state_vars %>% set_names(.) %>% map(~str_replace_all(.x, fixed('state.'), ''))
+state_vars <- vars_2$state_vars %>% str_replace_all(fixed('state.'), '')
+
+msa_data <- filtered_data$msa_data %>%
+  select_(~city, ~state, ~msa.name, ~vwci, ~reqtotal, ~rebtotal, ~pop,
+          .dots = msa_vars) %>%
+  rename(state.abb = state, requirements = reqtotal, rebates = rebtotal) %>%
+  mutate(vwci.rank = rank(-vwci, ties.method = 'min'),
+         msa.name = str_extract(msa.name, "^(.+?)(?=([[:space:]]*Metro +Area)?$)"))
+
+state_data <- filtered_data$state_data %>%
+  select_(~state, ~state.name, ~state.fips,
+          .dots = state_vars) %>%
+  rename(state.abb = state)
+
+n_cities <- nrow(msa_data)
+n_states <- nrow(state_data)
+
+model_fits <- read_rds(file.path(data_dir, "model_fits.Rds"))
+loo_model_fits <- model_fits # read_rds(file.path(data_dir, "model_fits_for_loo_waic.Rds"))
+@
+
+\begin{document}
+
+%% This command needs article title as argument to \supportinginfo{}:
+\supportinginfo{Urban Water Conservation Policies in the United States}
+
+\authors{Jonathan M. Gilligan\affil{1,2}, Christopher A. Wold\affil{3}, Scott C. Worland\affil{2}, John J. Nay\affil{2}, David J. Hess\affil{4}, George M. Hornberger\affil{2}}
+
+\affiliation{1}{Department of Earth \& Environmental Sciences, Vanderbilt University, Nashville, Tennessee, USA}
+\affiliation{2}{Department of Civil \& Environmental Engineering, Vanderbilt University, Nashville, Tennessee, USA}
+\affiliation{3}{Vanderbilt Institute for Energy and Environment, Vanderbilt University, Nashville, Tennessee, USA}
+\affiliation{4}{Department of Sociology, Vanderbilt University, Nashville, Tennessee, USA}
+% \affiliation{4}{U.S. Geological Survey, Nashville, Tennessee, USA}
+
+
+\correspondingauthor{Jonathan M. Gilligan}{jonathan.gilligan@vanderbilt.edu}
+
+\section*{Contents}
+%%%Remove or add items as needed%%%
+\begin{enumerate}
+\item Text S1
+\item Figures S1 to S5
+\item Tables S1 to S7
+%if Tables are larger than 1 page, upload as separate excel file
+\end{enumerate}
+
+\section*{Additional Supporting Information (Files uploaded separately)}
+\begin{enumerate}
+\item Captions for Datasets S1 to S2
+\item Data Analysis Scripts S1 (zip file)
+% \item Captions for Large Tables S1, S2, S5--S7
+\end{enumerate}
+
+
+\section*{Introduction}
+
+This supporting information document presents additional details of the data and analysis.
+
+\section*{SI Text}
+
+\subsection*{Data}
+We used VWCI data for \Sexpr{n_cities}~cities in \Sexpr{n_states}~states, as shown in Fig.~S\ref{fig:vwci_map} and Table~S\ref{tab:vwci}.
+
+At the MSA level (Dataset~S1, Table~S\ref{tab:vwci}), our regression analysis used the following six covariates: $\ln(\text{population})$, population growth rate between 2010 and \Sexpr{pop_target_year}, the K\"oppen aridity index, the fraction of the municipal water supply coming from surface water (henceforth, surface-water fraction), the Cook Partisan Voting Index (PVI), and the per-capita real personal income (RPI) for \Sexpr{bea_year} normalized for inflation and regional variations in the cost of living. We used the natural logarithm of the population rather than the raw population because the raw population was sharply peaked near \Sexpr{filtered_data$msa_data %>% summarize(median(pop)) %>% simplify() %>% signif(1) %>% scales::comma() %>% unname()} (Fig.~\ref{fig:msa_vars_distribution}).
+
+At the state level (Dataset~S2, Table~S\ref{tab:state}), our analysis used the following four covariates: PVI, RPI, the K\"oppen aridity index, and the surface-water fraction.
+
+
+
+\subsection*{Analysis}
+
+\subsubsection*{Diagnostics}
+
+\iffalse
+Collinearity among the predictor variables is diagnosed by observing correlations in the joint posterior probability distributions of the regression coefficients \citep[pp.~288--293]{stan_manual_2015}. Inefficient sampling due to varying curvature in the log-probability manifold or poorly chosen priors can be diagnosed by irregularities in joint posterior distributions \citep[pp.~316--321]{stan_manual_2015}. Pairwise correlation plots of the Monte-Carlo samples for the regression coefficients in our models of VWCI, requirements, and rebates (Figs.~S\ref{fig:vwci_pairs_plot}--S\ref{fig:reb_pairs_plot}) are smooth with little correlation and give no cause for concern.
+In addition, the Hamiltonian Monte Carlo calculations proceeded without any divergences or exceessive tree depths, and the Gelman-Rubin $\hat R$ potential scale-reduction factor converged to $\ge 0.999$ for each parameter \citep{stan_manual_2015}.
+\else
+Pairwise correlation plots of the posterior probability distributions of regressions parameters (Figures~S\ref{fig:vwci_pairs_plot}--S\ref{fig:reb_pairs_plot}) are smooth and show little correlation. The Hamiltonian Monte Carlo calculations proceeded without any divergences or exceessive tree depths, and the Gelman-Rubin $\hat R$ potential scale-reduction factor (Tabs~S\ref{tab:vwci_posterior}--S\ref{tab:reb_posterior}) converged to $\ge 0.999$ for each parameter.
+\fi
+
+\subsubsection*{Model Selection}
+
+\iffalse
+We used several model-selection criteria in deciding whether to model the VWCI, requirements, and rebates as binomial or beta-binomial processes. At each joint sample of the model parameters in the Monte-Carlo process, we both computed the log-likelihood of the observed data under the sampled parameters and also generated posterior predictions obtained by drawing simulated observations from binomial or beta-binomial distribution at each joint sample of the model parameters.
+
+Visual comparisons of distributions of posterior predictions to observed data and comparisons of the posterior predictions of mean, maximum, and minimum VWCI over the cities in our data set showed better agreement for the overdispersed beta-binomial process than for a purely binomial one \cite{gelman_bda_2014}.
+
+A separate test for overdispersion, which accounts for the danger of overfitting by introducing new free parameters, can be obtained using the Widely Available Information Criterion (WAIC, also known as the Watanabe-Aikake Information Criterion) and the Leave-One-Out cross-validation Information Criterion (LOO-IC), obtained by Pareto-smoothed importance sampling.
+Both information criteria favored the overdispersed beta-binomial distribution over a pure binomial, and also strongly favored hierarchical over single-level models (Tables~S\ref{tab:loo}--S\ref{tab:waic}). However, we note that our choice to use very weakly informative priors in our model reduces the accuracy of our estimates of PSIS-LOO and WAIC \cite{vehtari_loo_2016}. We do not worry overly about this potential inaccuracy both because the posterior prediction test yields the same results and because a pure binomial model gives very similar results to those presented here.
+\else
+Leave-one-out cross-validation (Tab.~S\ref{tab:loo}) and the Widely Applicable Information Criterion (Tab.~S\ref{tab:waic}) were used for model selection (overdispersed beta-binomial versus binomial and hierarchical versus single-level regressions).
+\fi
+
+\subsubsection*{Results}
+
+Results of the analysis are summarized in Tables~S\ref{tab:vwci_posterior}--\ref{tab:reb_posterior}.
+
+\section*{Figures S1--S5}
+<<vwci_map, include=TRUE, fig.cap="Map of cities with VWCI scores.", fig.height=5, fig.width=10 * 6.0 / 6.5, out.width="6.5in", fig.pos="htp", out.extra="angle=0">>=
+## prepare data
+vwci <- filtered_data$msa_data %>% select(lat, lon, vwci)
+state.poly <- map_data("state")
+
+ggplot() +
+  geom_polygon(data=state.poly, aes(x=long, y=lat, group=group), fill="grey95", color="gray80") +
+  geom_point(data=vwci, aes(x=lon, y=lat, fill=vwci), shape=21, size = 1.5, alpha=0.8) +
+  scale_size_continuous(range=c(0.1,7), breaks=c(5,10,15,20,25,40,50), name = "VWCI") +
+  scale_fill_viridis(option="viridis", name = 'VWCI') +
+  scale_x_continuous(limits=c(-125,-60), breaks=seq(-120,-60,25), labels=c(paste(c(120,95,70),"°W", sep="")),name="") +
+  scale_y_continuous(limits=c(25,50),breaks=seq(30,45,5), labels=c(paste(seq(30,45,5),"°N", sep="")),name="")+
+  geom_rangeframe(data=state.poly, aes(x=long, y=lat)) +
+  coord_fixed(1.3) +
+  theme_tufte(base_size=15) +
+  theme(axis.text.y=element_text(angle = 90, hjust=0.5),legend.position = c(0.83, 0.33)) -> p1
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S1.pdf'), p1, 'pdf', height=5, width = 10 * 6.0 / 6.5)
+
+print(p1)
+@
+
+<<msa_vars_distribution, include=TRUE, fig.cap = "Kernel-density distribution of MSA-level covariates. Population in millions and RPI in thousands of chained 2009 dollars.", fig.width=15, fig.height=8, out.width="6in", fig.pos='H'>>=
+sci_10 <- function(x) {
+  parse(text=gsub("e\\+?","%*% 10^",x))
+}
+
+sc_breaks <- function(x) {
+  message(str_c(x, collapse = ', '))
+  default = waiver(x)
+  ifelse(x[[2]] <= 1000, default, default[c(1, 3, 5)])
+}
+
+msa_data %>% select(pvi, aridity, rpi, surface.water, pop, pop.growth) %>%
+  mutate(log.pop = log(pop), pop = pop / 1E+6, rpi = rpi / 1000) %>%
+  gather(key = covariate, value = value) %>%
+  mutate(covariate =
+           str_replace_all(covariate,
+                           fixed(c('pvi' = 'PVI', 'rpi' = 'RPI', 'rpp' = 'RPP',
+                                   'pop.growth' = 'pop growth',
+                                   'surface.water' = 'surface water',
+                                   'log.pop' = 'log pop',
+                                   'log.RPI' = 'log RPI'))) %>%
+           ordered(levels = c('pop', 'log pop', 'pop growth',
+                              'aridity', 'surface water',
+                              'PVI', 'RPI'
+           ))) %>%
+  ggplot(aes(x = value)) + geom_density() +
+  facet_wrap(~covariate, scales = 'free', ncol = 3) +
+  scale_x_continuous(label=sci_10) +
+  scale_y_continuous(label=sci_10) +
+  labs( x = "Value", y = "Density") -> p2
+
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S2.pdf'), p2, 'pdf', height=6.0 * 8.0 / 15.0, width = 6.0)
+
+print(p2)
+
+@
+
+<<vwci_pairs_plot, cache = TRUE, include = TRUE, dependson="load_data", fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for VWCI. The diagonal panels show the probability density for each coefficient, panels in the upper triangle show scatterplots of 4000 HMC samples, and panels in the lower triangle show joint probability density contours corresponding to the scatterplot in the upper triangle. Slight correlations are apparent, as between $\\gamma_{\\text{aridity}}$ and $\\gamma_{\\text{SW}}$, $\\gamma_{\\text{PVI}}$ and $\\gamma_{\\text{RPI}}$, and $\\beta_{\\text{SW}}$ and $\\alpha_0$, but these are small enough not to pose problems apart from slightly increasing the uncertainty in the parameter estimates.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits)>>=
+
+plot_vwci_pairs <- function(g) {
+  g <- g %>% mutate(ParameterOriginal = str_replace_all(ParameterOriginal, '[\\[\\]]', '.'))
+
+  pl_1 <- g %>% dplyr::select(Parameter, ParameterOriginal) %>% distinct() %>%
+    mutate(Parameter = str_replace_all(Parameter, fixed('alpha_0'), 'alpha[0]')) %>%
+    spread(key = ParameterOriginal, value = Parameter) %>% simplify()
+
+  gs <- g  %>%
+    dplyr::select(Chain, Iteration, ParameterOriginal, value) %>%
+    spread(key = ParameterOriginal, value = value) %>%
+    dplyr::select(-Chain, -Iteration) # %>%   dplyr::sample_n(200)
+
+  pl_2 <- pl_1 %>% str_replace_all(fixed(c('surface water' = 'SW', 'pop growth' = 'growth',
+                                           'pvi' = 'PVI', 'rpi' = 'RPI', 'rpp' = 'RPP',
+                                           'affordability' = 'afford.')))
+
+  plt <- ggpairs(gs, upper=list(continuous = wrap("points", alpha = 0.01, size=0.1), discrete = "blank", na = "blank"),
+                 diag=list(continuous = "densityDiag", discrete = "blankDiag", na = "blankDiag"),
+                 lower=list(continuous = wrap("density", size=0.2), discrete="blank", na="blank"),
+                 columnLabels = pl_2, axisLabels = "show",
+                 labeller = "label_parsed"
+  ) +
+    theme(axis.text.x = element_text(size = 5, family = figure_font, angle = 45, hjust = 1, vjust = 1),
+          axis.text.y = element_text(size = 5, family = figure_font, angle = 0),
+          strip.text.x = element_text(size = 9, family = figure_font, angle = 45, hjust = 0.5, vjust = 0),
+          strip.text.y = element_text(size = 9, family = figure_font, angle = 0, hjust = 0, vjust = 0.5),
+          strip.background = element_blank())
+  plt
+}
+
+plot_vwci_pairs(model_fits$ggs$ggs_2_ml_beta_alpha) -> p3
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S3.png'), p3, 'png', height=6, width = 6, dpi = 600)
+
+print(p3)
+@
+
+<<req_pairs_plot, cache = TRUE, include = TRUE, dependson="load_data", fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for requirements.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits, plot_vwci_pairs)>>=
+plot_vwci_pairs(model_fits$ggs$ggs_2_ml_beta_alpha_req) -> p4
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S4.png'), p4, 'png', height=6, width = 6, dpi = 600)
+
+print(p4)
+@
+
+<<reb_pairs_plot, cache = TRUE, include = TRUE, dependson="load_data", fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for rebates.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits, plot_vwci_pairs)>>=
+plot_vwci_pairs(model_fits$ggs$ggs_2_ml_beta_alpha_reb) -> p5
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S5.png'), p5, 'png', height=6, width = 6, dpi = 600)
+
+print(p5)
+@
+
+\clearpage
+\section{Tables S1--S7}
+<<vwci_table, cache = TRUE, include = TRUE, dependson = 'load_data', results = "asis">>=
+table_counter <- 1
+vwci_table_num <- table_counter
+cat(str_c("\\subsection*{Table S", vwci_table_num, " Caption}", "\n"))
+vwci_tbl <- msa_data %>% arrange(city, state.abb) %>%
+  mutate(pop.growth = 100 * pop.growth, surface.water = 100 * surface.water,
+         pop = pop / 1000., rpi = rpi / 1000.) %>%
+  dplyr::select(City = city, State = state.abb, Rank = vwci.rank, VWCI = vwci, Req. = requirements, Reb. = rebates,
+                PVI = pvi, Aridity = aridity,
+                RPI = rpi, # RPI = rpi, # Afford. = affordability,
+                Pop. = pop, `Growth (%)` = pop.growth, `Surf. W. (%)` = surface.water)
+
+vwci_caption <-   list(str_c("Conservation scores and covariates for ", nrow(tbl), " cities: VWCI = Vanderbilt Water Conservation Index (total \\# of conservation measures), Req.\\ = \\# requirements, Reb.\\ = \\# rebates, PVI = Cook Partisan Voting Index, Aridity = K\\\"oppen aridity index, RPI\\ = per-capita real personal income (thousands of regionally adjusted chained 2009 dollars), Pop.\\ = population (thousands), Growth = population growth rate (2010--", pop_target_year, "), Surf.\\ W.\\ = surface-water fraction."),
+                       str_c("Conservation scores for ", nrow(tbl), " cities.")
+)
+
+write_csv(vwci_tbl, path = file.path(si_output_dir, 'tables', str_c("Table_S", table_counter, ".csv")))
+cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", vwci_caption[[1]], "}\n\\label{tab:vwci}\n\\end{table}\n"))
+table_counter <- table_counter + 1
+@
+<<state_covar_table, include = TRUE, dependson="load_data", results="asis">>=
+state_table_num <- table_counter
+cat(str_c("\\subsection*{Table S", state_table_num, " Caption}", "\n"))
+state_tbl <- state_data %>% arrange(state.name) %>%
+  mutate(surface.water = 100 * surface.water, rpi = rpi / 1000.) %>%
+  dplyr::select(State = state.name, PVI = pvi, Aridity = aridity,
+                RPI = rpi, # RPP = rpp, RPI = rpi, # Afford. = affordability,
+                `Surf. W. (%)` = surface.water)
+
+state_caption <-   list("State-level covariates: PVI = Cook Partisan Voting Index, RPI = per-capita real personal income (thousands of regionally-adjusted chained 2009 dollars), Aridity = the K\\\"oppen aridity index, Surf.\\ W.\\ = the surface-water fraction.", "State-level covariates.")
+write_csv(state_tbl, path = file.path(si_output_dir, 'tables', str_c("Table_S", state_table_num, ".csv")))
+cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", state_caption[[1]], "}\n\\label{tab:state}\n\\end{table}\n"))
+table_counter <- table_counter + 1
+@
+<<loo_table, cache = TRUE, include = TRUE, warning=FALSE, message=FALSE, dependson='load_data', results="asis">>=
+loo_table_num <- table_counter
+cat(str_c("\\subsection*{Table S", loo_table_num, "}", "\n"))
+lwmf <- loo_model_fits$fits
+lwmf <- lwmf[ (!str_detect(names(lwmf), '_re[qb]$')) & str_detect(names(lwmf), '_ml_.*alpha|_sl')] %>% lapply(extract_log_lik)
+names(lwmf) <- names(lwmf) %>% str_c(' ') %>%
+  str_replace_all(c('^sfit_2_' = '', 'ml' = 'hierarchical', 'sl' = 'single-level', 'beta' = 'beta-', '_alpha'='',
+                    '_'=' ', '- $' = '-')) %>% str_c(., 'binomial')
+loo_ic <- lwmf %>% lapply(loo::loo) %>% loo::compare(x = .) %>% as.data.frame() %>% rownames_to_column('model') %>%
+  select(-matches('^(se_)?p_'))
+
+loo_caption <- c("Model comparison: LOO = leave-one-out cross-validation, LOO-IC = LOO information criterion, ELPD = expected log pointwise predictive density, and s.e.\ indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance.", "Model comparison: LOO.")
+
+tbl <- loo_ic %>%
+  rename(Model = model, "LOO-IC" = looic, "s.e.\\ LOO-IC" = se_looic,
+         "$\\text{ELPD}_{\\text{\\scshape loo}}$" = elpd_loo, "s.e.\\ $\\text{ELPD}_{\\text{\\scshape loo}}$" = se_elpd_loo
+  ) %>%
+  xtable(label="tab:loo", align=c('r', 'r','r','r','r','r'),
+         display = c('s','s','f','f','f','f'),
+         digits = 1, caption = loo_caption)
+print(tbl, table.placement = 'H', include.rownames = FALSE, include.colnames = TRUE,
+      sanitize.colnames.function = function(x) x)
+table_counter <- table_counter + 1
+@
+<<waic_table, cache = TRUE, include = TRUE, warning=FALSE, message=FALSE, results="asis">>=
+waic_table_num <- table_counter
+cat(str_c("\\subsection*{Table S", waic_table_num, "}", "\n"))
+waic <- lwmf %>% lapply(loo::waic) %>% loo::compare(x = .) %>% as.data.frame() %>% rownames_to_column('model') %>%
+  select(-matches('^(se_)?p_'))
+
+waic_caption <- c("Model comparison: WAIC = widely applicable information criterion (also known as the Watanabe-Aikake Information Criterion), ELPD = expected log-probability density, and s.e.\ indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance.", "Model comparison: WAIC")
+
+tbl <- waic %>%
+  rename(Model = model,
+         WAIC = waic, "s.e.\ WAIC" = se_waic,
+         "$\\text{ELPD}_{\\text{\\scshape waic}}$" = elpd_waic, "s.e.\\ $\\text{ELPD}_{\\text{\\scshape waic}}$" = se_elpd_waic
+  ) %>%
+  xtable(label="tab:waic", align=c('r', 'r','r','r','r','r'),
+         display = c('s','s','f','f','f','f'),
+         digits = 1, caption = waic_caption)
+print(tbl, table.placement = 'H', include.rownames = FALSE, include.colnames = TRUE,
+      sanitize.colnames.function = function(x) x)
+table_counter <- table_counter + 1
+@
+<<vwci_posterior_table, echo=F, include=T, results='asis', cache = T, dependson = 'load_data', cache.extra=c(model_fits, vars_2, std_data, summarize_fit)>>=
+vwci_posterior_table_num <- table_counter
+cat(str_c("\\subsection*{Table S", vwci_posterior_table_num, " Caption}", "\n"))
+posterior_table <- function(sfit, vars, std_data, caption,
+                            multilevel = TRUE, beta = TRUE, random_alpha = TRUE) {
+
+  ssf <- summarize_fit(sfit, vars, std_data, multilevel = multilevel, beta = beta, random_alpha = random_alpha)
+
+  ssf %>% set_names(., names(.) %>% str_replace_all(c('~'=' ', '\\\\' = '', '\\$'='', 'hat R' = 'Rhat', 'rule\\{[^}]+\\}\\{[^}]+\\}'=''))) %>%
+    mutate(coefficient = str_replace_all(coefficient, c('\\\\text'='', '\\\\'='', '\\{'='', '\\}'='', '\\$'='', ' +' = '.'))) %>%
+    invisible()
+}
+
+vwci_posterior_caption <-  list('Posterior probability distributions of regression coefficients for VWCI: mean, standard error of the mean, standard deviation of the posterior, quantiles of the posterior, and the Gelman-Rubin potential scale-reduction factor $\\hat R$. $\\gamma$ coefficients correspond to state-level effects, $\\beta$ coefficients to MSA-level effects, $\\delta$ coefficients represent state-level intercepts, $\\alpha_0$ is the overall intercept, and $\\phi$ characterizes the overdispersion of the beta-binomial distribution. For more detail, see Materials and Methods.',
+                                'Regression coefficients for VWCI')
+
+posterior_table(model_fits$fits$sfit_2_ml_beta_alpha, vars_2, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
+                caption = vwci_posterior_caption) %>%
+  write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", vwci_posterior_table_num, ".csv")))
+cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", vwci_posterior_caption[[1]], "}\n\\label{tab:vwci_posterior}\n\\end{table}\n"))
+table_counter <- table_counter + 1
+@
+
+<<req_posterior_table, echo=F, include=T, results='asis', cache = T, cache.extra=c(model_fits, vars_2, std_data, summarize_fit)>>=
+req_posterior_table_num <- table_counter
+cat(str_c("\\subsection*{Table S", req_posterior_table_num, " Caption}", "\n"))
+
+req_posterior_caption = list("Posterior probability distribution of regression coefficients for requirements",
+                             "Regression coefficients for requirements")
+
+posterior_table(model_fits$fits$sfit_2_ml_beta_alpha_req, vars_2, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
+                caption = req_posterior_caption) %>%
+  write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", req_posterior_table_num, ".csv")))
+cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", req_posterior_caption[[1]], "}\n\\label{tab:req_posterior}\n\\end{table}\n"))
+table_counter <- table_counter + 1
+@
+
+<<reb_posterior_table, echo=F, include=T, results='asis', cache = T, cache.extra=c(model_fits, vars_2, std_data, summarize_fit)>>=
+reb_posterior_table_num <- table_counter
+cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n"))
+
+reb_posterior_caption = list("Posterior probability distribution of regression coefficients for rebates",
+                                 "Regression coefficients for rebates")
+
+posterior_table(model_fits$fits$sfit_2_ml_beta_alpha_reb, vars_2, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
+                    caption = reb_posterior_caption) %>%
+  write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", reb_posterior_table_num, ".csv")))
+cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", reb_posterior_caption[[1]], "}\n\\label{tab:reb_posterior}\n\\end{table}\n"))
+table_counter <- table_counter + 1
+@
+
+
+\section*{Captions for Datasets S1--S2}
+
+\subsection*{Dataset S1: MSA-Level Data}
+
+This dataset contains MSA-level data: the FIPS (Federal Information Processing Standard) code for the MSA,
+the name of the MSA, the central city, state, latitude, longitude,
+VWCI, number of water-conservation requirements, number of rebate policies for water-conservation actions,
+the average annual precipitation (in millimeters) temperature (in Celsius), and K\"oppen aridity index, for the central city,
+the Cook Partisan Voting Index for the counties of the MSA,
+the \Sexpr{pop_target_year}~population and average annual population growth rate from 2010--\Sexpr{pop_target_year} for the MSA,
+the fraction of the municipal water supply derived from surface water,
+the BEA \Sexpr{bea_year} regional price parity and per-capita real personal income for the MSA (in chained regionally-adjusted 2009 dollars).
+
+\subsection*{Dataset S2: State-Level Data}
+
+This dataset contains stae-level data: the FIPS code for the state, the abbreviation and name of the state,
+the average annual precipitation (in millimeters), temperature (in Celsius), and K\"oppen aridity index for the state,
+the state-level Cook Partisan Voting Index,
+the fraction of the state water supply derived from surface water,
+and the BEA \Sexpr{bea_year} state-level regional price parity and per-capita real personal income (in chained regionally-adjusted 2009 dollars).
+
+\section*{Data Analysis Scripts S1}
+
+The zip file \verb+scripts_S1.zip+ contains R and Stan scripts to reproduce the regression analysis presented here.
+To reproduce the analysis, unzip the file with the scripts, copy Datasets S1 and S2 into the \verb+data+ subdirectory, and run the script \verb+gilligan_vwci_ef_2017.R+ in R.
+
+This paper was produced with the following R packages:
+
+<<r session_info, echo=F, include=T, cache=F, results='markup'>>=
+sessionInfo()
+@
+
+%
+% BEGIN LARGE TABLE SECTION
+%
+\iffalse
+%
+\section*{Captions for Large Tables S\Sexpr{vwci_table_num}, S\Sexpr{state_table_num}, S\Sexpr{vwci_posterior_table_num}--S\Sexpr{reb_posterior_table_num}}
+<<vwci_large_table, include = TRUE, dependson="vwci_table", results="asis">>=
+cat(str_c("\\subsection*{Table S", vwci_table_num, " Caption}", "\n",
+          "\\setcounter{table}{", vwci_table_num - 1, "}%\n",
+          "\\begin{table}[H]\n\\centering\n\\caption{", vwci_caption[[1]], "}\n\\end{table}\n"))
+@
+
+<<state_covar_large_table, include = TRUE, dependson="load_data", results="asis">>=
+cat (str_c("\\subsection*{Table S", state_table_num, " Caption}", "\n",
+          "\\setcounter{table}{", state_table_num - 1, "}%\n",
+     "\\begin{table}[H]\n\\centering\n\\caption{", state_caption[[1]], "}\n\\end{table}\n"))
+
+@
+
+<<vwci_posterior_large_table, echo=F, include=T, results='asis', cache = F, dependson='vwci_posterior_table'>>=
+cat(str_c("\\subsection*{Table S", vwci_posterior_table_num, " Caption}", "\n",
+          "\\setcounter{table}{", vwci_posterior_table_num - 1, "}%\n",
+          "\\begin{table}[H]\n\\centering\n\\caption{", vwci_posterior_caption[[1]], "}\n\\end{table}\n"))
+
+@
+
+<<req_posterior_large_table, echo=F, include=T, results='asis', cache = F, dependson='req_poosterior_table'>>=
+cat(str_c("\\subsection*{Table S", req_posterior_table_num, " Caption}", "\n",
+          "\\setcounter{table}{", req_posterior_table_num - 1, "}%\n",
+          "\\begin{table}[H]\n\\centering\n\\caption{", req_posterior_caption[[1]], "}\n\\end{table}\n"))
+@
+
+<<reb_posterior_large_table, echo=F, include=T, results='asis', cache = F, dependson='reb_posterior_table'>>=
+cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n",
+          "\\setcounter{table}{", reb_posterior_table_num - 1, "}%\n",
+          "\\begin{table}[H]\n\\centering\n\\caption{", reb_posterior_caption[[1]], "}\n\\end{table}\n"))
+@
+%
+\fi
+%
+% END LARGE TABLE SECTION
+%
+% Bibliography
+\bibliography{gilligan_vwci_ef_2017}
+
+\end{document}
+
+<<embed_fonts, echo=F, eval = T, message = F, warning = F, error = F, include = F, results="hide", cache=F, cache.extra=c(figure_font)>>=
+if (figure_font == 'CM Sans') {
+  fig_path <- file.path(si_output_dir, 'figures')
+  files <- list.files(fig_path) %>% keep(~str_detect(.x, '\\.pdf$')) %>% file.path(fig_path,.)
+  if (Sys.info()['sysname'] == 'Windows') {
+    for (f in files) embed_fonts(f, options = '-dSubsetFonts=true')
+  } else {
+    library(parallel)
+    library(extrafont)
+    n_cores <- min(length(files), detectCores())
+    cl <- makePSOCKcluster(n_cores)
+    tryCatch({
+      clusterEvalQ(cl, {
+        library(extrafont)
+        })
+      f <- function(x) {
+        embed_fonts(x, options = '-dSubsetFonts=true')
+      }
+      clusterExport(cl, 'f')
+      res <- clusterApply(cl, files, f)
+    }, finally = { stopCluster(cl) })
+  }
+}
+@
+<<copy_datasets, echo=F, eval=T, message=F, warning=F, error=F, include=F, results="hide", cache=F>>=
+dataset_dir <- '../si_files/datasets'
+if (! dir.exists(dataset_dir)) dir.create(dataset_dir, recursive = TRUE)
+src_files <- file.path('data', c('msa_data.csv', 'state_covariates.csv'))
+dest_files <- file.path(dataset_dir, c('dataset_S1.csv', 'dataset_S2.csv'))
+file.copy(src_files, dest_files, overwrite = TRUE)
+@

@@ -1,0 +1,27 @@
+/cache/
+/cache_si/
+.RData
+.Rhistory
+.Rproj.user
+*.Rproj
+*-concordance.tex
+*.aux
+*.bak
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.xwm
+scripts/water_conserve_.rda
+scripts/water_conserve_.rds
+scripts/water_conserve_.Rda
+scripts/water_conserve_.Rds
+.$*$
+/AGU_template/agujournalsample.pdf
+/data/**/*.nc
+AGU_SI_template/agutmpl\ -\ Supporting\ Information.pdf
+AGU_template/agusuppinfosample.pdf
+/scripts/water_conserve_[ms]l*.rds
+/data/model_fit_checkpoint.rds
+/data/proprietary/

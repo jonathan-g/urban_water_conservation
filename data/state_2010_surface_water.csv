@@ -1,0 +1,52 @@
+state,state_short,state_fips,surfwater
+Alabama,AL,01,0.95
+Alaska,AK,02,0.43
+Arizona,AZ,04,0.58
+Arkansas,AR,02,0.31
+California,CA,06,0.67
+Colorado,CO,08,0.86
+Connecticut,CT,09,0.93
+Delaware,DE,11,0.78
+District Of Columbia,DC,11,0.50
+Florida,FL,12,0.72
+Georgia,GA,13,0.74
+Hawaii,HI,15,0.63
+Idaho,ID,16,0.76
+Illinois,IL,17,0.93
+Indiana,IN,18,0.92
+Iowa,IA,15,0.79
+Kansas,KS,20,0.20
+Kentucky,KY,21,0.95
+Louisiana,LA,22,0.82
+Maine,ME,23,0.78
+Maryland,MD,22,0.96
+Massachusetts,MA,22,0.88
+Michigan,MI,26,0.94
+Minnesota,MN,27,0.81
+Mississippi,MS,29,0.33
+Missouri,MO,29,0.79
+Montana,MT,30,0.96
+Nebraska,NE,38,0.41
+Nevada,NV,38,0.54
+New Hampshire,NH,38,0.93
+New Jersey,NJ,38,0.89
+New Mexico,NM,38,0.50
+New York,NY,38,0.93
+North Carolina,NC,37,0.94
+North Dakota,ND,38,0.86
+Ohio,OH,39,0.90
+Oklahoma,OK,40,0.36
+Oregon,OR,41,0.68
+Pennsylvania,PA,42,0.92
+Rhode Island,RI,44,0.90
+South Carolina,SC,45,0.95
+South Dakota,SD,46,0.46
+Tennessee,TN,47,0.94
+Texas,TX,48,0.69
+Utah,UT,49,0.75
+Vermont,VT,51,0.90
+Virginia,VA,51,0.96
+Washington,WA,53,0.68
+West Virginia,WV,54,0.97
+Wisconsin,WI,53,0.88
+Wyoming,WY,56,0.87
