@@ -1,13 +1,13 @@
-suppressPackageStartupMessages(library(hellno, quietly = TRUE))
-suppressPackageStartupMessages(library(tidyverse, quietly = TRUE))
-suppressPackageStartupMessages(library(stringr, quietly = TRUE))
-suppressPackageStartupMessages(library(broom, quietly = TRUE))
-suppressPackageStartupMessages(library(RColorBrewer, quietly = TRUE))
+library(pacman)
+options(tidyverse.quiet=TRUE)
+p_load(tidyverse)
+p_load(broom)
+p_load(RColorBrewer)
 
-suppressPackageStartupMessages(library(rstan, quietly = TRUE))
-# suppressPackageStartupMessages(library(shinystan, quietly = TRUE))
-# suppressPackageStartupMessages(library(loo, quietly = TRUE))
-library(jgmcmc)
+p_load(rstan)
+# p_load(shinystan)
+# p_load(loo)
+p_load_gh("jonathan-g/jgmcmc@jgmcmc")
 
 options(mc.cores = parallel::detectCores())
 
@@ -30,6 +30,11 @@ desal_msas <- c('Brownsville, TX', 'Cape Coral, FL', 'El Paso, TX', 'Jacksonvill
                 'Laredo, TX', 'Oxnard, CA', 'SanDiego, CA', 'Tampa, FL')
 
 std_data <- read_rds(file.path(data_dir, 'standardized_data.Rds'))
+std_pooled_data <- read_rds(file.path(data_dir, 'standardized_pooled_data.Rds'))
+std_data$pooled_means = std_pooled_data$means
+std_data$pooled_sds = std_pooled_data$sds
+std_data$msa_pooled_data = std_pooled_data$msa_data
+std_data$state_pooled_data = std_pooled_data$state_data
 
 msa_vars_1 <- c('pvi', 'rpp', 'log.pop', 'pop.growth',
                 'precip', 'temp','surface.water')
@@ -40,6 +45,9 @@ state_vars_1 <- c('state.pvi', 'state.rpp',
 
 vars_1 <- list(msa_vars = msa_vars_1, state_vars = state_vars_1)
 
+#
+# Original analysis set.
+#
 msa_vars_2 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
                 'aridity','surface.water')
 
@@ -47,6 +55,80 @@ state_vars_2 <- c('state.pvi', 'state.rpi',
                   'state.aridity', 'state.surface.water')
 
 vars_2 <- list(msa_vars = msa_vars_2, state_vars = state_vars_2)
+
+
+#
+# Population density instead of population
+#
+msa_vars_3 <- c('pvi', 'rpi', 'log.pop.dens', 'pop.dens.growth',
+                'aridity','surface.water')
+
+state_vars_3 <- c('state.pvi', 'state.rpi',
+                  'state.aridity', 'state.surface.water')
+
+vars_3 <- list(msa_vars = msa_vars_3, state_vars = state_vars_3)
+
+
+#
+# Include MSA area as a predictor
+#
+msa_vars_4 <- c('pvi', 'rpi', 'log.pop', 'pop.growth', 'area',
+                'aridity','surface.water')
+
+state_vars_4 <- c('state.pvi', 'state.rpi',
+                  'state.aridity', 'state.surface.water')
+
+vars_4 <- list(msa_vars = msa_vars_4, state_vars = state_vars_4)
+
+#
+# Include Gini coefficient as a predictor
+#
+msa_vars_5 <- c('pvi', 'rpi', 'gini', 'log.pop', 'pop.growth',
+                'aridity','surface.water')
+
+state_vars_5 <- c('state.pvi', 'state.rpi', 'state.gini',
+                  'state.aridity', 'state.surface.water')
+
+vars_5 <- list(msa_vars = msa_vars_5, state_vars = state_vars_5)
+
+#
+# Consider aridity trend since 1985 (previous 30 years)
+#
+msa_vars_6 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
+                'aridity_85','surface.water')
+
+state_vars_6 <- c('state.pvi', 'state.rpi',
+                  'state.aridity_85', 'state.surface.water')
+
+vars_6 <- list(msa_vars = msa_vars_6, state_vars = state_vars_6)
+
+#
+# Consider aridity trend since 1995 (previous 20 years)
+#
+msa_vars_7 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
+                'aridity_95','surface.water')
+
+state_vars_7 <- c('state.pvi', 'state.rpi',
+                  'state.aridity_95', 'state.surface.water')
+
+vars_7 <- list(msa_vars = msa_vars_7, state_vars = state_vars_7)
+
+#
+# Consider aridity trend since 2005 (previous 10 years)
+#
+msa_vars_8 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
+                'aridity_05','surface.water')
+
+state_vars_8 <- c('state.pvi', 'state.rpi',
+                  'state.aridity_05', 'state.surface.water')
+
+vars_8 <- list(msa_vars = msa_vars_8, state_vars = state_vars_8)
+
+
+
+model_vars <- list(vars_1 = vars_1, vars_2 = vars_2, vars_3 = vars_3,
+                   vars_4 = vars_4, vars_5 = vars_5,
+                   vars_6 = vars_6, vars_7 = vars_7, vars_8 = vars_8)
 
 parse_target <- function(target = c('vwci', 'req', 'reb'), k_actions = NA) {
   target = match.arg(target)
@@ -80,7 +162,11 @@ fit_model <- function(df, vars, target = c('vwci', 'req', 'reb'), k_actions = NA
 
   # message("Running fit_model: vars = ", str_c(vars, collapse = ", "))
 
-  msa_data <- index_states(df$msa_data)
+  if (multilevel) {
+    msa_data <- index_states(df$msa_data)
+  } else {
+    msa_data <- index_states(df$msa_pooled_data)
+  }
 
   if (remove_desal && target == 'vwci') {
     # message("removing desal")
@@ -170,23 +256,44 @@ fit_model <- function(df, vars, target = c('vwci', 'req', 'reb'), k_actions = NA
 
   model <- stan_model(mdl$model_source, model_name = mdl$model_name)
 
-  stan_env <- new.env(parent = emptyenv())
-  stan_env$model <- force(model)
-  stan_env$stan_data <- force(stan_data)
-  stan_env$seed <- force(seed)
-  attach(stan_env)
+  # stan_env <- new.env(parent = emptyenv())
+  # stan_env$model <- force(model)
+  # stan_env$stan_data <- force(stan_data)
+  # stan_env$seed <- force(seed)
+  # attach(stan_env)
 
-
-  sfit <- sampling(force(model), force(stan_data),
+  sfit <- sampling(model, stan_data,
                    chains = 4, iter = 2000,
                    seed = seed)
-  detach(stan_env)
+  # detach(stan_env)
+
+  dso_filename = model@dso@dso_filename
+  loaded_dlls = getLoadedDLLs()
+  if (dso_filename %in% names(loaded_dlls)) {
+    message("Unloading DLL for model dso ", dso_filename)
+    model.dll = loaded_dlls[[dso_filename]][['path']]
+    dyn.unload(model.dll)
+  } else {
+    message("No loaded DLL ", dso_filename)
+  }
+
+  loaded_dlls = getLoadedDLLs()
+  loaded_dlls = loaded_dlls[str_detect(names(loaded_dlls), '^file')]
+  if (length(loaded_dlls) > 10) {
+    for (dll in head(loaded_dlls, -10)) {
+      message("Unloading DLL ", dll[['name']], ": ", dll[['path']])
+      dyn.unload(dll[['path']])
+    }
+  }
+  message("DLL Count = ", length(getLoadedDLLs()), ": [", str_c(names(loaded_dlls), collapse = ","), "]")
+
   invisible(sfit)
 }
 
 calc_residuals <- function(df, sfit, vars,
                            target = c('vwci', 'req', 'reb'),
                            k_actions = NA,
+                           multi_level = TRUE,
                            random_alpha = FALSE,
                            remove_desal = FALSE) {
   targact <- parse_target(target, k_actions)
@@ -197,7 +304,13 @@ calc_residuals <- function(df, sfit, vars,
   msa_vars <- vars$msa_vars
   state_vars <- vars$state_vars
 
-  msa_data <- df$msa_data %>%
+  if (multi_level) {
+    msa_data <- df$msa_data
+  } else {
+    msa_data <- df$msa_pooled_data
+  }
+
+  msa_data <- msa_data %>%
     mutate(state = factor(state), state.index = as.integer(state))
   state_data <- df$state_data %>% dplyr::filter(state %in% levels(msa_data$state)) %>%
     mutate(state = factor(state), state.index = as.integer(state)) %>%
@@ -210,24 +323,31 @@ calc_residuals <- function(df, sfit, vars,
 
   params <- sfit %>% tidy(conf.int = FALSE, estimate.method = "median") %>%
     dplyr::select(name = term, median = estimate)
-  if (random_alpha) {
-    params <- params %>%
-      dplyr::filter(name != 'lp__' & ! str_detect(name, '^alpha\\[|^delta_raw'))
+  if (multi_level) {
+    if (random_alpha) {
+      params <- params %>%
+        dplyr::filter(name != 'lp__' & ! str_detect(name, '^alpha\\[|^delta_raw'))
+    } else {
+      params <- params %>%
+        dplyr::filter(name != 'lp__' & ! str_detect(name, '^alpha')) %>%
+        mutate(name = ifelse(name == 'gamma[1]', 'alpha', name))
+    }
+    if (random_alpha) {
+      index_offset = 0
+    } else {
+      index_offset = 1
+    }
+    for(i in seq_along(state_vars)) {
+      params <- params %>%
+        mutate(name = ifelse(name == paste0('gamma[', i + index_offset, ']'),
+                             paste0('gamma[', state_vars[i], ']'), name))
+    }
   } else {
     params <- params %>%
-      dplyr::filter(name != 'lp__' & ! str_detect(name, '^alpha')) %>%
-      mutate(name = ifelse(name == 'gamma[1]', 'alpha', name))
+      dplyr::filter(name != 'lp__')
+      index_offset = 0
   }
-  if (random_alpha) {
-    index_offset = 0
-  } else {
-    index_offset = 1
-  }
-  for(i in seq_along(state_vars)) {
-    params <- params %>%
-      mutate(name = ifelse(name == paste0('gamma[', i + index_offset, ']'),
-                           paste0('gamma[', state_vars[i], ']'), name))
-  }
+
   if (random_alpha) {
     mu_0 <- params$median[params$name == 'alpha_0'] %>%
       rep(nrow(state_data)) %>%
@@ -247,17 +367,21 @@ calc_residuals <- function(df, sfit, vars,
   msa_data$predicted <- 0
   for (i in seq(nrow(msa_data))) {
     xr <- msa_data[i,]
-    grp <- xr$state.index
-    wr <- state_data[grp,]
-    if (random_alpha) {
-      mu <- mu_0[grp]
+    if (multi_level) {
+      grp <- xr$state.index
+      wr <- state_data[grp,]
+      if (random_alpha) {
+        mu <- mu_0[grp]
+      } else {
+        mu <- mu_0
+      }
+      for (v in state_vars) {
+        w <- dplyr::select_(wr,v) %>% unlist()
+        gamma <- params$median[params$name == paste0('gamma[',v,']')]
+        mu <- mu + w * gamma
+      }
     } else {
-      mu <- mu_0
-    }
-    for (v in state_vars) {
-      w <- dplyr::select_(wr,v) %>% unlist()
-      gamma <- params$median[params$name == paste0('gamma[',v,']')]
-      mu <- mu + w * gamma
+      mu = mu_0
     }
     for (v in msa_vars) {
       x <- dplyr::select_(xr,v) %>% unlist()
@@ -359,13 +483,14 @@ make_city_ggs_var_intercept <- function(sfit, vars, family = 'delta\\[', abs_ran
 }
 
 
-make_cat_plot <- function(g, family = 'beta|gamma', target = 'vwci',
+make_cat_plot <- function(g, family = "beta|gamma", target = "vwci",
                           thick_ci = c(0.17, 0.83), thin_ci = c(0.025, 0.975),
                           thick_size = 1.5, thin_size = 0.5, point_size = 3,
-                          line = 0, linesize = 0.5, linetype = 'solid',
+                          line = 0, linesize = 0.5, linetype = "solid",
                           family_name = "Family", title = NA,
                           scale_beta_by_actions = FALSE,
-                          color = FALSE
+                          color = FALSE,
+                          param_levels = NULL
 ) {
   if (target == 'vwci') {
     target_name <- 'VWCI'
@@ -389,17 +514,31 @@ make_cat_plot <- function(g, family = 'beta|gamma', target = 'vwci',
   } else {
     g <- g %>% mutate(value = value / 4)
   }
+
+  if (is.null(param_levels)) {
+    param_levels = levels(g$Parameter)
+  }
+
+  #  message("Parameter levels = [", str_c(param_levels, collapse = ", "), "]")
+
   g <- g %>% mutate(
     family = str_replace_all(Parameter, setNames(families$name, families$pattern)) %>%
       ordered(levels = c('State-level', 'MSA-level', 'Intercept')),
-    Parameter = ordered(Parameter, levels = levels(Parameter),
-                        labels = str_replace_all(levels(Parameter), fixed('['), ' * minute['))
+    Parameter = ordered(Parameter, levels = param_levels,
+                        labels = str_replace_all(param_levels, fixed('['), ' * minute['))
   )
+
+  #  message("Parameter levels = [", str_c(param_levels, collapse = ", "), "]")
+
+
   y_list <- g %>% dplyr::select(Parameter) %>% distinct() %>%
-    arrange(Parameter) %>% as_data_frame() %>%
     dplyr::filter(str_detect(Parameter, family)) %>%
+    arrange(Parameter) %>%
     mutate(value = seq_along(Parameter), Parameter = as.character(Parameter)) %>%
-    as.data.frame()
+    as_tibble()
+
+  #  message("y_list = [", str_c(y_list$value, y_list$Parameter, sep = " = ", collapse = ", "), "]")
+
   if (!is.null(title)) {
     if (is.na(title)) {
       title <- paste("Regression coefficients for", target_name)
@@ -407,6 +546,7 @@ make_cat_plot <- function(g, family = 'beta|gamma', target = 'vwci',
       title <- NULL
     }
   }
+
   p <- ggs_caterpillar(g, X = y_list, family = family, greek = T,
                        thick_ci = thick_ci, thick_size = thick_size,
                        thin_ci = thin_ci, thin_size = thin_size,
@@ -422,7 +562,7 @@ make_cat_plot <- function(g, family = 'beta|gamma', target = 'vwci',
   p
 }
 
-make_scatter_plot <- function(residuals, color = F, pt.alpha = 0.5) {
+make_scatter_plot <- function(residuals, color = F, pt.alpha = 0.5, residual.plot = FALSE) {
   res <- residuals$residuals %>% mutate(state_2 = ifelse(state %in% c('CA','FL','TX'),
                                                          as.character(state), 'Other') %>%
                                           ordered(levels = c('CA','FL','TX','Other'))) %>%
@@ -441,24 +581,37 @@ make_scatter_plot <- function(residuals, color = F, pt.alpha = 0.5) {
     k_actions <- NA
     warning("Unknown target variable ", residuals$target)
   }
-  if (color) {
-    p <- ggplot(res, aes(x = predicted, y = actual, color = state_2)) +
-      geom_abline(slope = 1, intercept = 0) +
-      geom_point(alpha = pt.alpha) +
-      coord_fixed(xlim = c(0,k_actions), ylim = c(0,k_actions), expand = 0) +
-      scale_color_manual(values = set_names(c(brewer.pal(3, "Dark2"), "gray50"), c('CA', 'FL', 'TX', 'Other')),
-                         name = "State") +
-      labs(x = paste("Predicted",target), y = paste("Actual",target),
-           title = paste("Predicted vs. Actual", target))
-  } else {
-    p <- ggplot(res, aes(x = predicted, y = actual)) +
-      geom_abline(slope = 1, intercept = 0) +
-      geom_point(color = "dark blue", alpha = pt.alpha) +
-      coord_fixed(xlim = c(0,k_actions), ylim = c(0,k_actions), expand = 0) +
-      labs(x = paste("Predicted",target), y = paste("Actual",target),
-           title = paste("Predicted vs. Actual", target))
-
+  if (residual.plot) {
+    res <- res %>% mutate(actual = actual - predicted)
   }
+  p <- ggplot(res, aes(x = predicted, y = actual))
+  if (residual.plot) {
+    p <- p + geom_hline(yintercept = 0)
+  } else {
+    p <- p + geom_abline(slope = 1, intercept = 0)
+  }
+
+  if (color) {
+    p <- p + geom_point(aes(color=state_2), alpha=pt.alpha) +
+      scale_color_manual(values=set_names(c(brewer.pal(4, "Dark2")[-3], "gray50"),
+                                          c('CA', 'FL', 'TX', 'Other')),
+                         name = "State")
+  } else {
+    p <- p +
+      geom_point(color="dark blue", alpha=pt.alpha)
+  }
+
+  if (residual.plot) {
+    p <- p + scale_x_continuous(limits = c(0, k_actions), expand = c(0,0)) +
+      labs(x = paste("Predicted",target), y = "Residual",
+           title = paste("Fit residuals", target))
+  } else {
+    p <- p + coord_fixed(xlim = c(0,k_actions), ylim = c(0,k_actions),
+                         expand = c(0,0)) +
+      labs(x = paste("Predicted",target), y = paste("Actual",target),
+           title = paste("Predicted vs. Actual", target))
+  }
+
   p
 }
 
@@ -511,7 +664,7 @@ make_model_name <- function(var_index, dep_var, multilevel, beta, random_alpha =
 
 process_models <- function(std_data, vars, data.dir = data_dir,
                            abs_rank = TRUE,
-                           vars_2 = TRUE,
+                           var_sel = "vars_2",
                            beta = TRUE,
                            multilevel = TRUE,
                            random_alpha = TRUE,
@@ -519,6 +672,8 @@ process_models <- function(std_data, vars, data.dir = data_dir,
                            mu_phi_vwci = 50, sigma_phi_vwci = 20,
                            mu_phi_rr = 15, sigma_phi_rr = 15,
                            sigma_sigma_delta = 0.5,
+                           dependent_vars = c("vwci", "req", "reb"),
+                           filename = file.path(data.dir, "model_fits.Rds"),
                            seed = NULL) {
   if (!is.null(seed)) {
     set.seed(seed)
@@ -527,13 +682,16 @@ process_models <- function(std_data, vars, data.dir = data_dir,
   seeds <- sample.int(.Machine$integer.max, 100, replace = TRUE)
 
   seed_list <- list()
+
+  dependent_vars <- str_to_lower(dependent_vars)
   i <- 1
+
   for (v2 in c(TRUE, FALSE)) {
     v = ifelse(v2, 2, 1)
     for (ml in c(TRUE, FALSE)) {
       for (ra in unique(ml & c(TRUE, FALSE))) {
         for (b in c(TRUE, FALSE)) {
-          for (dv in c('VWCI', 'REQ', 'REB')) {
+          for (dv in c("VWCI", "REQ", "REB")) {
             seed_list[make_model_name(v, dv, ml, b, ra)] = seeds[i]
             i <- i + 1
           }
@@ -546,15 +704,15 @@ process_models <- function(std_data, vars, data.dir = data_dir,
   model_ggs <- list()
   model_res <- list()
 
-  for (v2 in vars_2) {
-    vi = ifelse(v2, 2, 1)            # independent variables index (1 or 2)
-    if (v2) vv <- vars$vars_2 else vv <- vars$vars_1
+  for (vi in var_sel) {
+    vv = vars[[vi]]
+    vid = str_replace(vi, fixed("vars_"), "")
     # message('vv = ', map(vv, ~str_c("name = ", names(.x), "(", str_c(.x, collapse = ", "), ")", collapse = "; ")))
     for (ml in multilevel) {
       for (b in beta) {
         for (ra in unique(ml & random_alpha)) {
-          for (dv in c('vwci', 'req', 'reb')) {
-            m_name <- make_model_name(vi, dv, ml, b, ra)
+          for (dv in dependent_vars) {
+            m_name <- make_model_name(vid, dv, ml, b, ra)
             if (dv == "vwci") {
               mu_phi = mu_phi_vwci
               sigma_phi = sigma_phi_vwci
@@ -562,7 +720,7 @@ process_models <- function(std_data, vars, data.dir = data_dir,
               mu_phi = mu_phi_rr
               sigma_phi = sigma_phi_rr
             }
-            message("Fitting model ", m_name, " with vars = ", paste0('vars_', vi), ', target = ', dv,
+            message(timestamp(), " Fitting model\n    ", m_name, " with vars = ", vi, ', target = ', dv,
                     ', beta = ', b, ', multilevel = ', ml, ', random alpha = ', ra)
             # message('vv = ', map(vv, ~str_c("name = ", names(.x), "(", str_c(.x, collapse = ", "), ")", collapse = "; ")))
             sfit <- fit_model(df = std_data, vars = vv, target = dv,
@@ -572,28 +730,39 @@ process_models <- function(std_data, vars, data.dir = data_dir,
                               mu_phi = mu_phi, sigma_phi = sigma_phi,
                               sigma_sigma_delta = sigma_sigma_delta,
                               seed = seeds[m_name])
+            message(timestamp(), " Finished fitting model.")
             message('saving model sfit', m_name, ' classs = ', class(sfit))
             model_fits <- c(model_fits, setNames(list(sfit), str_c('sfit', m_name)))
-            if (ml) {
+            if (TRUE || ml) {
               g <- make_ggs_var_intercept(sfit, vv, abs_rank = abs_rank,
                                           random_alpha = ra)
               message('saving ggs ggs', m_name, ' class = ', class(g))
               model_ggs <- c(model_ggs, setNames(list(g), str_c('ggs', m_name)))
-              res <- calc_residuals(std_data, sfit, vv, target = dv, random_alpha = ra,
+              res <- calc_residuals(std_data, sfit, vv, target = dv,
+                                    multi_level = ml, random_alpha = ra,
                                     remove_desal = remove_desal)
               message('saving residuals res', m_name, ' classs = ', class(res))
               model_res <- c(model_res, setNames(list(res), str_c('res', m_name)))
             }
-            saveRDS(list(model_fits = model_fits, model_ggs = model_ggs, model_res = model_res), file = file.path(data.dir, 'model_fit_checkpoint.rds'))
+            # saveRDS(list(model_fits = model_fits, model_ggs = model_ggs, model_res = model_res),
+            #         file = file.path(data.dir, 'model_fit_checkpoint.rds'))
+            saveRDS(list(sfit  = sfit, ggs = ggs, res = res),
+                    file = file.path(data.dir, 'checkpoints', str_c('temp_checkpoint', m_name, '.rds')))
+            file.rename(from = file.path(data.dir, 'checkpoints', str_c('temp_checkpoint', m_name, '.rds')),
+                        to = file.path(data.dir, 'checkpoints', str_c('checkpoint', m_name, '.rds')))
           }
 
         }
       }
     }
+    # saveRDS(list(model_fits = model_fits, model_ggs = model_ggs, model_res = model_res),
+    #         file = file.path(data.dir, 'checkpoints', 'temp_model_fit_checkpoint.rds'))
+    # file.rename(from = file.path(data.dir, 'checkpoints', str_c('temp_model_fit_checkpoint.rds')),
+    #             to = file.path(data.dir, 'checkpoints', str_c(model_fit_checkpoint.rds')))
   }
 
   result <- list(fits = model_fits, ggs = model_ggs, res = model_res)
-  write_rds(result, path = file.path(data.dir, 'model_fits.Rds'), compress = 'xz')
+  write_rds(result, path = filename, compress = 'xz')
   invisible(result)
 }
 
@@ -639,7 +808,7 @@ summarize_fit <- function(sfit, vars, std_data, random_alpha, beta, multilevel) 
     mutate(coefficient = str_replace_all(coefficient, replacements) %>%
              ordered(levels = str_replace_all(replacements, fixed('\\\\'), '\\'))) %>%
     arrange(coefficient) %>%
-    select(-n_eff) %>%
+    dplyr::select(-n_eff) %>%
     rename("std.~err." = se_mean, 'std.~dev.' = sd, '$\\hat R$\\rule{0pt}{2.5ex}' = Rhat) %>%
     set_names(names(.) %>% str_replace_all(fixed('%'), '\\%'))
 }

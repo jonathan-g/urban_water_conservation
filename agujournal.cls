@@ -29,24 +29,24 @@
 
     %% 5) Running heads, Footnotes
 
-    %% 6) Title Page: Journal Name, 
+    %% 6) Title Page: Journal Name,
     %%    Title, Authors, Affils, Corresponding Authors, Author Notes, Key Points; abstract
 
-    %% 7) Section Commands 
+    %% 7) Section Commands
 
-    %% 8) Figure and Table Captions 
+    %% 8) Figure and Table Captions
 
     %% 9) Listing
 
-    %% 10) Etc.: Hyphenation Library, Quote, Extract 
+    %% 10) Etc.: Hyphenation Library, Quote, Extract
 
     %% 11) End Article: Appendix, Glossary, Acronyms, Notation, Acknowledgments
 
-    %% 12) Bibliography, References  
+    %% 12) Bibliography, References
 
     %% 13) Track Changes
 
-    %% 14) Supporting Information    
+    %% 14) Supporting Information
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -54,7 +54,7 @@
 % 0) Bringing in packages that we will need:
 
 %% Nicer font choice than Computer Modern:
-\RequirePackage{newtxtext,newtxmath}
+%\RequirePackage{newtxtext,newtxmath}
 
 %% always will want this available
 \RequirePackage{graphicx}
@@ -62,7 +62,7 @@
 %% to get illustrations to print, in spite of being in Draft mode:
 \setkeys{Gin}{draft=false}
 
-%% xcolor.sty 
+%% xcolor.sty
 \RequirePackage{xcolor}
 
 %% used for running head which is in light gray
@@ -135,7 +135,7 @@
   %% Comment
   %% \hoffset moves the printed page left or right on the physical page.
 \advance\hoffset.35in
-  
+
   %% Comment
   %% Setting page dimensions
   %% See p. 84-- 85 in LaTeX Companion, Goosins, Mittlebach and Samarin
@@ -216,7 +216,7 @@
 \setlength\marginparpush{5\p@}
 
   %% space added before trivlist, which is used in many other
-  %% macros, (for instance, verbatim environment) 
+  %% macros, (for instance, verbatim environment)
   %% if macro is called in vertical mode, otherwise only parskip
   %% is added. Can set this without stretch if you don't like
   %% the stretchy space added.
@@ -225,35 +225,35 @@
 
   %% Comment
   %% Setting parameters that control float placement
-  %% 
+  %%
   %% \topnumber counter holds the maximum number of
   %% floats that can appear on the top of a text page.
-  %% 
+  %%
   %% \topfraction indicates the maximum part of a text page that can be
   %%     occupied by floats at the top.
-  %% 
+  %%
   %% \bottomnumber counter holds the maximum number of
   %%     floats that can appear on the bottom of a text page.
-  %% 
+  %%
   %% \bottomfraction indicates the maximum part of a text page that can be
   %%     occupied by floats at the bottom.
-  %% 
+  %%
   %% \totalnumber indicates the maximum number of floats that can appear on
   %%     any text page.
-  %% 
+  %%
   %% \textfraction indicates the minimum part of a text page that has to be
   %%     occupied by text.
-  %% 
+  %%
   %% \floatpagefraction indicates the minimum part of a page that has to be
   %%     occupied by floating objects before a `float page' is produced.
-  %% 
+  %%
   %% \dbltopnumber counter holds the maximum number of
   %%     two column floats that can appear on the top of a two column text
   %%     page.
-  %% 
+  %%
   %% \dbltopfraction indicates the maximum part of a two column text page that
   %%     can be occupied by two column floats at the top.
-  %% 
+  %%
   %% \dblfloatpagefraction indicates the minimum part of a page that has to be
   %%     occupied by two column wide floating objects before a `float
   %%     page' is produced.
@@ -317,7 +317,7 @@
 
   %% To make left and right page position differently, and have
   %% running heads be different on even and odd pages
-\@twosidetrue  
+\@twosidetrue
 
   %% Marginal notes should be on the left on even numbered pages; on
   %% right on odd numbered pages.
@@ -335,7 +335,7 @@
 
   %% Conditionals that we can set and use later
 \newif\if@openright
-\newif\if@mainmatter 
+\newif\if@mainmatter
 \newif\if@restonecol
 \newif\if@titlepage
 \newif\ifdraft
@@ -364,7 +364,7 @@
 \linenumbers*[1]
 \fi
 
-%% <==== End Setting Options 
+%% <==== End Setting Options
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 4) Font Family Info
@@ -378,7 +378,7 @@
 \newcommand{\@ptsize}{}
 
   %% Comment
-  %% Set font sizes, normal baselineskip, for the range of sizes, 
+  %% Set font sizes, normal baselineskip, for the range of sizes,
   %% changing baselineskip to be larger if draft option is true
   %% \setfontsize takes the first arg as the size of the font and
   %% the second as the size of the baselineskip
@@ -533,7 +533,7 @@ submitted to {\it \thejournalname}}\vskip24pt}}
 \noindent\hspace*{1em}\@makefnmark\,#1}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 6) Title Page: 
+%% 6) Title Page:
    %% Journal Name, running heads;
    %% Title, Authors, Affils, Corresponding Authors, Author Notes, Key Points;
    %% Starting article with abstract.
@@ -630,7 +630,7 @@ Corresponding author: #1,
   %% Startsection calls \@sect, the engine that formats each section
 
   %% the minus dimensions are used to tell LaTeX not to indent
-  %% the text following the section head 
+  %% the text following the section head
   %% (silly, isn't it? but built into LaTeX)
   %% You can add things like underline or uppercase to the last arg
   %% to get those effects in a section head
@@ -780,7 +780,7 @@ Corresponding author: #1,
   %% the changed part.
 
 \def\xtable{table}
-\def\@array[#1]#2{\setbox\@arstrutbox=\hbox{\vrule 
+\def\@array[#1]#2{\setbox\@arstrutbox=\hbox{\vrule
      height\arraystretch \ht\strutbox
      depth\arraystretch \dp\strutbox
      width\z@}\@mkpream{#2}\edef\@preamble{\halign \noexpand\@halignto
@@ -797,9 +797,9 @@ Corresponding author: #1,
   %% Variation on code found in Latex.tex
 \def\new@tabacol{\edef\@preamble{\@preamble\hskip0pt}}
 
-\def\@tabclassz{\ifcase \@lastchclass\@acolampacol% 
+\def\@tabclassz{\ifcase \@lastchclass\@acolampacol%
 \or \@ampacol \or
-   \or \or \@addamp \or \@acolampacol\or \@firstampfalse 
+   \or \or \@addamp \or \@acolampacol\or \@firstampfalse
 \ifx\@captype\xtable \new@tabacol\else\@tabacol \fi%
 \fi%
 \edef\@preamble{\@preamble%
@@ -808,7 +808,7 @@ Corresponding author: #1,
      \or \ignorespaces\@sharp\unskip\hfil%
      \or \hfil\hskip\z@ \ignorespaces\@sharp\unskip\fi}}
 
-  %% This puts extra space between horizontal lines in tables. 
+  %% This puts extra space between horizontal lines in tables.
   %% If you want to use vertical lines in tables, you should use
   %% \savehline rather than \hline, otherwise the vertical and
   %% horizontal lines will not abutt.
@@ -924,10 +924,10 @@ Corresponding author: #1,
 \newcommand*{\descriptionlabel}[1]{\hspace\labelsep
                                 \normalfont\bfseries #1}
 
-%%% <<=== end of listing commands 
+%%% <<=== end of listing commands
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% 10) ETC.: Month/year, Hyphenation Library, Quote, Quotation, Extract 
+%%% 10) ETC.: Month/year, Hyphenation Library, Quote, Quotation, Extract
 
 %% Month and Year
 
@@ -984,17 +984,17 @@ sys-tem-at-i-cal-ly
                {\endlist}
 
   %% If \begin{extract}...\end{extract} is used you will get the same
-  %% results as \begin{quotation}...\end{quotation} 
+  %% results as \begin{quotation}...\end{quotation}
 
 \let\extract\quotation
 \let\endextract\endquotation
 
-  %% <<== end ETC.: Month/year, Hyphenation Library, Quote, Quotation, Extract 
+  %% <<== end ETC.: Month/year, Hyphenation Library, Quote, Quotation, Extract
 
 %%%%%%%%%
 % 11) End Article: Appendix, Glossary, Acronyms, Notation, Acknowledgments
 
-% Appendix: 
+% Appendix:
 \newcounter{appendnum}
 
 \newif\ifappendon
@@ -1018,7 +1018,7 @@ sys-tem-at-i-cal-ly
 \def\thesubsubsection{\thesubsection.\@arabic{\c@subsubsection}}
 \def\thesubsubsubsection{\thesubsubsection.\@arabic{\c@subsubsection}}
 }
-%%%%% end appendix 
+%%%%% end appendix
 
 %%  Glossary
 \def\glossary{\bgroup
@@ -1026,7 +1026,7 @@ sys-tem-at-i-cal-ly
 \description
 \def\term##1{\item[##1]}}
 \def\endglossary{\enddescription\vskip12pt\egroup}
-%% 
+%%
 
 %% Acronyms
 \def\acronyms{\bgroup
@@ -1193,7 +1193,7 @@ changenum\the\refchangenumber\endcsname{Replaced: [#1]
 \global\@mparswitchfalse
 \def\explain{\@ifnextchar[{\xexplain}{\yexplain}}
 
-%% 
+%%
 \def\xexplain[#1]#2{\ifdraft\marginpar{\noindent{\color{red}\llap{\boldmath$\leftarrow$}\draftfalse\normalsize
 \baselineskip=11pt\relax[#1] #2\vskip1sp}}\fi}
 

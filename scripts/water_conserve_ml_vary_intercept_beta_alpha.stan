@@ -37,14 +37,14 @@ model {
   vector[N] a;
   vector[N] b;
 
-  alpha_0 ~ cauchy(0,10);
+  alpha_0 ~ cauchy(0,2.5);
   sigma_delta ~  cauchy(0,sig_sig_delta);
 
   delta_raw ~ normal(0,sigma_delta);
 
   gamma ~ cauchy(0,2.5); // slopes of group-level predictors
   beta ~ cauchy(0,2.5);
-#  phi ~ gamma(1,1);
+// phi ~ gamma(1,1);
   phi ~ cauchy(mu_phi, sigma_phi);
 
   for(i in 1:N) {

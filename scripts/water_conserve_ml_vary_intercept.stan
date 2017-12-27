@@ -25,7 +25,7 @@ transformed parameters {
 model {
   vector[N] theta;
 
-  alpha_0 ~ cauchy(0,10);
+  alpha_0 ~ cauchy(0,2.5);
 
   gamma ~ cauchy(0,2.5); // slopes of group-level predictors
   beta ~ cauchy(0,2.5);

@@ -1,0 +1,24 @@
+Column,Description
+state.fips,State FIPS (Federal Information Processing Standard) code
+state,State abbreviation (two letter)
+state.name,State name
+precip,"Average annual precipitation, 1985-2014 (mm)"
+temp,"Average annual temperature, 1985-2014 (Celsius)"
+aridity,"Average annual Koppen aridity index, average 1985-2014"
+precip_70,"Average annual precipitation, 1970-2014 (mm)"
+temp_70,"Average annual temperature, 1970-2014 (Celsius)"
+aridity_70,"Average annual Koppen aridity index, average 1970-2014"
+precip_85,"Average annual precipitation, 1985-2014 (mm)"
+temp_85,"Average annual temperature, 1985-2014 (Celsius)"
+aridity_85,"Average annual Koppen aridity index, average 1985-2014"
+precip_95,"Average annual precipitation, 1995-2014 (mm)"
+temp_95,"Average annual temperature, 1995-2014 (Celsius)"
+aridity_95,"Average annual Koppen aridity index, average 1995-2014"
+precip_05,"Average annual precipitation, 2005-2014 (mm)"
+temp_05,"Average annual temperature, 2005-2014 (Celsius)"
+aridity_05,"Average annual Koppen aridity index, average 2005-2014"
+pvi,Cook Partisan Voting Index (2008 and 2012 presidential elections)
+gini,2014 Gini coefficient
+surface.water,Fraction of water supply provided by surface water sources in 2010
+rpp,2014 Regional Price Parity
+rpi,2014 Real Per-Capita Personal Income (Chained 2009 dollars)

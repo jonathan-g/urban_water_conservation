@@ -1,7 +1,7 @@
-suppressMessages(library(hellno, quietly = TRUE))
-suppressMessages(library(tidyverse, quietly = TRUE))
-library(readxl)
-library(stringr)
+options(tidyverse.quiet = TRUE)
+library(pacman)
+p_load(tidyverse)
+p_load(readxl)
 
 data_dir = 'data'
 script_dir = 'scripts'
@@ -31,10 +31,10 @@ standardize_msa_data_pooled <- function(msa_data, scale_factor = 2.0) {
                'lon','lat',
                'vwci', 'reqtotal', 'rebtotal')
   df  <- msa_data %>% dplyr::select(-one_of(indices))
-  means <- df %>% summarize_each(funs(mean(.)))
-  sds <- df %>% summarize_each(funs(sd(.)))
+  means <- df %>% summarize_all(funs(mean(.)))
+  sds <- df %>% summarize_all(funs(sd(.)))
   msa_data <- msa_data %>%
-    mutate_each(funs((. - mean(.)) / (scale_factor * sd(.))), -one_of(indices))
+    mutate_at(vars(-one_of(indices)),funs((. - mean(.)) / (scale_factor * sd(.))))
 
   invisible(list(means = means, sds = sds, msa_data = msa_data))
 }
@@ -46,10 +46,10 @@ standardize_data_pooled <- function(msa_data, state_data, scale_factor = 2.0) {
   indices <- c('msa.fips','city','state', 'city.state', 'msa.name','lon','lat',
                'vwci', 'reqtotal', 'rebtotal')
   df  <- msa_data %>% dplyr::select(-one_of(indices))
-  means <- df %>% summarize_each(funs(mean(.)))
-  sds <- df %>% summarize_each(funs(sd(.)))
+  means <- df %>% summarize_all(funs(mean(.)))
+  sds <- df %>% summarize_all(funs(sd(.)))
   msa_data <- msa_data %>%
-    mutate_each(funs((. - mean(.)) / (scale_factor * sd(.))), -one_of(indices))
+    mutate_at(vars(-one_of(indices)),funs((. - mean(.)) / (scale_factor * sd(.))))
 
   state_indices <- c('state.fips','state','state.name')
   cols <- c(state_indices, names(df)) %>% intersect(names(state_data))
@@ -63,7 +63,12 @@ standardize_data_pooled <- function(msa_data, state_data, scale_factor = 2.0) {
   dots <- varlist %>% {setNames(as.list(.), str_c('state', ., sep='.'))}
   state_data <- state_data %>% rename_(.dots = dots)
 
-  varlist <- c('pvi', 'rpp', 'rpi', 'affordability', 'precip', 'temp', 'aridity',
+  varlist <- c('pvi', 'rpp', 'rpi', 'affordability', 'gini',
+               'precip', 'temp', 'aridity',
+               'precip_70', 'temp_70', 'aridity_70',
+               'precip_85', 'temp_85', 'aridity_85',
+               'precip_95', 'temp_95', 'aridity_95',
+               'precip_05', 'temp_05', 'aridity_05',
                'surface.water')
   f <- purrr::map(varlist, function(x) {
     substitute(.x - .y, list(.x = as.name(x),
@@ -90,24 +95,24 @@ standardize_data_by_state <- function(msa_data, state_data, scale_factor = 2.0) 
   state_indices <- c('state.fips','state','state.name')
 
   df  <- state_data %>% dplyr::select(-one_of(state_indices))
-  means <- df %>% summarize_each(funs(mean(.)))
-  sds <- df %>% summarize_each(funs(sd(.)))
+  means <- df %>% summarize_all(funs(mean(.)))
+  sds <- df %>% summarize_all(funs(sd(.)))
 
   # scale state_data to zero mean, sd = 1 / scale_factor
   state_data <- state_data %>%
-    mutate_each(funs((. - mean(.)) / (scale_factor * sd(.))), -one_of(state_indices))
+    mutate_at(vars(-one_of(state_indices)),funs((. - mean(.)) / (scale_factor * sd(.))))
 
   msa_cols <- c(msa_indices, names(df)) %>% intersect(names(msa_data))
   # data_cols is the data columns that exist in both state_data and msa_data
   data_cols <- setdiff(msa_cols, msa_indices)
 
   msa_df <- msa_data %>% dplyr::select(-one_of(msa_cols))
-  msa_means <- msa_df %>% summarize_each(funs(mean(.))) %>% bind_cols(means, .)
-  msa_sds <- msa_df %>% summarize_each(funs(sd(.))) %>% bind_cols(sds, .)
+  msa_means <- msa_df %>% summarize_all(funs(mean(.))) %>% bind_cols(means, .)
+  msa_sds <- msa_df %>% summarize_all(funs(sd(.))) %>% bind_cols(sds, .)
 
   # scale to zero mean, sd = 1 / scale_factor  fpr columns that don't exist in state_data
   msa_data <- msa_data %>%
-    mutate_each(funs((. - mean(.)) / (scale_factor * sd(.))), -one_of(msa_cols))
+    mutate_at(vars(-one_of(msa_cols)),funs((. - mean(.)) / (scale_factor * sd(.))))
 
   # for columns that do exist in state_data, scale these the same way the state
   # variables are scaled (subtract state mean, divide by scale_factor * state sd)
@@ -119,7 +124,12 @@ standardize_data_by_state <- function(msa_data, state_data, scale_factor = 2.0) 
   dots <- varlist %>% {setNames(as.list(.), str_c('state', ., sep='.'))}
   state_data <- state_data %>% rename_(.dots = dots)
 
-  varlist <- c('pvi', 'rpp', 'rpi', 'affordability', 'precip', 'temp', 'aridity',
+  varlist <- c('pvi', 'rpp', 'rpi', 'affordability', 'gini',
+               'precip', 'temp', 'aridity',
+               'precip_70', 'temp_70', 'aridity_70',
+               'precip_85', 'temp_85', 'aridity_85',
+               'precip_95', 'temp_95', 'aridity_95',
+               'precip_05', 'temp_05', 'aridity_05',
                'surface.water')
   f <- purrr::map(varlist, function(x) {
     substitute(.x - .y, list(.x = as.name(x),
@@ -146,14 +156,25 @@ process_data <- function(data.dir = data_dir, scale_factor = 2.0, pooled = FALSE
   if (save_data) {
     msa_data %>% dplyr::select(msa.fips, msa.name, city.state, city, state, lat, lon,
                                vwci, reqtotal, rebtotal,
-                               precip, temp, aridity, pvi,
+                               precip, temp, aridity,
+                               precip_70, temp_70, aridity_70,
+                               precip_85, temp_85, aridity_85,
+                               precip_95, temp_95, aridity_95,
+                               precip_05, temp_05, aridity_05,
+                               pvi, gini,
                                pop, log.pop, pop.growth,
-                               surface.water,
+                               log.pop, log.pop.dens, pop.dens.growth,
+                               area, surface.water,
                                rpp, rpi) %>%
       write_csv(path = file.path(si_data_dir, 'msa_data.csv'))
 
     state_data %>% dplyr::select(state.fips, state, state.name,
-                                 precip, temp, aridity, pvi,
+                                 precip, temp, aridity,
+                                 precip_70, temp_70, aridity_70,
+                                 precip_85, temp_85, aridity_85,
+                                 precip_95, temp_95, aridity_95,
+                                 precip_05, temp_05, aridity_05,
+                                 pvi, gini,
                                  surface.water,
                                  rpp, rpi) %>%
       write_csv(path = file.path(si_data_dir, 'state_covariates.csv'))

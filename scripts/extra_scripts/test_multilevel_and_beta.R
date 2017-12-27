@@ -2,14 +2,15 @@
 source('scripts/load_data.R', chdir = T)
 # source('scripts/fit_model.R')
 
-library(tidyverse, quietly = TRUE)
-library(stringr, quietly = TRUE)
-library(broom, quietly = TRUE)
+library(pacman)
+options(tidyverse.quiet = TRUE)
+p_load(tidyverse)
+p_load(broom)
 
-library(rstan, quietly = TRUE)
-library(shinystan, quietly = TRUE)
-library(loo, quietly = TRUE)
-library(jgmcmc, quietly = TRUE)
+p_load(rstan)
+p_load(shinystan)
+p_load(loo)
+p_load_gh('jonathan-g/jgmcmc@jgmcmc')
 
 options(mc.cores = parallel::detectCores())
 

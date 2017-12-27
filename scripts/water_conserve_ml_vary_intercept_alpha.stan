@@ -33,7 +33,7 @@ transformed parameters {
 model {
   vector[N] theta;
 
-  alpha_0 ~ cauchy(0,10);
+  alpha_0 ~ cauchy(0,2.5);
   sigma_delta ~  cauchy(0,sig_sig_delta);
 
   delta_raw ~ normal(0,sigma_delta);

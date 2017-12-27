@@ -1,11 +1,15 @@
 library(pacman)
 
-p_load(hellno)
 p_load(tidyverse)
 p_load(ncdf4)
 p_load(raster)
 p_load(geosphere)
-p_load(reshape2)
+# if (! p_isinstalled(reshape2)) {
+#   p_install(reshape2)
+# }
+# if (FALSE) {
+#   p_load(reshape2)
+# }
 p_load(zoo)
 p_load(lubridate)
 p_load(magrittr)
@@ -21,11 +25,11 @@ process_city_aridity <- function(data.dir = data_dir) {
 
   if (!file.exists(file.path(data.dir, 'air.mon.mean.v401.nc'))) {
     download.file("ftp://ftp.cdc.noaa.gov/Datasets/udel.airt.precip/air.mon.mean.v401.nc",
-                  file.path(data.dir, "air.mon.mean.v401.nc"))
+                  file.path(data.dir, "air.mon.mean.v401.nc"), mode = "wb")
   }
   if (!file.exists(file.path(data.dir, 'precip.mon.total.v401.nc'))) {
     download.file("ftp://ftp.cdc.noaa.gov/Datasets/udel.airt.precip/precip.mon.total.v401.nc",
-                  file.path(data.dir, "precip.mon.total.v401.nc"))
+                  file.path(data.dir, "precip.mon.total.v401.nc"), mode = "wb")
   }
 
   # open temp and precip netcdf files

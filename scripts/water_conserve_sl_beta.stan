@@ -19,7 +19,7 @@ model {
   vector[N] a;
   vector[N] b;
 
-  alpha ~ cauchy(0,10);
+  alpha ~ cauchy(0,2.5);
   beta ~ cauchy(0,2.5);
   phi ~ cauchy(mu_phi, sigma_phi);
 

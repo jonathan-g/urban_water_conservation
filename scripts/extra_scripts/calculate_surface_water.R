@@ -1,6 +1,6 @@
 
 library(pacman)
-pacman::p_load(dplyr,magrittr,stringr,readxl)
+pacman::p_load(tidyverse,magrittr,readxl)
 
 # source custom function for downloading USGS water use data
 source("https://raw.githubusercontent.com/scworland-usgs/usgs-water-use/master/NWIS_WUD.R")
@@ -9,9 +9,9 @@ source("https://raw.githubusercontent.com/scworland-usgs/usgs-water-use/master/N
 wudata.pull("all")
 
 # load and clean water use data
-wudata <- read.csv("wudata_out_NWIS2016-10-26.csv", stringsAsFactors = F, na.strings = "-") %>%
+wudata <- read_csv("wudata_out_NWIS2016-10-26.csv", na = "-") %>%
   # select columns, note: the csv has horrible column names, hence the mess below
-  select(cnty_fips=cntyFIPS,state=state_name,county=county_nm,year,
+  dplyr::select(cnty_fips=cntyFIPS,state=state_name,county=county_nm,year,
          gw=Public.Supply.total.self.supplied.withdrawals..groundwater..in.Mgal.d,
          sw=Public.Supply.total.self.supplied.withdrawals..surface.water..in.Mgal.d,
          tw=Public.Supply.total.self.supplied.withdrawals..total..in.Mgal.d) %>%
@@ -31,7 +31,7 @@ cnty2msa <- read_excel("cbsa_msa_csa_2015.xls", skip = 2, col_names = T)[,c(1,4,
   filter(type=="Metropolitan Statistical Area") %>% # filter for MSAs
   mutate(cnty_fips = paste0(state_fips,cnty_fips) %>% # build full FIPS codes
            str_pad(5, pad = "0")) %>% # add leading zero
-  select(msa_fips,msa_name,cnty_fips)
+  dplyr::select(msa_fips,msa_name,cnty_fips)
 
 # aggregate wu data into MSAs
 wudata_msa <- wudata %>%

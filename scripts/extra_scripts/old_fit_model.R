@@ -1,11 +1,11 @@
-library(hellno)
-library(tidyverse)
-library(stringr)
+library(pacman)
+options(tidyverse.quiet = TRUE)
+p_load(tidyverse)
 
-library(rstan)
-library(shinystan)
-library(loo)
-library(ggmcmc)
+p_load(rstan)
+p_load(shinystan)
+p_load(loo)
+p_load(ggmcmc)
 
 options(mc.cores = parallel::detectCores())
 
@@ -32,7 +32,7 @@ fit_model_vary_intercept <- function(df, vars = default_vars, states = c('CA','F
     N = nrow(df),
     M = nlevels(df$group),
     K_ACTIONS = k_actions,
-    x = select_(df, .dots = vars),
+    x = dplyr::select_(df, .dots = vars),
     group = as.integer(df$group),
     y = df$vwci
   )
@@ -54,7 +54,7 @@ fit_model_vary_slope_intercept <- function(df, vars = default_vars, states = c('
     N = nrow(df),
     M = nlevels(df$group),
     K_ACTIONS = k_actions,
-    x = select_(df, .dots = vars),
+    x = dplyr::select_(df, .dots = vars),
     group = as.integer(df$group),
     y = df$vwci
   )
@@ -79,7 +79,7 @@ fit_model_vary_slope_intercept_corr <- function(df, vars = default_vars, states 
     J = nlevels(df$group),
     L = 1,
     K_ACTIONS = k_actions,
-    x = select_(df, .dots = c('unit',vars)),
+    x = dplyr::select_(df, .dots = c('unit',vars)),
     u = matrix(1, nrow = nlevels(df$group), ncol = 1),
     group = as.integer(df$group),
     y = df$vwci
@@ -96,7 +96,7 @@ calc_residuals_vary_slope_intercept <- function(vwci, sfit, vars, states = c('CA
   vwci$group <- ordered(vwci$group, levels = c(states, 'Other'))
   params <- summary(sfit)$summary %>% as_data_frame()
   params$name = rownames(params)
-  params <- params %>% select(name, mean) %>% filter(name != 'lp__')
+  params <- params %>% dplyr::select(name, mean) %>% filter(name != 'lp__')
   for(i in 1:nlevels(vwci$group)) {
     st <- levels(vwci$group)[i]
     params$name[params$name == paste0('alpha[',i,']')] <- paste0('alpha[', st, ']')
@@ -110,7 +110,7 @@ calc_residuals_vary_slope_intercept <- function(vwci, sfit, vars, states = c('CA
     grp <- xr$group
     mu <- params$mean[params$name == paste0('alpha[',grp,']')]
     for (v in vars) {
-      x <- select_(xr,v) %>% unlist()
+      x <- dplyr::select_(xr,v) %>% unlist()
       beta <- params$mean[params$name == paste0('beta[',v,',',grp,']')]
       mu <- mu + x * beta
     }
@@ -127,7 +127,7 @@ calc_residuals_vary_intercept <- function(vwci, sfit, vars, states = c('CA','FL'
   vwci$group <- ordered(vwci$group, levels = c(states, 'Other'))
   params <- summary(sfit)$summary %>% as_data_frame()
   params$name = rownames(params)
-  params <- params %>% select(name, mean) %>% filter(name != 'lp__')
+  params <- params %>% dplyr::select(name, mean) %>% filter(name != 'lp__')
   for(i in 1:nlevels(vwci$group)) {
     st <- levels(vwci$group)[i]
     params$name[params$name == paste0('alpha[',i,']')] <- paste0('alpha[', st, ']')
@@ -141,7 +141,7 @@ calc_residuals_vary_intercept <- function(vwci, sfit, vars, states = c('CA','FL'
     grp <- xr$group
     mu <- params$mean[params$name == paste0('alpha[',grp,']')]
     for (v in vars) {
-      x <- select_(xr,v) %>% unlist()
+      x <- dplyr::select_(xr,v) %>% unlist()
       beta <- params$mean[params$name == paste0('beta[',v,']')]
       mu <- mu + x * beta
     }

@@ -20,7 +20,7 @@
 %
 % 1) PLEASE USE THE DRAFT OPTION TO SUBMIT YOUR PAPERS.
 % The draft option produces double spaced output.
-% 
+%
 % 2) numberline will give you line numbers.
 
 % Tip:
@@ -75,9 +75,9 @@
 
 % (List authors by first name or initial followed by last name and
 % separated by commas. Use \affil{} to number affiliations, and
-% \thanks{} for author notes.  
+% \thanks{} for author notes.
 % Additional author notes should be indicated with \thanks{} (for
-% example, for current addresses). 
+% example, for current addresses).
 
 % Example: \authors{A. B. Author\affil{1}\thanks{Current address, Antartica}, B. C. Author\affil{2,3}, and D. E.
 % Author\affil{3,4}\thanks{Also funded by Monsanto.}}
@@ -85,7 +85,7 @@
 % (include name and email addresses of the corresponding author.  More
 % than one corresponding author is allowed in this LaTeX file and for
 % publication; but only one corresponding author is allowed in our
-% editorial system.)  
+% editorial system.)
 
 %% Corresponding Author:
 % Corresponding author mailing address and e-mail address:
@@ -102,21 +102,21 @@
 % \affiliation{4}{Fourth Affiliation}
 
 %% Keypoints, final entry on title page.
-% Example: 
+% Example:
 % \begin{keypoints}
 % \item	List up to three key points (at least one is required)
 % \item	Key Points summarize the main points and conclusions of the article
 % \item	Each must be 100 characters or less with no special
-% characters or punctuation 
+% characters or punctuation
 % \end{keypoints}
 
-%% \begin{abstract} begins second page 
+%% \begin{abstract} begins second page
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Track Changes:
 % To add words, \added{<word added>}
 % To delete words, \deleted{<word deleted>}
-% To replace words, \replace{<word to be replaced>}{<replacement word>}
+% To replace words, \replaced{<word to be replaced>}{<replacement word>}
 % To explain why change was made: \explain{<explanation>}
 
 % At the end of the document, use \listofchanges, which will list the
@@ -133,7 +133,7 @@
 % and the time and/or date of the change, or any other comment by using
 % the optional [] argument:
 % \added[AH, 3:30pm, Feb 18, 2016]{added term}
-% will yield 
+% will yield
 % [AH, 3:30pm, Feb 18, 2016] added term on page...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -177,13 +177,13 @@ Infrastrutture Civili, Politecnico di Torino, Turin, Italy.}
 %(include name and email addresses of the corresponding author.  More
 %than one corresponding author is allowed in this Word file and for
 %publication; but only one corresponding author is allowed in our
-%editorial system.)  
+%editorial system.)
 
 \correspondingauthor{A. B. Smith}{email@address.edu}
 
 %  List up to three key points (at least one is required)
 %  Key Points summarize the main points and conclusions of the article
-%  Each must be 100 characters or less with no special characters or punctuation 
+%  Each must be 100 characters or less with no special characters or punctuation
 
 \begin{keypoints}
 \item Evolution of raw ensemble forecast \replaced{skill}{skills}
@@ -200,7 +200,7 @@ Infrastrutture Civili, Politecnico di Torino, Turin, Italy.}
 
 \begin{abstract}
 This study applies statistical post-processing to ensemble
-forecasts of near-surface temperature, 24-hour 
+forecasts of near-surface temperature, 24-hour
 %% below are examples of track changes:
 \deleted[date/time, etc.]{precipitation},
 \added{all} totals,
@@ -208,7 +208,7 @@ and near-surface wind speed from the global model of the European
 Centre for Medium-Range Weather Forecasts (ECMWF). The main objective
 is to evaluate the evolution of the difference in skill between the
 raw ensemble and the post-processed forecasts. Reliability and
-sharpness, and 
+sharpness, and
 %% another example of track changes.
 \replaced{hence}{therefore} skill,
  of the former is expected to improve over
@@ -233,10 +233,10 @@ skill in the foreseeable future.
 
 %%% Suggested section heads:
 % \section{Introduction}
-% 
+%
 % The main text should start with an introduction. Except for short
 % manuscripts (such as comments and replies), the text should be divided
-% into sections, each with its own heading. 
+% into sections, each with its own heading.
 
 % Headings should be sentence fragments and do not begin with a
 % lowercase letter or number. Examples of good headings are:
@@ -246,12 +246,12 @@ skill in the foreseeable future.
 
 % \subsection{A descriptive heading about methods}
 % More about Methods.
-% 
+%
 % \section{Data} (Or section title might be a descriptive heading about data)
-% 
+%
 % \section{Results} (Or section title might be a descriptive heading about the
 % results)
-% 
+%
 % \section{Conclusions}
 
 
@@ -287,11 +287,11 @@ biases. From this we deduce the following hypothesis: As the raw
 forecasts continuously improve, it is hypothesized that the gap in
 skill between raw ensemble and post-processed forecasts narrows,
 because systematic errors typically captured by post-processing are
-reduced 
-by those improvements. 
+reduced
+by those improvements.
 %%
 %% Use \explain{} before change, so that it ends up on the right line.
-\explain[Jon, 2/16/16]{Redundant sentence, better without it} 
+\explain[Jon, 2/16/16]{Redundant sentence, better without it}
 \deleted{In other words, probabilistic biases,
 which can be reduced by statistical post-processing methods, decrease
 over time.}
@@ -351,7 +351,7 @@ analyses have been performed using the statistical software \texttt{R}
 % when using dvips, use .eps file:
 % \includegraphics[width=20pc]{figsamp.eps}
 %
-% If you don't specify the file extension, 
+% If you don't specify the file extension,
 % \includegraphics will insert the right file:
 \centerline{\includegraphics[height=1.5in]{figsamp}}
 \caption{Short caption}
@@ -488,7 +488,7 @@ a_{3}(f_{\overline{\mathrm{ENS}}} -
 \end{equation}
 \end{linenomath*}
 The variance of the forecast distribution is linked to the raw
-ensemble by: 
+ensemble by:
 \begin{linenomath*}
 \begin{equation}
 \sigma^{2} = b_{0} + b_{1}s^{2},
@@ -647,11 +647,11 @@ skill in the foreseeable future.
 
 \subsection*{Cites made with \tt\string\citet\string{\string}}
 ...as shown by \citet{Boug10}, \citet{Buiz07}, \citet{Fra10},
-\citet{Ghel00}, and \citet{Leit74}. 
+\citet{Ghel00}, and \citet{Leit74}.
 
 \subsection*{Cites made with \tt\string\citep\string{\string}}
 ...as shown by \citep{Boug10}, \citep{Buiz07}, \citep{Fra10},
-\citep{Ghel00, Leit74}. 
+\citep{Ghel00, Leit74}.
 
 ...has been shown \citep [e.g.,][]{Boug10,Buiz07,Fra10}.
 
@@ -706,17 +706,17 @@ This is an Appendix subsubsection.
  \acro{Acronym}
  Definition here
  \acro{EMOS}
- Ensemble model output statistics 
+ Ensemble model output statistics
  \acro{ECMWF}
  Centre for Medium-Range Weather Forecasts
  \end{acronyms}
 
 %
 %%%%%%%%%%%%%%
-% Notation 
+% Notation
  \begin{notation}
  \notation{$a+b$} Notation Definition here
- \notation{$e=mc^2$} 
+ \notation{$e=mc^2$}
  Equation in German-born physicist Albert Einstein's theory of special
 relativity that showed that the increased relativistic mass ($m$) of a
 body comes from the energy of motion of the body—that is, its kinetic
@@ -762,7 +762,7 @@ The Editor thanks Pierre Pinson and an anonymous reviewer for their assistance i
 %
 % Follow these steps
 %
-% 1. Type in \bibliography{<name of your .bib file>} 
+% 1. Type in \bibliography{<name of your .bib file>}
 %    Run LaTeX on your LaTeX file.
 %
 % 2. Run BiBTeX on your LaTeX file.
@@ -800,7 +800,7 @@ Par\'{e}, M., and Munoz, D.~P.  (1997). Neuronal activity in monkey
 superior colliculus related to the initiation of saccadic eye
 movements. \textit{J.~Neurosci.} 17, 8566--8579.
 
-\bibitem[{\textit{Elsabbagh et~al.}}(2009)]{Ghel00} 
+\bibitem[{\textit{Elsabbagh et~al.}}(2009)]{Ghel00}
 Elsabbagh, M.,
 Volein, A., Holmboe, K., Tucker, L., Csibra, G., Baron-Cohen, S.,
 et~al.  (2009). Visual orienting in the early broader autism
@@ -833,7 +833,7 @@ Neuronal activity in the rostral superior colliculus related to the
 initiation of pursuit and saccadic eye movements.
 \textit{J.~Neurosci.} 23, 4333--4344.
 
-\bibitem[{\textit{Heesy}}(2009)]{Leit74} 
+\bibitem[{\textit{Heesy}}(2009)]{Leit74}
 Heesy, C.~P.  (2009). Seeing
 in stereo: the ecology and evolution of primate binocular vision and
 stereopsis. \textit{Evol. Anthropol.} 18, 21--35.
@@ -912,7 +912,7 @@ the intermediate layers of the monkey superior colliculus.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Supporting Information
-%% (Optional) See AGUSuppInfoSamp.tex/pdf for requirements 
+%% (Optional) See AGUSuppInfoSamp.tex/pdf for requirements
 %% for Supporting Information.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

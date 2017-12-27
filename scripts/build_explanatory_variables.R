@@ -1,5 +1,4 @@
 library(pacman)
-p_load(hellno)
 p_load(tidyverse)
 # p_load(RCurl)
 p_load(readxl)
@@ -8,14 +7,16 @@ p_load(magrittr)
 p_load(lazyeval)
 p_load(lubridate)
 p_load(maps)
+p_load(janitor)
 p_load_gh('dkahle/ggmap')
+# p_load(ggmap)
 
 
 data_dir = 'data'
 script_dir = 'scripts'
 
 if (file.exists(file.path(data_dir, 'proprietary', 'google_maps_api.csv'))) {
-  api_key <- read_csv(file.path(data_dir, 'proprietary', 'google_maps_api.csv'))$api_key
+  api_key <- read_csv(file.path(data_dir, 'proprietary', 'google_maps_api.csv'))$api_key[1]
   register_google(key = api_key, account_type = 'standard', second_limit = 50, day_limit = 20000)
 }
 
@@ -99,7 +100,13 @@ build_explanatory_variables <- function(data.dir = data_dir, save = FALSE, pop_t
     e <- data_frame()
     for (s in c('al_fl', 'ga_ky', 'la_ne', 'nv_nm', 'ny_sd', 'tn_wy')) {
       fn = str_c('cq_election_', y, '_', s, '.csv')
-      e <- e %>% bind_rows(read_csv(file.path(data.dir, 'proprietary', fn), skip = 2, na = c('','NA','N/A')))
+      if (!file.exists(file.path(data.dir, 'proprietary', fn))) {
+        stop("ERROR: To compute PVI, you need to obtain state- and county-level vote-share data for presidential elections from CQ Press, at http://library.cqpress.com/elections/login.php?requested=%2Felections%2Fdownload-data.php")
+      }
+      x <- suppressWarnings(suppressMessages(
+        read_csv(file.path(data.dir, 'proprietary', fn), skip = 2, na = c('','NA','N/A'))
+      ))
+      e <- e %>% bind_rows(x)
     }
     e <- e %>% mutate(year = y)
     elections <- elections %>% bind_rows(e)
@@ -113,7 +120,7 @@ build_explanatory_variables <- function(data.dir = data_dir, save = FALSE, pop_t
     dplyr::filter(is.na(census.pop.all)) %>%
     dplyr::select(year, state = area.all, total.votes.all, rep.votes.all, dem.votes.all, third.votes.all, other.votes.all) %>%
     set_names(str_replace_all(names(.), '\\.all$','')) %>%
-    mutate_each(funs(ifelse(is.na(.), 0, . %>% str_replace_all(',','') %>% as.numeric())), total.votes:other.votes) %>%
+    mutate_at(vars(total.votes:other.votes),funs(ifelse(is.na(.), 0, . %>% str_replace_all(',','') %>% as.numeric()))) %>%
     mutate(dem.share = dem.votes / (dem.votes + rep.votes))
 
   national_elections <- state_elections %>% dplyr::select(-state) %>%
@@ -130,7 +137,7 @@ build_explanatory_variables <- function(data.dir = data_dir, save = FALSE, pop_t
     dplyr::filter(!is.na(Office) & Office == 'President') %>%
     set_names(str_replace_all(names(.), '([a-z])([A-Z])', '\\1.\\2') %>% str_to_lower()) %>%
     dplyr::select(year, state, county = area, area.type, total.votes, rep.votes, dem.votes, third.votes, other.votes) %>%
-    mutate_each(funs(ifelse(is.na(.), 0, . %>% str_replace_all(',','') %>% as.numeric())), total.votes:other.votes)
+    mutate_at(vars(total.votes:other.votes),funs(ifelse(is.na(.), 0, . %>% str_replace_all(',','') %>% as.numeric())))
 
   msa_elections <- msa_elections %>%
     left_join(national_elections, by = c('year'), suffix = c('.msa','.natl')) %>%
@@ -145,7 +152,7 @@ build_explanatory_variables <- function(data.dir = data_dir, save = FALSE, pop_t
   anchorage <- msa_elections %>% dplyr::filter(state == 'alaska') %>%
     mutate(district = county %>% str_extract('[[:digit:]]+$') %>% as.integer()) %>%
     dplyr::filter(district >= 11 & district <= 27) %>%
-    group_by(year, state) %>% dplyr::summarise_each(funs(sum(.)), ends_with(fixed('.votes'))) %>%
+    group_by(year, state) %>% dplyr::summarise_at(vars(ends_with(fixed('.votes'))),funs(sum(.))) %>%
     ungroup() %>% mutate(cnty.fips = '02020') %>%
     left_join(national_elections, by = c('year'), suffix = c('.msa','.natl')) %>%
     set_names(str_replace_all(names(.), "\\.msa$","")) %>%
@@ -171,7 +178,7 @@ build_explanatory_variables <- function(data.dir = data_dir, save = FALSE, pop_t
            city.state = str_c(county, state, sep = ", "))
 
   no_fips_geocodes <- no_fips %>% dplyr::select(city.state) %>% distinct() %>%
-    as.data.frame(stringsAsFactors = FALSE) %>%
+    as_tibble() %>%
     mutate_geocode(city.state, "more")
 
   no_fips <- no_fips %>% left_join(no_fips_geocodes, by = 'city.state') %>%
@@ -225,14 +232,14 @@ build_explanatory_variables <- function(data.dir = data_dir, save = FALSE, pop_t
   pvi <- msa_elections %>%
     dplyr::filter(! is.na(msa.fips)) %>%
     group_by(year, msa.fips) %>%
-    dplyr::summarize_each(funs(sum(.)), dem.votes, rep.votes, total.votes) %>%
+    dplyr::summarize_at(vars(dem.votes, rep.votes, total.votes),funs(sum(.))) %>%
     ungroup() %>%
     left_join(national_elections, by = 'year', suffix = c('.msa', '.natl')) %>%
     set_names(names(.) %>% str_replace_all('\\.msa$','')) %>%
     mutate(dem.share = dem.votes / (dem.votes + rep.votes),
            dem.share.natl = dem.votes.natl / (dem.votes.natl + rep.votes.natl)) %>%
     group_by(msa.fips) %>%
-    dplyr::summarize_each(funs(mean(.)), dem.share, dem.share.natl) %>%
+    dplyr::summarize_at(vars(dem.share, dem.share.natl),funs(mean(.))) %>%
     ungroup() %>%
     mutate(pvi = 100 * (dem.share - dem.share.natl))
 
@@ -264,6 +271,7 @@ build_explanatory_variables <- function(data.dir = data_dir, save = FALSE, pop_t
 
   pop_target = as.name(str_c('pop', pop_target_year, sep ='.'))
   n_years = pop_target_year - 2010
+
   population <- suppressWarnings(read_csv(file.path(data.dir, 'PEP_2015_GCTPEPANNR.US24PR.csv'), skip=1)) %>%
     set_names(names(.) %>% str_replace_all('[^[:alnum:]]+','.')) %>%
     dplyr::select(msa.fips = Target.Geo.Id2, msa.name = Geography.2, census.2010 = April.1.2010.Census,
@@ -273,10 +281,21 @@ build_explanatory_variables <- function(data.dir = data_dir, save = FALSE, pop_t
                   pop.2015 = Population.Estimate.as.of.July.1.2015) %>%
     mutate_(.dots = list(pop = pop_target, pop.growth = interp(~log(x / pop.2010) / n, x =as.name(pop_target), n = n_years)))
 
+  pop_density <- read_excel(file.path(data.dir, "population_density", "cbsa-report-chapter-3-data.xlsx"), range = "A6:K952",
+                            col_names = c("msa.fips", "msa.name", "category", "pop.2000", "pop.2010", "area",
+                                          "pop.dens.2000", "pop.dens.2010", "pop.w.dens.2000", "pop.w.dens.2010",
+                                          "delta.pop.w.dens")) %>%
+    mutate(pop.dens.growth = log(pop.w.dens.2010 / pop.w.dens.2000) / 10,
+           msa.fips = str_replace_all(msa.fips, fixed("31100"), "31080") %>%
+             str_replace_all(fixed("42060"), "42200") %>%
+             str_replace_all(fixed("26180"), "46520")) %>%
+    dplyr::select(msa.fips, area, pop.dens = pop.w.dens.2010, pop.dens.growth)
+
   explanatory_variables <- population %>% dplyr::select(msa.fips, msa.name, pop, pop.growth) %>%
     mutate(msa.fips = as.character(msa.fips) %>% str_pad(5, pad = '0')) %>%
     left_join(wudata, by = 'msa.fips') %>% left_join(pvi, by = 'msa.fips') %>%
     left_join(vwci_msa %>% dplyr::select(msa.fips, city = place), by = 'msa.fips') %>%
+    left_join(pop_density, by = "msa.fips") %>%
     dplyr::filter(! is.na(city))
 
   state_pvi <- state_elections %>% dplyr::select(year, state, pvi) %>%

@@ -6,7 +6,7 @@ p_load_gh('dkahle/ggmap')
 p_load(readxl)
 
 if (file.exists(file.path(data_dir, 'proprietary', 'google_maps_api.csv'))) {
-  api_key <- read_csv(file.path(data_dir, 'proprietary', 'google_maps_api.csv'))$api_key
+  api_key <- read_csv(file.path(data_dir, 'proprietary', 'google_maps_api.csv'))$api_key[1]
   register_google(key = api_key, account_type = 'standard', second_limit = 50, day_limit = 20000)
 }
 
@@ -54,7 +54,7 @@ extract_city_coordinates <- function(data.dir = data_dir, recalc_coords = TRUE) 
 
   if (recalc_coords || ! file.exists(file.path(data.dir, 'VWCI_city_coordinates.csv'))) {
     new_vwci <- new_vwci %>%
-    as.data.frame(stringsAsFactors = FALSE) %>%
+    as_tibble() %>%
     mutate_geocode(city.state, output = 'latlon', source = 'google')
   } else {
     old_coords <- read_csv(file.path(data.dir, 'VWCI_city_coordinates.csv')) %>%

@@ -14,7 +14,7 @@ parameters {
 model {
   vector[N] theta;
 
-  alpha ~ cauchy(0,10);
+  alpha ~ cauchy(0,2.5);
   beta ~ cauchy(0,2.5);
 
   for(i in 1:N) {
