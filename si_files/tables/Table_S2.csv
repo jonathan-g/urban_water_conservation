@@ -1,50 +1,50 @@
-State,PVI,Aridity,RPI,Surf. W. (%)
-Alabama,-13.88,28,39.2,95
-Arizona,-7.29,6.2,36.1,58
-Arkansas,-13.99,26.4,39.6,31
-California,9.25,11.4,40.8,67
-Colorado,0.82,11.4,44,86
-Connecticut,7.22,29.2,54.7,93
-Delaware,8.22,24.5,41.8,78
-District of Columbia,40.17,24,54.3,50
-Florida,-1.9,24.7,39.5,72
-Georgia,-6.12,24.6,38.9,74
-Idaho,-17.55,14.9,36.1,76
-Illinois,7.83,22.7,43.4,93
-Indiana,-5.17,24.6,39.8,92
-Iowa,1.08,20.7,45.7,79
-Kansas,-12.19,15.9,45.4,20
-Kentucky,-12.72,26.6,38.7,95
-Louisiana,-11.93,28.4,42.2,82
-Maine,5.52,29.8,38.5,78
-Maryland,10.3,24.4,45,96
-Massachusetts,9.66,29.3,50.3,88
-Michigan,3.76,21,39.7,94
-Minnesota,1.76,18.4,46.1,81
-Mississippi,-9.05,28.6,36.4,33
-Missouri,-5.25,23.6,42.7,79
-Montana,-6.93,12.3,38.9,96
-Nebraska,-12.2,14,48.2,41
-Nevada,2.07,5.8,38.3,54
-New Hampshire,1.02,30.6,46,93
-New Jersey,5.6,26.6,46.2,89
-New Mexico,3.65,8,35.8,50
-New York,11.11,27,44.1,93
-North Carolina,-3.26,25.8,39.2,94
-North Dakota,-10.09,12.4,56,86
-Ohio,-0.9,23.3,43.4,90
-Oklahoma,-19.04,18.7,44.4,36
-Oregon,4.52,19.3,38.2,68
-Pennsylvania,1.15,26.3,44.6,92
-Rhode Island,11.28,28.6,44.9,90
-South Carolina,-7.74,23.7,37.2,95
-South Dakota,-9.58,12.9,47.2,46
-Tennessee,-11.82,28.4,41.1,94
-Texas,-9.8,13.8,43.4,69
-Utah,-22.4,8.1,35.6,75
-Vermont,15.75,29.9,42.1,90
-Virginia,-0.25,24.3,45,96
-Washington,5.36,26,43.9,68
-West Virginia,-13,26.2,37.3,97
-Wisconsin,2.46,21,43.4,88
-Wyoming,-21.69,10.3,52.1,87
+State,PVI,Aridity,RPI
+Alabama,-13.88,28,39.2
+Arizona,-7.29,6.2,36.1
+Arkansas,-13.99,26.4,39.6
+California,9.25,11.4,40.8
+Colorado,0.82,11.4,44
+Connecticut,7.22,29.2,54.7
+Delaware,8.22,24.5,41.8
+District of Columbia,40.17,24,54.3
+Florida,-1.9,24.7,39.5
+Georgia,-6.12,24.6,38.9
+Idaho,-17.55,14.9,36.1
+Illinois,7.83,22.7,43.4
+Indiana,-5.17,24.6,39.8
+Iowa,1.08,20.7,45.7
+Kansas,-12.19,15.9,45.4
+Kentucky,-12.72,26.6,38.7
+Louisiana,-11.93,28.4,42.2
+Maine,5.52,29.8,38.5
+Maryland,10.3,24.4,45
+Massachusetts,9.66,29.3,50.3
+Michigan,3.76,21,39.7
+Minnesota,1.76,18.4,46.1
+Mississippi,-9.05,28.6,36.4
+Missouri,-5.25,23.6,42.7
+Montana,-6.93,12.3,38.9
+Nebraska,-12.2,14,48.2
+Nevada,2.07,5.8,38.3
+New Hampshire,1.02,30.6,46
+New Jersey,5.6,26.6,46.2
+New Mexico,3.65,8,35.8
+New York,11.11,27,44.1
+North Carolina,-3.26,25.8,39.2
+North Dakota,-10.09,12.4,56
+Ohio,-0.9,23.3,43.4
+Oklahoma,-19.04,18.7,44.4
+Oregon,4.52,19.3,38.2
+Pennsylvania,1.15,26.3,44.6
+Rhode Island,11.28,28.6,44.9
+South Carolina,-7.74,23.7,37.2
+South Dakota,-9.58,12.9,47.2
+Tennessee,-11.82,28.4,41.1
+Texas,-9.8,13.8,43.4
+Utah,-22.4,8.1,35.6
+Vermont,15.75,29.9,42.1
+Virginia,-0.25,24.3,45
+Washington,5.36,26,43.9
+West Virginia,-13,26.2,37.3
+Wisconsin,2.46,21,43.4
+Wyoming,-21.69,10.3,52.1

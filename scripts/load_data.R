@@ -24,7 +24,7 @@ filter_continental <- function(msa_data, state_data) {
 }
 
 #
-# Standardize MSA data and state data both to mean and sd of completely pooled  MSA's
+# Standardize MSA data to mean and sd of completely pooled  MSA's
 #
 standardize_msa_data_pooled <- function(msa_data, scale_factor = 2.0) {
   indices <- c('msa.fips','city','state','city.state', 'msa.name',
@@ -40,47 +40,44 @@ standardize_msa_data_pooled <- function(msa_data, scale_factor = 2.0) {
 }
 
 #
-# Standardize MSA data and state data both to mean and sd of completely pooled  MSA's
+# Standardize MSA data to mean and sd of completely pooled  MSA's
+# Standardize state data to mean and sd of states.
 #
 standardize_data_pooled <- function(msa_data, state_data, scale_factor = 2.0) {
   indices <- c('msa.fips','city','state', 'city.state', 'msa.name','lon','lat',
                'vwci', 'reqtotal', 'rebtotal')
+
   df  <- msa_data %>% dplyr::select(-one_of(indices))
   means <- df %>% summarize_all(funs(mean(.)))
   sds <- df %>% summarize_all(funs(sd(.)))
+
   msa_data <- msa_data %>%
     mutate_at(vars(-one_of(indices)),funs((. - mean(.)) / (scale_factor * sd(.))))
 
   state_indices <- c('state.fips','state','state.name')
-  cols <- c(state_indices, names(df)) %>% intersect(names(state_data))
-  state_data <- state_data %>% dplyr::select(one_of(cols))
-  data_cols <- setdiff(names(state_data), state_indices)
-  for(n in data_cols) {
-    state_data[,n] <- (state_data[,n] - means[[n]]) / (scale_factor * sds[[n]])
-  }
 
-  varlist <- names(state_data) %>% discard(~.x %in% c('state', 'state.name'))
+  state_df  <- state_data %>% dplyr::select(-one_of(state_indices))
+  state_means <- state_df %>% summarize_all(funs(mean(.)))
+  state_sds <- state_df %>% summarize_all(funs(sd(.)))
+
+  state_data <- state_data %>%
+    mutate_at(vars(-one_of(state_indices)), funs((. - mean(.)) / (scale_factor * sd(.))))
+
+  varlist <- names(state_data) %>% discard(~.x %in% c('state', 'state.name', 'state.fips'))
   dots <- varlist %>% {setNames(as.list(.), str_c('state', ., sep='.'))}
   state_data <- state_data %>% rename_(.dots = dots)
 
-  varlist <- c('pvi', 'rpp', 'rpi', 'affordability', 'gini',
-               'precip', 'temp', 'aridity',
-               'precip_70', 'temp_70', 'aridity_70',
-               'precip_85', 'temp_85', 'aridity_85',
-               'precip_95', 'temp_95', 'aridity_95',
-               'precip_05', 'temp_05', 'aridity_05',
-               'surface.water')
-  f <- purrr::map(varlist, function(x) {
-    substitute(.x - .y, list(.x = as.name(x),
-                             .y = as.name(str_c('state', x, sep = '.'))))
-  })
+  msa_data$pvi.aridity <- msa_data$pvi * msa_data$aridity
+  state_data$state.pvi.aridity <- state_data$state.pvi * state_data$state.aridity
 
-  msa_data <- msa_data %>% mutate(state = as.character(state)) %>%
-    left_join(state_data, by = 'state') %>%
-    mutate_(.dots = setNames(f, varlist)) %>%
-    dplyr::select(-starts_with('state.'))
+  pvi_state_aridity <- state_data %>% select(state, state.aridity) %>%
+    right_join(msa_data, by = "state") %>%
+    transmute(msa.fips, pvi.state.aridity = pvi * state.aridity)
 
-  invisible(list(means = means, sds = sds, msa_data = msa_data, state_data = state_data))
+  msa_data <- msa_data %>% left_join(pvi_state_aridity, by = "msa.fips")
+
+  invisible(list(means = means, sds = sds, state_means = state_means, state_sds = state_sds,
+                 msa_data = msa_data, state_data = state_data))
 }
 
 #
@@ -90,7 +87,7 @@ standardize_data_by_state <- function(msa_data, state_data, scale_factor = 2.0) 
   msa_indices <- c('msa.fips', 'city', 'state', 'city.state',
                    'msa.fips', 'msa.name',
                    'lon','lat',
-               'vwci', 'reqtotal', 'rebtotal')
+                   'vwci', 'reqtotal', 'rebtotal')
 
   state_indices <- c('state.fips','state','state.name')
 
@@ -110,7 +107,7 @@ standardize_data_by_state <- function(msa_data, state_data, scale_factor = 2.0) 
   msa_means <- msa_df %>% summarize_all(funs(mean(.))) %>% bind_cols(means, .)
   msa_sds <- msa_df %>% summarize_all(funs(sd(.))) %>% bind_cols(sds, .)
 
-  # scale to zero mean, sd = 1 / scale_factor  fpr columns that don't exist in state_data
+  # scale to zero mean, sd = 1 / scale_factor  for columns that don't exist in state_data
   msa_data <- msa_data %>%
     mutate_at(vars(-one_of(msa_cols)),funs((. - mean(.)) / (scale_factor * sd(.))))
 
@@ -120,7 +117,7 @@ standardize_data_by_state <- function(msa_data, state_data, scale_factor = 2.0) 
     msa_data[,n] <- (msa_data[,n] - means[[n]]) / (scale_factor * sds[[n]])
   }
 
-  varlist <- names(state_data) %>% discard(~.x %in% c('state', 'state.name'))
+  varlist <- names(state_data) %>% discard(~.x %in% c('state', 'state.name', 'state.fips'))
   dots <- varlist %>% {setNames(as.list(.), str_c('state', ., sep='.'))}
   state_data <- state_data %>% rename_(.dots = dots)
 
@@ -141,7 +138,17 @@ standardize_data_by_state <- function(msa_data, state_data, scale_factor = 2.0) 
     mutate_(.dots = setNames(f, varlist)) %>%
     dplyr::select(-starts_with('state.'))
 
-  invisible(list(means = msa_means, sds = msa_sds, msa_data = msa_data, state_data = state_data))
+  msa_data$pvi.aridity <- msa_data$pvi * msa_data$aridity
+  state_data$state.pvi.aridity <- state_data$state.pvi * state_data$state.aridity
+
+  pvi_state_aridity <- state_data %>% select(state, state.aridity) %>%
+    right_join(msa_data, by = "state") %>%
+    transmute(msa.fips, pvi.state.aridity = pvi * state.aridity)
+
+  msa_data <- msa_data %>% left_join(pvi_state_aridity, by = "msa.fips")
+
+  invisible(list(means = msa_means, sds = msa_sds, state_means = means, state_sds = sds,
+                 msa_data = msa_data, state_data = state_data))
 }
 
 

@@ -1,7 +1,7 @@
 <<knitr_options, cache=F, echo=F, include=F, eval=T, message=F, warning=F, error=F, results='hide'>>=
 library(knitr)
 
-for_submission <- TRUE
+for_submission <- FALSE
 figures_dir <- "figures/"
 
 my_tex_chunk_hook <- function(x, options) {
@@ -47,7 +47,6 @@ opts_chunk$set(cache = FALSE, cache.lazy = FALSE,
 @
 \documentclass[draft,linenumbers]{agujournal}
 \usepackage[hyphens]{url}
-% \usepackage[hidelinks]{hyperref}
 \usepackage{amsmath}
 % \draftfalse
 
@@ -58,7 +57,7 @@ opts_chunk$set(cache = FALSE, cache.lazy = FALSE,
 message("Re-checking Chunk:\n", as.character(deparse(knit_hooks$get("chunk"))), "\n")
 
 
-set.seed(477668150)
+set.seed(447268152)
 random_alpha <- TRUE # random effects on state-level intercept.
 
 sigma_sigma_delta <- 2.5 # for partial-pooling at state-level.
@@ -82,9 +81,6 @@ p_load(gridExtra)
 p_load(RColorBrewer)
 p_load(viridis)
 p_load(ggthemes)
-if (!p_isinstalled(egg)) {
-  p_install(egg)
-}
 
 p_load(rstan)
 p_load_gh('jonathan-g/jgmcmc@jgmcmc')
@@ -134,18 +130,20 @@ if (!dir.exists(file.path(output_dir, 'figures'))) dir.create(file.path(output_d
 # Set all the following variables to TRUE to recalculate all computations.
 # Setting these to FALSE re-uses previous computations in order to save
 # time. The `recalc_*` variables are part of data preparation (calculating
-# climate,  surface water, PVI, etc. for each MSA). The last two
-# (`resample_models` and `force_resampling`) re-compute the regression.
+# climate,  surface water, PVI, etc. for each MSA). The last four
+# (`resample_models`, `resample_test_models`, `resample_pooled_test_models`,
+#  and `force_resampling`) re-compute the regressions.
 #
-recalc_explanatory       <- FALSE
-recalc_vwci              <- FALSE
-recalc_city_coords       <- FALSE
-recalc_climate           <- FALSE
-recalc_msa_variables     <- FALSE
-recalc_standardized_data <- FALSE
-resample_models          <- FALSE
-resample_test_models     <- FALSE
-force_resampling         <- FALSE
+recalc_explanatory          <- FALSE
+recalc_vwci                 <- FALSE
+recalc_city_coords          <- FALSE
+recalc_climate              <- FALSE
+recalc_msa_variables        <- FALSE
+recalc_standardized_data    <- FALSE
+resample_models             <- FALSE
+resample_test_models        <- FALSE
+resample_pooled_test_models <- FALSE
+force_resampling            <- FALSE
 @
 <<reprocess_explanatory_variables, echo=F, eval=recalc_explanatory, message=F, warning=F, error=F, results='hide', cache=do_cache, cache.rebuild=c(!file.exists(file.path(data_dir, 'VWCI_explanatory_variables.csv'), !file.exists(file.path(data_dir, 'pvi_by_state.csv')), !file.exists(file.path(data_dir, 'wudata_out_NWIS_2010.csv')), !file.exists(file.path(data_dir, 'cbsa_msa_2015.xls')), !file.exists(data_dir, 'cbsa_msa_csa_2015.xls'))), cache.extra=c(file.mtime(file.path(data_dir, 'VWCI_DATA_10_15_16.xlsx')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2008_al_fl.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2008_ga_ky.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2008_la_ne.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2008_nv_nm.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2008_ny_sd.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2008_tn_wy.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2012_al_fl.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2012_ga_ky.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2012_la_ne.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2012_nv_nm.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2012_ny_sd.csv')), file.mtime(file.path(data_dir, 'proprietary', 'cq_election_2012_tn_wy.csv')), file.mtime(file.path(data_dir, 'PEP_2015_GCTPEPANNR.US24PR.csv')), file.mtime(file.path(data_dir, 'wudata_out_NWIS2016-10-29.csv')), file.mtime(file.path(data_dir, 'cbsa_msa_2015.xls')), file.mtime(file.path(data_dir, 'cbsa_msa_csa_2015.xls')), file.mtime(file.path(script_dir, 'build_explanatory_variables.R')))>>=
 source(file.path(script_dir, 'build_explanatory_variables.R'))
@@ -177,14 +175,14 @@ process_city_aridity('data')
   n_all_states <- vwci_all$state %>% unique %>% length
   rm(vwci_all)
 @
-<<source_fit_model, echo=F, eval=T, message=F, warning=F, error=F, results='hide', cache = do_cache, cache.extra=c(file.mtime(file.path(script_dir, 'fit_model.R')), file.mtime(file.path(data_dir, 'standardized_data.Rds')))>>=
+<<source_fit_model, echo=F, eval=T, message=F, warning=F, error=F, results='hide', cache = FALSE, cache.extra=c(file.mtime(file.path(script_dir, 'fit_model.R')), file.mtime(file.path(data_dir, 'standardized_data.Rds')))>>=
   source(file.path(script_dir, 'fit_model.R'))
 @
-<<fit_models, echo=F, eval=resample_models, message=F, warning=F, error=F, results='hide', cache = do_cache && ! force_resampling, dependson='source_fit_model', cache.rebuild=!file.exists('data/model_fits.Rds'), cache.extra=c(random_alpha, std_data, vars_1, vars_2, file.mtime(file.path(script_dir, 'water_conserve_3_ml_vary_intercept_beta.stan')), file.mtime(file.path(script_dir, 'water_conserve_4_ml_vary_intercept_beta.stan')), file.mtime(file.path(script_dir, 'water_conserve_3_ml_vary_intercept.stan')))>>=
+<<fit_models, echo=F, eval=resample_models, message=F, warning=F, error=F, results='hide', cache = do_cache && ! force_resampling, cache.rebuild=!file.exists('data/model_fits.Rds'), cache.extra=c(random_alpha, std_data, vars_1, file.mtime(file.path(script_dir, 'water_conserve_ml_vary_intercept_beta_alpha.stan')))>>=
       process_models(std_data, vars = model_vars,
                    data.dir = 'data',
                    abs_rank = TRUE,
-                   var_sel = c("vars_2"),
+                   var_sel = c("vars_1"),
                    beta = c(TRUE), multilevel = c(TRUE),
                    random_alpha = c(TRUE),
                    remove_desal = FALSE,
@@ -193,26 +191,48 @@ process_city_aridity('data')
                    sigma_sigma_delta = sigma_sigma_delta,
                    dependent_vars = c("VWCI", "REQ", "REB"),
                    filename = file.path(data_dir, "model_fits.Rds"),
-                   seed = 2103112944)
+                   seed = 2105282946, comment = "main")
 @
-<<test_models, echo=F, eval=resample_test_models, message=F, warning=F, error=F, results='hide', cache = do_cache && ! force_resampling, dependson='source_fit_model', cache.rebuild=!file.exists('data/model_fits.Rds'), cache.extra=c(random_alpha, std_data, vars_1, vars_2, file.mtime(file.path(script_dir, 'water_conserve_3_ml_vary_intercept_beta.stan')), file.mtime(file.path(script_dir, 'water_conserve_4_ml_vary_intercept_beta.stan')), file.mtime(file.path(script_dir, 'water_conserve_3_ml_vary_intercept.stan')))>>=
+<<test_models, echo=F, eval=resample_test_models, message=F, warning=F, error=F, results='hide', cache = do_cache && ! force_resampling, cache.rebuild=!file.exists('data/model_fits.Rds')>>=
     process_models(std_data, vars = model_vars,
                    data.dir = 'data',
                    abs_rank = TRUE,
-                   var_sel = c("vars_2", "vars_3", "vars_4", "vars_5",
-                               "vars_6", "vars_7", "vars_8"),
+                   var_sel = c("vars_1", "vars_2", "vars_3", "vars_4", "vars_5",
+                               "vars_6", "vars_7", "vars_8", "vars_9", "vars_10"
+                               # "vars_11"
+                               ),
                    beta = c(TRUE, FALSE), multilevel = c(TRUE, FALSE),
-                   random_alpha = c(TRUE, FALSE),
+                   random_alpha = c(TRUE),
                    remove_desal = FALSE,
                    mu_phi_vwci = mu_phi_vwci,  sigma_phi_vwci = sigma_phi_vwci,
                    mu_phi_rr = mu_phi_rr,  sigma_phi_rr = sigma_phi_rr,
                    sigma_sigma_delta = sigma_sigma_delta,
                    dependent_vars = "VWCI",
                    filename = file.path(data_dir, "test_model_fits.Rds"),
-                   seed = 2103112944)
+                   seed = 1796870325, comment = "test")
+
 @
-<<load_model_fits, echo=F, eval=T, message=F, warning=F, error=F, results='hide', dependson='source_fit_model', cache=do_cache, cache.extra=c(file.mtime(file.path(data_dir, 'model_fits.Rds')), file.mtime(file.path(data_dir, 'standardized_data.Rds')), file.mtime(file.path(data_dir, 'filtered_data.Rds')))>>=
-set.seed(588665752) # Keep things reproducible when I sometimes run the preceeding chunks and sometimes don't.
+<<test_pooled_models, echo=F, eval=resample_pooled_test_models, message=F, warning=F, error=F, results='hide', cache = do_cache && ! force_resampling, cache.rebuild=!file.exists('data/model_fits.Rds')>>=
+      process_models(std_pooled_data, vars = model_vars,
+                   data.dir = 'data',
+                   abs_rank = TRUE,
+                   var_sel = c("vars_1", "vars_2", "vars_3", "vars_4", "vars_5",
+                               "vars_6", "vars_7", "vars_8", "vars_9", "vars_10"
+                               # "vars_11"
+                               ),
+                   beta = c(TRUE, FALSE), multilevel = c(TRUE, FALSE),
+                   random_alpha = c(TRUE),
+                   remove_desal = FALSE,
+                   mu_phi_vwci = mu_phi_vwci,  sigma_phi_vwci = sigma_phi_vwci,
+                   mu_phi_rr = mu_phi_rr,  sigma_phi_rr = sigma_phi_rr,
+                   sigma_sigma_delta = sigma_sigma_delta,
+                   dependent_vars = "VWCI",
+                   filename = file.path(data_dir, "test_model_fits_pooled.Rds"),
+                   seed = 485695703, comment = "pooled")
+
+@
+<<load_model_fits, echo=F, eval=T, message=F, warning=F, error=F, results='hide', cache=do_cache, cache.extra=c(file.mtime(file.path(data_dir, 'model_fits.Rds')), file.mtime(file.path(data_dir, 'standardized_data.Rds')), file.mtime(file.path(data_dir, 'filtered_data.Rds')))>>=
+set.seed(587365757) # Keep things reproducible when I sometimes run the preceeding chunks and sometimes don't.
 
 basic_data <- read_rds(file.path(data_dir, 'filtered_data.Rds'))
 scaled_data <- read_rds(file.path(data_dir, 'standardized_data.Rds'))
@@ -244,7 +264,7 @@ if (for_submission) {
 figure_captions <- c(
   vwci_map = "Map of cities with VWCI scores.",
   vwci_histogram = "Distribution of VWCI, requirements, and rebates.",
-  vwci_cat_plot = str_c("Scaled regression coefficients for VWCI, requirements, and rebates: $\\gamma$ refer to state-level regression coefficients and $\\beta$ to MSA-level ones.\n%Coefficients are scaled  so the value on the horizontal axis represents the approximate change in the probability $p_i$ of adopting an action, corresponding to a  two-standard-deviation change in the predictor when $p_i$ is around 0.5.\nFor a scaled coefficient of 0.1, a two-standard-deviation change in the predictor corresponds to VWCI changing by about ", round(n_actions * 0.10), " for a city with a VWCI of around ", round(n_actions / 2), ", the number of requirements changing by about ", round(n_req * 0.10), " for a city with around ", round(n_req / 2), " requirements, and a the number of rebates changing by about ", round(n_reb * 0.10), " for a city with around ", round(n_reb / 2), " rebates. The points represent the median of the posterior, the thick lines the ", round(100 * (thick_ci[2] - thick_ci[1])), "\\% highest-density interval (HDI), and the thin lines the ", round(100 * (thin_ci[2] - thin_ci[1])), "\\% HDI. Coefficients are grouped by state vs.\ city level and then ordered within each group by absolute value of the median for the VWCI analysis."),
+  vwci_cat_plot = str_c("Scaled regression coefficients for VWCI, requirements, and rebates: $\\gamma$ refer to state-level regression coefficients and $\\beta$ to MSA-level ones.\n%Coefficients are scaled  so the value on the horizontal axis represents the approximate change in the probability $p_i$ of adopting an action, corresponding to a  two-standard-deviation change in the predictor when $p_i$ is around 0.5.\nFor a scaled coefficient of 0.1, a two-standard-deviation change in the predictor corresponds to VWCI changing by about ", round(n_actions * 0.10), " for a city with a VWCI of around ", round(n_actions / 2), ", the number of requirements changing by about ", round(n_req * 0.10), " for a city with around ", round(n_req / 2), " requirements, and the number of rebates changing by about ", round(n_reb * 0.10), " for a city with around ", round(n_reb / 2), " rebates. The points represent the median of the posterior, the thick lines the ", round(100 * (thick_ci[2] - thick_ci[1])), "\\% highest-density interval (HDI), and the thin lines the ", round(100 * (thin_ci[2] - thin_ci[1])), "\\% HDI. Coefficients are grouped by state vs.\ city level and then ordered within each group by absolute value of the median for the VWCI analysis."),
   vwci_residuals = str_c("Predicted versus actual VWCI. Cities with the ten largest residuals are labeled. Cities in California, Florida, and Texas are indicated by color (these states contain ", (basic_data$msa_data %>% mutate(CaFlTx = state %in% c("CA", "FL", "TX")) %>% group_by(CaFlTx) %>% summarize(count = n()) %>% ungroup() %>% mutate(pct = round(100 * count / sum(count))) %>% filter(CaFlTx) %>% select(pct) %>% simplify() %>% unname()), "\\% of the MSAs in our data set)")
 )
 
@@ -311,31 +331,20 @@ regionally focused. We present a hierarchical Bayesian analysis of a new measure
 of urban water conservation policy, the Vanderbilt Water Conservation Index (VWCI),
 for \Sexpr{n_cities}~cities in \Sexpr{n_states}~states in the contiguous United
 States.
-\added{This study does not attempt to establish causal relationships, but does
-observe that}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
-\replaced{Cities}{cities}
-in states with arid climates and
-\replaced{%
-greater tendency to vote for Democratic candidates
-}{%
-higher partisan voting index (PVI)
-}%
-\explain{Tone down use of "Democratic" to address concerns about
-sensationalistic media coverage.}%
+This study does not attempt to establish causal relationships, but does
+observe that cities in states with arid climates
+\deleted{and higher partisan voting index (PVI) }%
+\explain{Move discussion of MSA-level PVI versus state-level PVI and difference between
+state- and MSA-level out of the abstract, as it requires more subtle discussion.}%
 tend to adopt more conservation measures.
-Within a state, cities with large and rapidly growing populations and
-\replaced{%
-greater propensity than the rest of the state to vote Democratic
-}{%
-higher PVI than the rest of the state
-}%
+Within a state, cities with
+\added{more Democratic-leaning voting preferences and }%
+\explain{As reviewer \#2 noted, most readers won't be familiar with PVI, so explaining
+the results in terms of Democratic vs.\ Republican voting will be clearer and more accessible.}%
+large and rapidly growing populations\deleted{ and higher PVI than the rest of the state}
 tend to adopt more conservation measures.
-Economic factors and climatic differences between cities do not
-\replaced{have much effect on}{correlate with}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
-the number of measures adopted, but they
-\replaced{impact}{do correspond to}
+Economic factors and climatic differences between cities do not correlate with
+the number of measures adopted, but they do \replaced{correspond to}{correlate with}
 the character of the measures, with arid cities favoring mandatory conservation
 actions and cities in states with lower real personal income favoring rebates
 for voluntary actions.
@@ -363,11 +372,14 @@ water availability in some regions, such as the Southwestern United States
 \citep{gcrp:natl.assessment.3:2014}.
 For many years, advocates of soft approaches to managing water resources have
 stressed the importance of improving  the efficiency with which society obtains
+\added{and consumes}
 the water services it requires  \citep{gleick:soft.water.paths:2002}.
 Some cities and their associated water-supply systems respond to these
 challenges by pursuing grand energy-intensive infrastructure projects to draw
-water from distant or difficult sources, but many have also shown increasing
-interest in the soft path, managing demand through efficiency and conservation
+water from distant or difficult sources\replaced{, but}{. However,}
+many have also shown increasing
+interest in the soft path,\added{ which involves}
+managing demand through efficiency and conservation
 measures, and a number of cities have made impressive progress
 \citep{fleck:fighting:2016}.
 
@@ -375,7 +387,7 @@ A pressing challenge is to identify the characteristics of successful
 transitions toward sustainable water use and the necessary conditions for those
 transitions to spread more widely.
 Studies have investigated urban water conservation policies and several water
-conservation indices are available, but these either lack comprehensive coverage
+conservation indices are available, but these \added{studies} either lack comprehensive coverage
 of water conservation policies or are geographically limited
 \citep{hess:vwci:2017,sauri:conservation:2013,maggioni:conservation:2014}.
 Recent research finds that individual perception of water scarcity and
@@ -393,41 +405,28 @@ lawn-watering or mandatory use of water-efficient plumbing in new construction
 and renovations; and \Sexpr{n_reb} rebates offered for voluntary actions, such
 as purchasing water-efficient appliances.
 Previously, we assessed this index and performed preliminary quantitative and
-qualitative analyses on a subset of the \deleted{22} central cities of the \added{22} largest
+qualitative analyses on a subset of the central cities of the 22 largest
 metropolitan statistical areas (MSAs) in the extended Southwestern United States
 \citep{hess:drought:2016}.
-\added{That preliminary analysis found that propensity to
+That preliminary analysis found that propensity to
 adopt water conservation measures depended both on characteristics
 of the physical environment (precipitation) and on socio-economic and political
-characteristics of the MSA (partisan voting and cost of living).}
-\explain{Edited for conciseness.}%
-
-\deleted{
-Our preliminary analysis of the 22~largest MSAs in the Southwest found that
-propensity to adopt water conservation measures depended both on characteristics
-of the physical environment (precipitation) and socio-economic and political
 characteristics of the MSA (partisan voting and cost of living).
-The Cook Partisan Voting Index for an MSA had, by a large margin,
-the greatest predictive power for adopting water conservation measures.
-This finding was supported by qualitative analysis, which suggested that
-political association of water conservation with general ``environmentalist''
-politics created political differences in the ways that cities respond to the
-physical fact of water scarcity.
-}
-\explain{Break this paragraph up: Put a brief summary into the previous
-paragraph, and incorporate details into the following discussion of
-the PVI.}
 
-\added{We represented the partisan political leanings of states and MSAs by the
+We represented the partisan political leanings of states and MSAs by the
 Cook Partisan Voting Index (PVI) \citep{cook:pvi:2013}. The index measures
 the difference between the percentage of the two-party vote received by
 Democratic presidential candidates in a city or MSA and the percentage received
 in the national election. Positive or negative values measure the
-city's or state's preference for the Democratic or Republican candidates,
-respectively, relative to the national average.}
-\explain{Provide explanation of what PVI is.}
+city's or state's preference for the Democratic\added{ (more progressive)}
+or Republican\added{ (more conservative)} candidates,
+respectively, relative to the national average.
+\added{Previous studies have indicated that a more Democratic-leaning PVI score is associated with higher environmental
+policy adoption, including for renewable energy \citep{chupp:environ.voting:2011}
+and water-conservation policies \citep{hess:drought:2016}, and conversely that a lower score is associated with
+higher greenhouse gas emissions from power plants \citep{grant:environ.accountability:2017}.}
 
-\added{Municipal water conservation policies are chosen by city officials, so it
+Municipal water conservation policies are chosen by city officials, so it
 may seem curious to measure partisan leanings with respect to presidential
 elections. However, presidential votes have the advantage of providing a uniform
 scale because voters across the country choose between the same candidates,
@@ -437,13 +436,13 @@ with narrow ideological differences in some elections and wide differences in
 others. Assessing partisan leanings in state and local
 elections becomes more complicated and difficult when we consider that
 the vast majority of American cities hold non-partisan city-council elections
-\citep{svara:city.councils:2003} and more than one third of state-legislature
+\citep{svara:city.councils:2003} and \added{that} more than one third of state-legislature
 races are uncontested by one of the major parties
 \citep{klarner:state.elections:2015,ap:uncontested:2006}.
 Moreover, detailed vote
 counts are not readily available for municipal- and state-level elections as
 they are for presidential elections. For all these reasons, presidential
-voting patterns are widely used to gauge regional variations in partisan
+voting patterns are \replaced{widely used to gauge}{a useful measure for gauging} regional variations in partisan
 leanings.
 Finally, we note that the rate of split-ticket voting has declined rapidly
 and consistently since the late 1980s \citep{fiorina:renationalization:2016}
@@ -451,10 +450,7 @@ and that even voters who self-identify as independent are found to align
 consistently with one party or the other \citep{hawkins:motivated:2012},
 so we believe that
 presidential votes are good indicators for comparing the partisan leanings
-that voters bring to state and local elections across the United States.}
-\explain{Explain why why we use a measure (PVI) derived from presidential
-vote shares, rather than something that uses vote shares from
-state and local elections}
+that voters bring to state and local elections across the United States.
 
 % Two important economic indicators are
 % Regional Price Parity (RPP) and Real Personal Income (RPI),
@@ -466,37 +462,37 @@ state and local elections}
 % we expected that the ratio of income to cost of living would be more relevant
 % than cost of living alone.
 %
-\added{%
-Our previous analysis found that the PVI for an MSA had, by a large margin,
+Our previous analysis found that the \replaced{PVI}{measure of Democratic-leaning voting preference (PVI)}
+for an MSA had, by a large margin,
 the greatest predictive power for adopting water conservation measures
-\cite{hess:drought:2016}.
+\citep{hess:drought:2016}.
 % , with RPP having the second-greatest predictive power.
-The importance of PVI
-was supported by qualitative analysis, which suggested that political
+The importance of \replaced{PVI}{this measure}
+was supported by qualitative analysis, which suggested that\added{ the} political
 association of water conservation with general ``environmentalist'' politics
 created political differences in the ways that cities respond to the physical
 fact of water scarcity.
-}
 
-We subsequently expanded our database to the central cities in
-\Sexpr{n_all_cities}~MSAs in \Sexpr{n_all_states} states \citep{hess:vwci:2017},
-which comprise more than half of the 382~MSAs in the United States
-\citep{census:population:2015} and here, we present the first quantitative
+We subsequently expanded our database to the central cities in the
+\Sexpr{n_all_cities}~most populous MSAs in
+\replaced{\Sexpr{n_all_states} states}{the United States} \citep{hess:vwci:2017},
+which\added{ span \Sexpr{n_all_states} and} comprise more than half of the 382~MSAs
+in the \replaced{United States}{U.S.}
+\citep{census:population:2015}\replaced{ and here}{. Here}, we present the first quantitative
 analysis of the larger database, analyzing relationships between environmental
 and societal characteristics of \Sexpr{n_cities}~cities across the contiguous
 United States and those cities' propensity to adopt water conservation policies.
-This analysis considers state-level as well as MSA-level variables. We identify
-which variables
-\replaced{best explain}{correlate most strongly with}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
-variations in water conservation policy regimes,
-how effects at the state level moderate city-level effects, and whether these
+\replaced{This}{Our goal is to assess differences across MSAs that are correlated with higher or lower levels of water-conservation policy adoption. Our} analysis\added{ also}
+considers state-level\deleted{ as well as MSA-level}
+variables\added{ because MSA policy adoption can be strongly influenced by state-government actions, such as the California state government's strong policy support for water conservation)}.
+We identify which variables correlate most strongly with variations in water conservation policy
+regimes\deleted{, how effects at the state level moderate city-level effects,} and whether these
 effects manifest differently when we consider specific aspects of
 water-conservation policy, such as requirements and rebates.
 %We find that differences in climate, political leanings of voters, and
 %demographics are reflected in the number and kind of water conservation
 %measures adopted by U.S. cities. Such insights
-This analysis may help water managers and policy makers to anticipate how
+This may help water managers and policy makers to anticipate how
 receptive a given city might be to adopting different conservation measures.
 
 \section{Data and Methods}
@@ -529,7 +525,7 @@ print(p1)
 %
 % vwci_histogram figure
 %
-<<vwci_histogram, echo=F, include=!for_submission, fig.height=6, fig.width=5, fig.pos='tb', fig.align="center", fig.cap=figure_captions['vwci_histogram'], cache=do_cache, dependson=c("load_model_fits","source_fit_models","captions"), cache.extra = c(theme_get()), results = fig_body_results>>=
+<<vwci_histogram, echo=F, include=!for_submission, fig.height=6, fig.width=5, fig.pos='tb', fig.align="center", fig.cap=figure_captions['vwci_histogram'], cache=do_cache, dependson=c("captions"), cache.extra = c(theme_get()), results = fig_body_results>>=
 std_data$msa_data %>%
 dplyr::select(VWCI = vwci, Rebates = rebtotal, Requirements = reqtotal) %>%
   gather(key = measure, value = value) %>%
@@ -551,16 +547,14 @@ print(p2)
 %The VWCI data set provides detailed information about both the number and
 %nature of water conservation policies in \Sexpr{n_all_cities }~cities in
 %\Sexpr{n_all_states}~states  \citep{hess:drought:2016,hess.vwci:2017}.
-The full VWCI data set provides detailed information about both the number and
+The\deleted{ full} VWCI data set \replaced{provides detailed information about}{reports} both the number and
 nature of urban water conservation policies, which  allows hierarchical analysis
 to examine the relationships between water conservation scores and
 hydroclimatological and societal characteristics at both state and MSA levels.
 Our complete database includes Anchorage, AK, and Honolulu, HI, but for this
 analysis we chose to include only cities within the contiguous United States
 (\Sexpr{n_cities}~cities in \Sexpr{n_states}~states,
-Figure~\replaced{S1}{\ref{fig:vwci_map}})
-\explain{Bring map figure from SI to main paper to help readers easily see the
-geographic distribution of MSAs.}%
+Figure~\ref{fig:vwci_map})
 because both
 climatic and socio-political characteristics of Alaska and Hawaii may be very
 different from those of the contiguous states, and also because state-level
@@ -572,12 +566,16 @@ to~\Sexpr{max(std_data$msa_data$vwci)}
 with a mean of  \Sexpr{round(mean(std_data$msa_data$vwci),1)}
 and a median of \Sexpr{round(median(std_data$msa_data$vwci), 1)}
 (Figure~\ref{fig:vwci_histogram}a; Table~S1).
-The number of requirements ranges
-\deleted{from }from~\Sexpr{min(std_data$msa_data$reqtotal)}
+\added{The set of \Sexpr{n_actions} measures for each city makes it possible to construct different variables.
+In this study, we focus on three variables: the composite VWCI of all \Sexpr{n_actions} policies,
+the subset of \Sexpr{n_req} requirements, and the subset of \Sexpr{n_reb} rebates.}
+The \replaced{number of requirements}{requirement scores} range\deleted{s}
+from~\Sexpr{min(std_data$msa_data$reqtotal)}
 to~\Sexpr{max(std_data$msa_data$reqtotal)}
 with a mean of \Sexpr{round(mean(std_data$msa_data$reqtotal),1)}
 and a median of \Sexpr{round(median(std_data$msa_data$reqtotal), 1)}
-(Figure~\ref{fig:vwci_histogram}b) and the number of rebates ranges
+(Figure~\ref{fig:vwci_histogram}b)
+and the \replaced{number of rebates}{rebate scores} range\deleted{s}
 from~\Sexpr{min(std_data$msa_data$rebtotal)}
 to~\Sexpr{max(std_data$msa_data$rebtotal)}
 with a mean of \Sexpr{round(mean(std_data$msa_data$rebtotal),1)}
@@ -586,7 +584,7 @@ and a median of \Sexpr{round(median(std_data$msa_data$rebtotal), 1)}
 %
 % top_vwci table
 %
-<<top_vwci, echo=F, include=!for_submission, dependson=c('load_model_fits','source_fit_models',"captions"), cache.extra=c(model_fits), results = tab_body_results>>=
+<<top_vwci, echo=F, include=!for_submission, dependson=c("captions"), cache.extra=c(model_fits), results = tab_body_results>>=
 tab_placement = ifelse(for_submission, "htbp", "tbp")
 include.aridity.in.table = FALSE
 if(include.aridity.in.table) {
@@ -647,62 +645,81 @@ Western U.S., with the exception of two cities in Florida and one in New York
 New York and Salt Lake City vs.\ Tampa and Vallejo, El Paso vs.\ Miami, and
 Riverside vs.\ Fresno, may have very different relative contributions from
 requirements and rebates.
-
-The relative contributions of rebates and requirements to VWCI varied
-considerably (Tables~\ref{tab:top_vwci}, S1), and our previous qualitative research
+\added{Our previous qualitative research
 indicated that there might be a preference for rebates over requirements in more
 politically conservative cities \citep{hess:drought:2016,brown:politics:2016}.
 Consequently, in addition to the VWCI score we also analyzed the number of
 rebates and the number of requirements in a city's portfolio of conservation
-policies.
+policies.}
+
+The relative contributions of rebates and requirements to VWCI varied
+considerably (Tables~\ref{tab:top_vwci}, S1)\deleted{, and our previous qualitative research
+indicated that there might be a preference for rebates over requirements in more
+politically conservative cities
+[\textit{Hess et al.}, 2016, \textit{Brown and Hess}, 2017]
+Consequently, in addition to the VWCI score we also analyzed the number of
+rebates and the number of requirements in a city's portfolio of conservation
+policies}.
+
 
 \subsection{Explanatory Variables}
-We obtained values for the MSA-level
-\replaced{average annual average}{monthly average}
-temperature ($T$) and \added{monthly} total precipitation ($P$) for the period
-\replaced{1970}{1900}--2014
-\explain{Present the time extent of the entire data set, rather than
-just the years we extracted from that data set.}%
-from the University of Delaware's gridded climate reanalysis
+\added{We selected explanatory variables with the goal of understanding the
+relative contribution of political-economic and hydroclimatological factors
+to policy adoption.
+We selected one political variable (the Cook Partisan Voting Index, PVI) for reasons
+described above and one economic variable (relative personal income, RPI).
+We calculated PVI using state- and county-level presidential votes averaged over the
+2008 and 2012 elections \citep{cook:pvi:2013,cq:elections:2016}
+(Tables~S1--S2 and Datasets~S1--S4).
+Positive PVI indicates that the Democratic share of the two-party vote was greater
+than the national average, and negative PVI indicates a greater Republican vote share.
+Income is generally correlated with education and with a range of other variables that
+are associated with differences in policy adoption, and we reasoned that in poorer
+regions there may be a preference for rebates and other optional policies.
+We chose real personal income (RPI), which represents the average personal income in the city
+or state, adjusted for inflation and the regional cost of living
+\citep{bea:rpp.methodology:2016}.
+We obtained RPI for MSAs and states in 2014 from the
+\citet{bea:rpi:2016}.}
+
+\replaced{We}{For the hydrological variables, we}
+obtained values for the MSA-level monthly average temperature ($T$) and monthly
+total precipitation ($P$) for the period 1900--2014 from the University of Delaware's
+gridded climate reanalysis
 \citep{matsuura:gridded.temp:2015,matsuura:gridded.precip:2015}
-and for state-level from the National Climatic Data Center's divisional
-temperature and precipitation records for the Continental U.S.
+and for state-level from the National Climatic Data Center's divisional temperature
+and precipitation records for the Continental U.S.
 \citep{vose:nclimdiv:2014}.
-\added{We calculated the mean annual temperature and precipitation over a
-30-year interval from 1985--2014.}
-\explain{Explain interval used to calculate aridity averages.}%
+We calculated the mean annual temperature and precipitation over a
+30-year interval from 1985--2014.
 % PDSI was calculated from temperature and precipitation using a MATLAB software
 % package by Jacobi \emph{et al.} and the historical drought severity was
 % calculated as the longest run of consecutive years from 1900--2010 with
 % $\text{PDSI} \le -3$ \citep{jacobi:PDSI:2015}.
-We obtained populations for MSAs and states in 2010 and \Sexpr{pop_target_year}
-from the \citet{census:population:2015} and used them to calculate average
+\deleted{We obtained populations for MSAs and states in 2010 and \Sexpr{pop_target_year}
+from the \textit{U.S. Census Bureau} [2015] and used them to calculate average
 annual rates of population growth.
-\added{An important economic indicator is real personal income (RPI),
+An important economic indicator is real personal income (RPI),
 which represents the average personal income in the city or state, adjusted for
-inflation and the regional cost of living \citep{bea:rpp.methodology:2016}.}
-\explain{Explain what the RPI variable indicates and why we used it.}%
-\replaced{%
-Per-capita real personal income (RPI) for MSAs and states in \Sexpr{bea_year}
-were was obtained
-}{%
+inflation and the regional cost of living [\textit{U.S. Bureau or Economic Analysis}, 2016].
 We obtained RPI for MSAs and states in \Sexpr{bea_year}
-}%
-from the \citet{bea:rpi:2016}.
-\replaced{The}{We obtained the}
-fraction of the public water supply taken from surface water sources
+from the \textit{U.S. Bureau of Economic Analysis} [2016]. }%
+We obtained the fraction of the public water supply taken from surface water sources
 (henceforth, surface-water fraction) from the U.S. Geological
 Survey's water use report for 2010 \citep{maupin:water.use:2014}.
-\replaced{%
-The Cook Partisan Voting Index (PVI) was calculated
-}{%
-We calculated the Cook Partisan Voting Index (PVI)
-}%
+\deleted{We calculated the Cook Partisan Voting Index (PVI)
 using state- and county-level presidential votes, averaged over the 2008 and 2012
-elections \citep{cook:pvi:2013,cq:elections:2016}.
+elections [\textit{Wasserman}, 2013, \textit{CQ Press}, 2016].
 Positive PVI indicates a greater Democratic vote share than the national average
 and negative PVI a greater Republican vote share
-(Tables~S1--S2 and Datasets~S1--\replaced{S2}{S4}).
+(Tables~S1--S2 and Datasets~S1--S4).}
+
+\added{In addition to the two political-economic variables and the two hydroclimatological variables,
+we included measures for total population and population growth of the MSA. Our previous research had
+indicated that larger cities have more capacity to adopt water-conservation policies and that more
+rapidly growing cities are more concerned with water supply. We obtained populations for MSAs and states
+in 2010 and 2014 from the \citet{census:population:2015} and used them to calculate average annual rates
+of population growth.}
 
 We began with the covariates listed above, but adopted a modified set based on
 preliminary results: The regression coefficients for $T$ and $P$ showed
@@ -711,91 +728,90 @@ This, together with a desire for parsimony, led us to replace them with the
 K\"oppen aridity index: $P / (T + 33)$, with $P$ in millimeters and $T$ in
 Celsius.
 The K\"oppen index is
-\replaced{deemed an especially reliable index of aridity}%
-{derived from mean annual temperature and precipitation
+derived from mean annual temperature and precipitation
 and correlates reasonably well with other aridity indices
-that incorporate evapotranspiration}
-\explain{Give a clearer description of what the Quan paper said and why we chose
-the K\"oppen index, as opposed to a more detailed one that uses
-evapotranspiration.}%
+that incorporate evapotranspiration
 \citep{quan:aridity:2013}.
 Larger values of this index correspond to wetter conditions
 and smaller values to drier conditions.
 
 The distribution of MSA population in~\Sexpr{pop_target_year} was skewed, with
-a few large cities producing an asymmetric fat tail (Figure~S\replaced{2}{1}),
-so we deemed \added{the} natural logarithm of population
-\replaced{more suitable}{a more suitable predictor}
+a few large cities producing an asymmetric fat tail (Figure~S1),
+so we deemed the natural logarithm of population
+a more suitable predictor
 for a regression analysis \citep[pp.~59--61]{gelman:arm:2007}.
 
-\added{We tested for robustness by comparing this regression to
+\deleted{We tested for robustness by comparing this regression to
 alternate regression analyses that used different predictors and different
 prior distributions.}
-\explain{Address questions about possible alternate covariates, such as
-economic inequality, population density, MSA area, etc.}
 
 \subsection{Regression Analysis}
 We applied Bayesian hierarchical varying-intercept
-\added{logistic} regression to each of the
+logistic regression to each of the
 three conservation scores (VWCI, number of requirements, and number of rebates)
-with the following explanatory variables: the K\"oppen aridity index, surface
-water fraction, PVI, RPI, metropolitan population, and population growth rate.
+with the following explanatory variables:
+\added{PVI (Democratic Party preference), RPI (real per-capita income),}
+the K\"oppen aridity index, surface water fraction,
+\deleted{PVI, RPI, }metropolitan population, and population growth rate.
 The hierarchical structure of our regression model, which nests cities and MSAs
 within states, reflects the fact that water resources extend beyond MSA
 boundaries and that state-level policies affect local actions, both by
 constraining local ordinances and regulations, and by encouraging or requiring
 counties and cities to adopt various types of conservation measures.
+\added{We also considered a hierarchical varying-slope model, but with an average
+of only 4.3 MSAs per state there were too few degrees of freedom to adequately
+constrain 6 additional regression coefficients for each state.}
 
-The regression
-\replaced{%
-models each city's conservation score (VWCI, requirements, or rebates)
-as the result of a beta-binomial process (an overdispersed analogue to
-a binomial process) \citep[pp.~437--38]{gelman:bda:2014}.
-This model characterizes each city $i$ by a probability $p_i$ for adopting water
-conservation policies. In a pure binomial process, each policy would have the
-same probability $p_i$ of being adopted in city $i$, but the beta-binomial
-process allows for greater dispersion of scores by drawing the probability for
-each action separately from a beta distribution with mean $p_i$.
-The probability $p_i$ is modeled using a hierarchical varying-intercept logistic
-regression on both state-level and MSA-level covariates:
-}{%
-analysis follows standard textbook treatments
+The regression analysis follows standard textbook treatments
 \citep{gelman:arm:2007,gelman:bda:2014}.
-Each city's conservation score (VWCI, requirements, or rebates) is
+Each city's \added{water-}conservation score (VWCI, requirements, or rebates) is
 an integer count out of a maximum number of possible actions.
-We model this as a quasi-binomial process, in which each policy action $a_j$
-for city $i$ is
-adopted independently with a probability $p_{ij}$.
+We model this as a quasi-binomial process, in which each policy action
+\deleted{$a_j$ }%
+for city $i$ is adopted independently\added{,} with
+\replaced{a}{the $m$\textsuperscript{th} action, $a_m$, having} probability
+\replaced{$p_{ij}$}{$p_{im}$}.
 In a pure binomial process, each policy in city $i$ would have the same
 probability $p_i$ of being adopted.
-However, the VWCI data was over-dispersed relative to a pure binomial
-so our model uses a beta-binomial process,
-which
-allows for greater dispersion of scores by drawing the probabilities $p_{ij}$
+\replaced{However, }{The variance of a pure binomial distribution is uniquely determined
+by its mean and} the \added{variance of the} VWCI data was
+\replaced{over-dispersed relative to}{greater than} a pure binomial
+\added{distribution could account for,}
+so our model uses a beta-binomial process, which allows for greater dispersion
+of scores by drawing the probabilities \replaced{$p_{ij}$}{$p_{im}$}
 for the different actions in city $i$ from a beta distribution with mean $p_i$
 \citep[pp.~437--38]{gelman:bda:2014}.
-}%
-\explain{Added extensive description of the regression analysis, and be explicit
-in our references to standard textbook treatments.}
 
-\added{%
 We model the cities' mean probabilities $p_i$
 with a hierarchical varying-intercept logistic
-regression in which MSAs are nested within states and VWCI depends on both
+regression in which MSAs are nested within states and
+\replaced{VWCI}{water-conservation policy measures}
+\replaced{depends on}{are associated with} both
 state-level and MSA-level covariates.
-For city $i$, located in $\text{state}_i$,
-}%
-\explain{Clearer description of the regression parameters.}%
+For city $i$, located in \replaced{$\text{state}_i$}{state $j$},
+% \replaced{
+% \begin{linenomath*}
+% \begin{align}
+% \text{Score}_i \sim{}& \text{beta-binomial}(N_{\text{action}}, \phi p_i, \phi (1 - p_i)), \\
+% \intertext{where}
+% p_i ={}& \text{logit}^{-1}(y_i),\\
+% y_i ={}& \alpha_{\text{state}_i} + \textstyle\sum_j \beta_j x_{ij}, \label{eq:y}\\
+% \alpha_{\text{state}_i} ={}&
+% \alpha_0  + \textstyle\sum_k \gamma_k w_{\text{state}_i, k} + \delta_{\text{state}_i},
+% \end{align}
+% \end{linenomath*}
+% }{
 \begin{linenomath*}
 \begin{align}
 \text{Score}_i \sim{}& \text{beta-binomial}(N_{\text{action}}, \phi p_i, \phi (1 - p_i)), \\
 \intertext{where}
 p_i ={}& \text{logit}^{-1}(y_i),\\
-y_i ={}& \alpha_{\text{state}_i} + \textstyle\sum_j \beta_j x_{ij}, \label{eq:y}\\
-\alpha_{\text{state}_i} ={}&
-\alpha_0  + \textstyle\sum_k \gamma_k w_{\text{state}_i, k} + \delta_{\text{state}_i},
+y_i ={}& \alpha_{j} + \sum_{k \in \text{MSA variables}} \beta_k x_{ik}, \label{eq:y}\\
+\alpha_{j} ={}&
+\alpha_0  + \sum_{k \in \text{state variables}} \gamma_k w_{jk} + \delta_{j},
 \end{align}
 \end{linenomath*}
+% }
 $N_{\text{action}}$ is the number of possible conservation actions
 (\Sexpr{n_actions} for VWCI, \Sexpr{n_req} for requirements, and
 \Sexpr{n_reb} for rebates),
@@ -803,9 +819,8 @@ $\beta$ is a vector of MSA-level regression coefficients,
 $x$ is a matrix of MSA-level covariates,
 % ($x_{i,j}$ is the $j$th covariate for city $i$),
 % $\text{state}_i$ represents the state of city $i$,
-\added{%
-and $\alpha_{\text{state}_i}$ is the intercept of the MSA-level regression
-for all cities in $\text{state}_i$.
+and \replaced{$\alpha_{\text{state}_i}$}{$\alpha_j$} is the intercept of the MSA-level regression
+for all cities in \replaced{$\text{state}_i$}{state $j$}.
 %and $\epsilon_i$ represents random noise at the MSA-level, which we do not explicitly model.
 We do not include a noise term in Equation~\ref{eq:y} because random variations
 related to the probabilities $p_i$ are incorporated in the beta-binomial
@@ -816,66 +831,71 @@ The overdispersion of conservation scores is parameterized by $\phi$:
 as $\phi \rightarrow \infty$, the distribution of conservation scores approaches
 a binomial distribution, and the smaller $\phi$ is, the greater the
 overdispersion.
-}%
-\explain{Detailed descriptions of the regression parameters and explain
-why we did not explicitly model noise in the probabilities $p_i$.}
 
-\added{In modeling $\alpha_{\text{state}}$,
-$\alpha_0$ is the mean intercept across all states,}
-\explain{Clarify $\alpha_0$ parameter.}%
+In modeling \replaced{$\alpha_{\text{state}}$}{$\alpha_j$},
+$\alpha_0$ is the mean intercept across all states,
 $\gamma$ is a vector of state-level regression coefficients,
 $w$ is a matrix of state-level covariates,
 % ($w_{\text{state}_i,k}$ is the $k$th covariate for the state of the $i$th MSA),
-\added{and}
+and
 $\delta$ is a random noise term that represents state-level variations not
-accounted for by the regression model%
-%$\sigma$ is a scale parameter for $\delta$%
-\deleted{,
-and $\phi$ parameterizes the overdispersion, relative to a binomial distribution.
-As $\phi \rightarrow \infty$, the distribution approaches a binomial distribution
-}%
-.
+accounted for by the regression model.
+%$\sigma$ is a scale parameter for $\delta$.
 We constrain $\delta$ to sum to zero in order to keep the model identifiable
 \citep[Ch.~23]{stan:manual:2015}.
 
-\added{%
 Standardizing independent variables to put them on a common scale serves both
 to facilitate comparing the relative importance of variables whose natural scales are
 vastly different
 \citep[pp.~55--57]{gelman:prior:2008,gelman:arm:2007},
 and also to improve computational performance \citep{stan:manual:2015}.
-}%
-\explain{Explain clearly the point of standardizing independent variables.}%
 State-level covariates were rescaled to have means of zero and
-standard deviations of 0.5.
+standard deviations of 0.5\added{, as recommended by \citet{gelman:prior:2008}
+and \citet[pp.~55--57]{gelman:arm:2007}}\replaced{.}{:}
+\added{
+$w_{\text{scaled}} = (w - \mu_w) / (2 \sigma_w)$,
+where $w$ is a state-level covariate,
+$\mu_w$ is the mean over all states,
+and $\sigma_w$ is the standard deviation over all states.}
 Where the same covariate appeared at both the state and
 MSA level,
-\replaced{the MSA-level covariate was rescaled}
-{we addressed multicollinearity between state-level and MSA-level
-variables by rescaling the MSA-level covariate}
-\explain{Clarify the rescaling procedure for independent variables.}%
+we addressed multicollinearity between state-level and MSA-level
+variables by rescaling the MSA-level covariate
 to the same scale as its state-level counterpart and
-\replaced{the state-level value was subtracted}{subtracting the state-level value},
+subtracting the state-level value,
 so that MSA-level covariate represented the difference between the MSA and
-the state-average.
+the state-average\replaced{.}{:}
+\added{$x_{\text{scaled}} = (x - w) / (2 \sigma_w)$, where $x$ is an MSA-level
+covariate, $w$ is the state-level covariate for the MSA's state, and $\sigma_w$
+is the standard deviation of $w$ over all states.}
 Covariates that only appeared at the MSA level were rescaled so
-the mean over all \Sexpr{n_cities}~MSAs was zero and the standard deviation~0.5.
-\deleted{Standardizing the independent variables served both to facilitate
-comparison of the relative importance of variables whose natural scales are
-vastly different \citep{gelman:prior:2008,gelman:arm:2007}, and also to improve
-computational performance \citep{stan:manual:2015}.}
+the mean over all \Sexpr{n_cities}~MSAs was zero and the standard deviation~0.5\replaced{.}{:}
+\added{$x_{\text{scaled}} = (x - \mu_x) / (2 \sigma_x)$, as above.}
 
-\added{Because there are no previous quantitative comprehensive analyses of urban
+\added{We recognize that there are various ways that the multilevel model could be
+configured.
+Our choice of models was based on the theoretical objective of highlighting MSA-level
+difference in water-conservation policies. This choice involved three decision criteria.
+First, we selected the four main variables (Democratic-leaning, income, aridity, and
+surface water) on theoretical grounds described above with our goal of understanding the
+relative strength of political and economic factors and hydrogeological factors. The
+population variables were included as “controls.” This choice of variables allowed us to
+have a balanced approach to sociohydrological factors and to show that policy adoption is
+not a simple outcome of hydrological factors. Second, we selected the state-government
+level as the higher level for the model because water conservation policy is frequently
+driven by state-government organizations and policies. Third, any of the four variables
+could be included only at the MSA level rather than at both the MSA and state levels, but
+doing so would tend to bias the model toward an overestimation of MSA-level differences.
+By using a model that includes these four variables at both the MSA and state levels, and
+by normalizing the MSA-level variables to state averages, we developed a conservative
+approach to showing the importance of MSA-level differences.
+Thus, when we demonstrate MSA-level differences, we do so with a model that would tend
+to underestimate those differences.}
+
+Because there are no previous quantitative comprehensive analyses of urban
 water conservation policies, we represent our ignorance at the outset by
 choosing weakly-informative priors, so the regression results are almost
-entirely determined by the data, and are only weakly constrained by the priors.}
-\explain{Explain our choice of priors.}%
-\replaced{%
-We represent $\delta$ as normally distributed
-and
-use weakly informative Cauchy priors for the coefficients and parameters
-\citep{gelman:prior:2008}:
-}{%
+entirely determined by the data, and are only weakly constrained by the priors.
 We follow \citet{gelman:prior:2008}'s analysis
 of weakly-informative priors for logistic regression
 by choosing Cauchy priors with a scale of 2.5 for the
@@ -888,9 +908,6 @@ For $\phi$, we parameterized the Cauchy priors
 \emph{ad-hoc}, based on the data, and setting the scales by trial and error
 to make the prior distribution wide enough that it did not noticeably constrain
 the posterior.
-}%
-\explain{Explain that our choice of Cauchy priors follows established practice
-and be clearer about the source for this choice.}%
 \begin{linenomath*}
 \begin{align}
 \alpha_0, \beta, \gamma \sim{} & \text{Cauchy}(0,2.5),\\
@@ -903,41 +920,26 @@ and be clearer about the source for this choice.}%
 \end{cases}
 \end{align}
 \end{linenomath*}
-\deleted{%
-The posterior distributions were considerably narrower than the priors, and were
-not sensitive to changing the scales of the priors.
-}
 
 We implemented the statistical model in the Stan probabilistic programming
 language \citep{carpenter:stan:2016}, which generates a Hamiltonian Monte Carlo
 sampler.
 We used R to prepare the data and call the sampler \citep{r.manual:2016}.
 We
-\replaced{%
-ran each chain for 2000 iterations (1000 for warm-up and 1000 for sampling),
-}{%
-sampled four Markov chains for 1000 iterations each, after 1000 warm-up iterations,}
-\explain{Clearer explanation of the Markov-Chain Monte Carlo sampling.}%
+sampled four Markov chains for 1000 iterations each, after 1000 warm-up iterations,
 which yielded a total of 4000 samples.
 % where each sample is a vector containing a value for each of the model paraameters.
 % These samples approximate random draws from the joint posterior probability
 % distribution for the parameters, given the priors and the data,
 % so the statistics of the samples approximate those of the
 % posterior distribution.
-\added{%
 The means and medians of the posterior distributions for
 regression coefficients $\beta$ and $\gamma$, were equal within $\pm 0.01$
-(Tables~S7--S9).
+(Tables~S15--S17).
 Code to reproduce the analysis is included in the supporting information.
-}
 
 To facilitate interpretation, we
-\replaced{%
-report%
-}{%
-follow the recommendations of \citet[pp.~81--82]{gelman:arm:2007} by reporting%
-}
-\explain{Clarify where we get the rescaled regression coefficients from.}%
+follow the recommendations of \citet[pp.~81--82]{gelman:arm:2007} by reporting
 rescaled regression coefficients:
 \iffalse
 $\beta' = N_{\text{action}} \beta / 4$ and $\gamma' = N_{\text{action}} \gamma / 4$,
@@ -946,95 +948,75 @@ which represent the approximate change in VWCI (or requirements or rebates)
 $\beta' = \beta / 4$ and $\gamma' = \gamma / 4$, which represent
 the approximate change in the probability $p$
 \fi
-corresponding to a two-standard-deviation change of the covariate near the
-midpoint of the logistic function (where $p = 0.5$)%
-\deleted{ \citep[pp.~81--82]{gelman:arm:2007}}.
-The corresponding change in VWCI, requirements, or rebates is given by
+corresponding to
+a two-standard-deviation change of the covariate near the
+midpoint of the logistic function (where $p = 0.5$).
+The corresponding change in VWCI, requirements, or rebates
+\replaced{is given by}{of}
 $\beta' N_{\text{action}}$ or $\gamma' N_{\text{action}}$.
+\added{For example, $N_{\text{VWCI}} = \Sexpr{n_actions}$,
+so if $\beta'_k = 0.1$ for some covariate $x_k$,
+then for a city
+with VWCI of \Sexpr{floor(n_actions/2)} ($p \approx 0.5$),
+a two-standard-deviation change in $x_k$ would correspond
+to a change in VWCI of roughly \Sexpr{round(0.1 * n_actions)}.}
 
 We tested VWCI for overdispersion by comparing binomial and beta-binomial models
-using leave-\replaced{on}{one}-out cross-validation (LOO)
-(\replaced{Table~S3}{Tables~S3--S4}),
+using leave-one-out cross-validation (LOO)
+(Tables~S3--S5),
 the Widely Applicable Information Criterion (WAIC)
-(\replaced{Table~S4}{Tables~S5--S6}),
-and
-\replaced{graphical}{visual}
-inspection of the distribution of posterior predictions of the mean, standard
-deviation, maximum, and minimum of VWCI over the cities in our data
-set \citep{gelman:bda:2014,vehtari:loo:2016}.
+(Tables~S6--S8),
+and also by visual inspection of the distribution of posterior predictions of
+the mean, standard deviation, maximum, and minimum of VWCI over the cities in
+our data set \citep{gelman:bda:2014,vehtari:loo:2016}.
 All three methods favored the overdispersed beta-binomial model.
 These tests also strongly favored a
-\replaced{hierarchial}{hierarchical}
+hierarchical
 model over a single-level regression on MSA-level covariates.
 
-\added{%
-We also considered a hierarchical varying-slope model, but with an average
+\deleted{We also considered a hierarchical varying-slope model, but with an average
 of only \Sexpr{round(n_cities / n_states, 1)} MSAs per state there were too
-few degrees of freedom to adequately constrain \Sexpr{length(msa_vars_2)}
-additional regression coefficients for each state.
-}%
-\explain{Explain why we did not consider a varying-slope model.}
+few degrees of freedom to adequately constrain \Sexpr{length(msa_vars_1)}
+additional regression coefficients for each state.}
 
 \section{Results}
-\deleted{%
-In comparing magnitudes of regression coefficients $\beta$ and $\gamma$
-(see Section~\ref{sec:data.methods}), we refer to the average value of the
-posterior (means and medians were equal within $\pm 0.01$; see Tables~S5--S7).
-Where the 95\% highest-density interval of the posterior overlaps zero, we refer
-to the effect as ambiguous because it is consistent with zero and its sign cannot
-be determined with confidence.
-}%
-\explain{We moved paragraph that originally appeared here to the previous section.}
-
-Regressions for VWCI, requirements, and rebates
-(\replaced{%
-Figures~2--3; Tables~S5--S7%
-}{%
-Figure~\ref{fig:vwci_cat_plot}; Tables~S7--S9%
-})
-all show
-\replaced{%
-that PVI is an important predictor of
-}{%
-important correlations between PVI and
-}%
-\explain{Be clear that we're not claiming to demonstrate causality.}%
-urban water conservation at both the state and MSA levels.
-\replaced{%
-Aridity matters at the state level for
-}{%
-State-level aridity also correlates with
-}%
-all three conservation scores.
+\replaced{Regressions}{With respect to the political-economic variables, regressions}
+for VWCI, requirements, and rebates
+(Figure~\ref{fig:vwci_cat_plot}; Tables~S15--S17)
+all show\deleted{ important} correlations between
+\replaced{PVI and urban water conservation}{adoption of water-conservation policies and Democratic-Party vote share}
+at both the state and MSA levels.
+\added{States with greater Democratic-leaning PVI scores have greater propensity to adopt conservation policies,
+as do MSAs with greater Democratic vote-share than the rest of the state.
+Personal income (RPI) does not correlate meaningfully with the conservation indices at the state level, except in the
+case \added{of }rebates, and it is negligible at the MSA level.}
+\replaced{State-level}{With respect to the hydroclimatological variables, state-level}
+aridity also correlates with all three conservation scores
+\added{with MSAs in drier (low-aridity) states having a greater propensity for conservation.}
 Variations of aridity from one MSA to another within a state have a pronounced
-\replaced{effect on}{correlation with}
-requirements, but
-\replaced{make only small and ambiguous contributions to}{not with}
-VWCI and rebates.
-At the MSA level, faster population growth and larger population
-\replaced{are associated}{correlate}
-with higher \replaced{scores on}{values for} all three conservation scores.
-\deleted{Effects of}
-RPI and surface-water dependence
-\replaced{are mostly ambiguous}{do not correlate meaningfully with the
-conservation indices}
-at the state level,
-\deleted{with uncertainty making it difficult to say anything definite}
-except in the case of RPI and rebates,
-and are negligible at the MSA level.
+correlation with requirements, but not with VWCI and rebates.
+\added{Surface-water dependence does not correlate meaningfully with the conservation indices
+at the state or MSA levels.}
+
+At the MSA level, faster population growth and larger population correlate with higher values
+for all three conservation scores.
+\added{This finding was expected for reasons given above. }%
+\deleted{RPI and surface-water dependence do not correlate meaningfully
+with the conservation indices at the state level, except in the case of RPI and rebates,
+and are negligible at the MSA level.}
 %
 % vwci_cat_plot
 %
-<<vwci_cat_plot, echo=F, include=!for_submission, fig.height=7.75, fig.width=5, fig.pos='p', fig.align="center", fig.cap=figure_captions['vwci_cat_plot'], cache=do_cache, dependson=c("load_model_fits","source_fit_models","captions"), cache.extra = c(theme_get(), thick_ci, thin_ci), results = fig_body_results>>=
+<<vwci_cat_plot, echo=F, include=!for_submission, fig.height=7.75, fig.width=5, fig.pos='p', fig.align="center", fig.cap=figure_captions['vwci_cat_plot'], cache=do_cache, dependson=c("captions"), cache.extra = c(theme_get(), thick_ci, thin_ci), results = fig_body_results>>=
 
-limits <- model_fits$ggs$ggs_2_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
+limits <- model_fits$ggs$ggs_1_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
   group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
   ungroup() %>% summarize(lower = min(lower), upper = max(upper))
-limits <- model_fits$ggs$ggs_2_ml_beta_alpha_req %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
+limits <- model_fits$ggs$ggs_1_ml_beta_alpha_req %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
   group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
   ungroup() %>% bind_rows(limits) %>%
   summarize(lower = min(lower), upper = max(upper))
-limits <- model_fits$ggs$ggs_2_ml_beta_alpha_reb %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
+limits <- model_fits$ggs$ggs_1_ml_beta_alpha_reb %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
   group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
   ungroup() %>% bind_rows(limits) %>%
   summarize(lower = min(lower), upper = max(upper)) %>%
@@ -1043,15 +1025,15 @@ limits <- model_fits$ggs$ggs_2_ml_beta_alpha_reb %>% dplyr::filter(str_detect(Pa
 
 source('scripts/gen_cat_plot.R')
 
-levels <- levels(model_fits$ggs$ggs_2_ml_beta_alpha$Parameter)
+levels <- levels(model_fits$ggs$ggs_1_ml_beta_alpha$Parameter)
 
-p_vwci <- generate_cat_plot(model_fits$ggs$ggs_2_ml_beta_alpha, "vwci", " (a)VWCI",
+p_vwci <- generate_cat_plot(model_fits$ggs$ggs_1_ml_beta_alpha, "vwci", " (a)VWCI",
                         legend = FALSE, levels = levels) +
   theme(axis.title.x = element_blank())
-p_req <- generate_cat_plot(model_fits$ggs$ggs_2_ml_beta_alpha_req, "reqtotal", "(b) Requirements",
+p_req <- generate_cat_plot(model_fits$ggs$ggs_1_ml_beta_alpha_req, "reqtotal", "(b) Requirements",
                         limits, legend = TRUE, levels = levels) +
   theme(axis.title.x = element_blank(), legend.position = c(0.99,0.01))
-p_reb <- generate_cat_plot(model_fits$ggs$ggs_2_ml_beta_alpha_reb, "rebtotal", "(c) Rebates",
+p_reb <- generate_cat_plot(model_fits$ggs$ggs_1_ml_beta_alpha_reb, "rebtotal", "(c) Rebates",
                         limits, legend = FALSE, levels = levels)
 
 p_cat <- egg::ggarrange(p_vwci, p_req, p_reb, ncol = 1, draw = FALSE)
@@ -1061,42 +1043,38 @@ ggsave(file.path(output_dir, 'figures', 'fig_3.pdf'), p_cat, 'pdf', height=7.75,
 print(p_cat)
 @
 
-States with \replaced{more positive}{greater} (Democratic-leaning) PVI have
+\deleted{States with greater (Democratic-leaning) PVI have
 greater propensity
 to adopt conservation policies, as do MSAs whose PVI is greater
 (more likely to vote Democratic) than the rest of the state.
-States with drier climates (\replaced{negative}{lower} aridity) also have
+States with drier climates (lower aridity) also have
 greater propensity for conservation.
 MSAs with large and rapidly growing populations also
-tend to score higher on all three measures.
+tend to score higher on all three measures.}
 
-For all three conservation scores, the largest
-\replaced{effects}{correlations}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
-were for state-level,
+For all three conservation scores, the largest correlations were for state-level,
 as opposed to MSA-level, characteristics, but the posterior distributions show
 considerable overlap so it is important not to over-interpret the ranking of
 coefficients.
 
 Two differences that stand out among the three measures are that state-level
-variation in RPI and MSA-level variation in aridity
-\replaced{each has ambiguous effects on}{do not correlate meaningfully with}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
-total VWCI and
-\replaced{different effects on}{correlate differently with}
+variation in \replaced{RPI}{real personal income (RPI)} and MSA-level variation in aridity
+do not correlate meaningfully with
+total VWCI\replaced{ and}{. However, they do}
+correlate differently with
 requirements versus rebates:
-state-level RPI
-\replaced{affects rebates more strongly}{correlates more strongly with rebates}
-than \added{with} requirements
+state-level \replaced{RPI}{real personal income}
+correlates more strongly with rebates
+than with requirements
 and MSA-level variations in aridity
-\replaced{affect requirements more strongly}{correlate more strongly with requirements}
-than \added{with} rebates.
+correlate more strongly with requirements
+than with rebates.
 
 %
 % vwci_residual_range
 %
 <<vwci_residual_range, echo=F, include=F, results='hide', cache=do_cache, dependson=c('load_model_fits'), cache.extra=c(model_fits)>>=
-vwci_res_range <- model_fits$res$res_2_ml_beta_alpha$residuals %>%
+vwci_res_range <- model_fits$res$res_1_ml_beta_alpha$residuals %>%
   summarize(max_res = max(residual, na.rm=T), min_res = min(residual, na.rm=T), rms = sqrt(mean(residual^2, na.rm=T)),
             coeff_determ = 1 - var(residual)/var(vwci)) %>%
   as.list()
@@ -1108,13 +1086,13 @@ with a root-mean-square value of
 $\Sexpr{formatC(vwci_res_range$rms, digits=1, format="f")}$
 (Figure~\ref{fig:vwci_residuals} and Table~\ref{tab:vwci_top_residuals}).
 There is no indication of multicollinearity creating worrisome correlations
-among the coefficients (\replaced{Figures.~S3--S5}{Figures.~S2--S4}).
+among the coefficients (Figures.~S2--S4).
 %
 % vwci_residuals
 %
-<<vwci_residuals, echo=F, include=!for_submission, fig.height=5, fig.width=6, fig.pos='tb', fig.align="center", fig.dev="pdf", fig.cap=figure_captions['vwci_residuals'], cache = do_cache, dependson=c('load_model_fits','source_fit_models',"captions"), cache.extra=c(theme_get(),model_fits), results = fig_body_results>>=
+<<vwci_residuals, echo=F, include=!for_submission, fig.height=5, fig.width=6, fig.pos='tb', fig.align="center", fig.dev="pdf", fig.cap=figure_captions['vwci_residuals'], cache = do_cache, dependson=c("captions"), cache.extra=c(theme_get(),model_fits), results = fig_body_results>>=
 if (TRUE) {
-  res <- model_fits$res$res_2_ml_beta_alpha
+  res <- model_fits$res$res_1_ml_beta_alpha
   res <- within(res, residuals <- residuals %>%
     mutate(city = str_c(city, as.character(state), sep = ', '),
            city = ifelse(row_number(desc(abs(residual))) <= 10, city, NA))
@@ -1136,8 +1114,8 @@ if (TRUE) {
 
   res$residuals <- res$residuals %>% left_join(nudges, by = "city") %>% mutate(res_label = ifelse(is.na(force), NA, city))
 
-  # p4 <- make_scatter_plot(res, color = TRUE, pt.alpha = 0.4, residual.plot = TRUE)
-  p4 <- make_scatter_plot(res, color = TRUE, pt.alpha = 1.0, residual.plot = TRUE)
+  p4 <- make_scatter_plot(res, color = TRUE, pt.alpha = 0.7, residual.plot = TRUE)
+  # p4 <- make_scatter_plot(res, color = TRUE, pt.alpha = 1.0, residual.plot = TRUE)
   # geom_smooth(method = "lm") +
   p_data = p4$data %>% filter(! is.na(res_label))
   p4 <- p4 +  geom_text_repel(data = p_data,
@@ -1153,7 +1131,7 @@ if (TRUE) {
     # scale_y_continuous(breaks = seq(0,100,20)) +
     ggtitle(NULL)
 } else {
-  p4 <- model_fits$res$res_2_ml_beta_alpha$residuals %>% ggplot(aes(x = predicted, y = residual)) +
+  p4 <- model_fits$res$res_1_ml_beta_alpha$residuals %>% ggplot(aes(x = predicted, y = residual)) +
     geom_point(alpha = 0.5) +
     geom_hline(yintercept=0) +
     labs(x = "Predicted VWCI", y = "Residual")
@@ -1166,9 +1144,9 @@ print(p4)
 %
 % vwci_top_residuals
 %
-<<vwci_top_residuals, echo=F, include=!for_submission, results='asis', cache = do_cache, dependson=c('load_model_fits','source_fit_models','captions'), cache.extra=c(model_fits), results = tab_body_results>>=
+<<vwci_top_residuals, echo=F, include=!for_submission, results='asis', cache = do_cache, dependson=c('captions'), cache.extra=c(model_fits), results = tab_body_results>>=
 tab_placement = ifelse(for_submission, "htbp", "tbp")
-table_data <- model_fits$res$res_2_ml_beta_alpha$residuals %>% arrange(desc(abs(residual))) %>%
+table_data <- model_fits$res$res_1_ml_beta_alpha$residuals %>% arrange(desc(abs(residual))) %>%
   mutate(city = str_c(city, as.character(state), sep = ', ')) %>%
   top_n(10, abs(residual)) %>%
   mutate(rank = rank(-abs(residual), ties.method = "first")) %>%
@@ -1191,58 +1169,125 @@ table_data %>%
 
 
 \subsection{Robustness checks}
-\added{We chose our explanatory variables based on theoretical considerations, as
-described by \citet{hess:drought:2016}. To test the robustness of our analysis,
+\replaced{We chose our explanatory variables based on theoretical considerations, as
+described by \textit{Hess et al.} [2016]}{As described above, we chose our explanatory variables
+for theoretical reasons with the goal of understanding the relative role of political-economic
+and hydroclimatological differences among MSAs as factors that explain water-conservation policy
+adoption}.
+To test the robustness of our analysis,
 we compared the results described above to three kinds of alternate regression
 analyses for the VWCI
-(See discussion of robustness, Figures S5--S6, and Tables~S3--S6
-in Supporting Information).}
-\explain{Add robustness checks and discussion of possible alternate predictor
-variables, such as population density, MSA area, and economic inequality,
-different averaging periods for calculating MSA aridity,
-and different priors.}
+(See discussion of robustness, Figures~S5--S10, and Tables~S3--S14
+in Supporting Information).
 
-\added{First, we tested whether conservation policies might be more
+First, we tested whether conservation policies might be more
 responsive to recent extreme events, such as drought, by varying the
 period over which we averaged the aridity index.
-Second, we repeated the regression analysis substituting MSA population density
-for the total population or including the MSA area and Gini index of income
-inequality as additional predictors.
+\added{Both the regression coefficients and the information criteria were
+indistinguishable for the different averaging periods.}
+
+Second, we repeated the regression analysis
+\added{with different sets of covariates:}
+substituting MSA population density
+for the total population or
+including the MSA area and Gini index of income inequality as additional
+predictors (Figure~S6, Tables~S4 and~S7).
 In all of these analyses, regression coefficients $\beta$ and $\gamma$
 were consistent with the original model.
 The information criteria were also consistent with one another.
 In all of these analyses, the original set of covariates received the best
-scores by a small and insignificant margin.}
+scores by a small and insignificant margin.
 
-\added{Finally, we tested for sensitivity to the functional form of the prior
+\added{We also repeated the regression analysis removing either PVI or aridity
+(Figure~S7, Tables~S4 and~S7).
+Removing either of these covariates did not significantly change
+the regression coefficient of the remaining covariates, and the information
+criteria scores were worse in both cases.
+}
+
+\added{In addition to comparing different choices of covariates, we also
+examined different structures for the regression models:
+In addition to hierarchical regression models that nest MSAs within states,
+with different intercepts for different states, we also
+considered single-level models that considered only MSA-level covariates and
+used the same intercept for all MSAs,
+we considered interaction terms between aridity and PVI at both
+the state and MSA levels (Figure~S7, Tables~S4 and~S7),
+and we considered an alternative normalization
+in which the MSA-level covariates were scaled separately
+from the state-level covariates to have zero mean and 0.5 standard deviation
+across all MSAs ($x_{\text{scaled}} = (x - \mu_x) / (2 \sigma_x)$),
+rather than representing
+the scaled difference between the MSA value and the state-level value
+(Figures~S8--S10, Tables~S9--S14).
+
+The information-criteria scores for the single-level models were much
+worse than for the hierarchical ones.
+The interaction terms did not produce any
+important changes in the other regression coefficients, and yielded
+slightly (but insigificantly) worse information-criteria scores.
+
+The alternate normalization scheme produced posterior estimate for the
+coefficient of state-level PVI whose median was one third as great as for the original
+normalization and consistent with zero (Figures~S8--S10).
+We found an 85\% posterior probability that the coefficient of the state-level PVI
+is positive in the alternative normalization, which is suggestive but inconclusive.
+None of the other coefficients changed much.
+The information criteria for the alternate normalization were slightly,
+but not significantly, smaller than for the original normalization
+(Tables~S9--S14), so the
+MSA-level PVI remains important in both schemes,
+but it is ambiguous whether it is
+better to interpret the data as indicating that both the state-level PVI
+and the difference between the state-level and MSA-level PVI are independently
+correlated with water conservation policies, or whether the state-level PVI
+is not correlated with conservation policies, but the MSA-level PVI is.
+However, we do not think this ambiguity has much practical significance
+because both models yield similar predictions for propensity to adopt
+water conservation policies in a given MSA and both find an important
+correlation with political preferences, although they differ on the importance
+of state-level preferences.}
+
+Finally, we tested for sensitivity to the functional form of the prior
 distributions and found only small and insignificant changes when we
-changed scales and replaced Cauchy priors for $\alpha$, $\beta$, and
-$\gamma$ with normal priors.}
+changed scales or replaced Cauchy priors for $\alpha$, $\beta$, and
+$\gamma$ with normal priors.
 
-\added{We conclude from this that the results of our analysis are robust against
-many changes of time-spans, explanatory variables, and assumptions about priors.}
+We conclude from \replaced{this}{these robustness checks} that
+\added{except for the regression coefficient for state-level PVI}
+the results
+of our analysis are robust against many changes of time-spans,
+explanatory variables, model-structures, and assumptions about priors
+\added{and model specifications}.
+\added{Across all of these variations, the political variable measuring
+vote-shares for Democratic versus Republican presidential candidates,
+the hydroclimatological variable measuring aridity, and the
+MSA-level population and population growth rates were
+consistently and strongly correlated with conservation.}
 
-\added{There are myriad other potential explanatory variables,
+There are myriad other potential explanatory variables,
 but we worried that exploring a large set of alternative models
 and choosing the one that performs best might
 unintentionally become an exercise in ``$p$-hacking'' due to
 ``garden of forking paths'' effects \citep{gelman:forking.paths:2014}.
 Because of these concerns, we chose to confine our analysis to the original set
 of variables, which we chose for theoretical reasons
-\citep{hess:drought:2016}.}
-\explain{Explain why we did not extend this analysis to consider a more
-comprehensive set of alternate explanatory variables}
+\citep{hess:drought:2016}.
 
 \section{Discussion}
 
 This analysis identifies distinguishing characteristics of cities across the
 contiguous United States that embrace water conservation policies, and allows us
 to differentiate state-level from MSA-level effects. We find that water
-conservation is \replaced{driven}{associated} both \replaced{by}{with}
-characteristics of the physical environment and
-\replaced{by}{with} political and demographic
+conservation is associated both with characteristics of the physical environment
+and with political and demographic
 %, and economic
 characteristics of cities and states.
+\added{This finding suggests the importance of interdisciplinary thinking and
+analysis in the study of water-conservation policy. The assumption that
+water scarcity drives water-conservation policy should be broadened to include
+the political context, at least in the U.S., where water conservation is associated
+with environmental policy and the Democratic Party.}
 
 Our previous qualitative analysis of the 22~largest southwestern MSAs suggested
 that partisan differences over water conservation are more muted at the
@@ -1250,88 +1295,83 @@ MSA-level than at the state and national level \citep{hess:drought:2016}, but
 while the quantitative analysis of that data showed that PVI played a large
 role, it could not distinguish state-level from MSA-level effects.
 Here, we find that for all three conservation scores (total VWCI, requirements
-only, and rebates only), PVI is important at both the state and MSA levels.
-The
-\replaced{effect of}{correlation between}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
-PVI
-\replaced{on all}{and the}
-three conservation scores appears to be
+only, and rebates only), PVI is important at
+\replaced{both the state and MSA levels}{the MSA and possibly also the state level}.
+The correlation between
+\replaced{PVI}{support for the Democratic Party}
+and the three conservation scores appears to be
 greater at the state level than at the MSA-level, but the posterior
 distributions of state-level and MSA-level coefficients overlap too much to
-permit much confidence in this ranking.
+permit much confidence in this ranking%
+\added{ and the results obtained
+with the alternate scaling also reduce our confidence in assessing the state-level
+effect}.
 
 The state climate (aridity) shows clear
-\replaced{effect}{correlations}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
+correlations
 that are consistent across all three conservation scores.
 The
-\replaced{effects of}{correlations between}
+correlations between
 MSA-level aridity
-\replaced{within a state on}{and}
+and
 VWCI and rebates are much
-smaller\deleted{, ambiguous,}
+smaller
 and consistent with zero.
 We interpret this as reflecting the fact that urban water supplies often draw from
 sources, such as river networks, watersheds, and aquifers, that cover large areas
 and which may be shared by many cities and many categories of users.
 However, aridity has a clear
-\replaced{effect on}{correlation with}
+correlation with
 requirements, with cities that are
 drier than the state average tending to adopt more requirements.
 
-RPI measures the real purchasing power of per-capita personal income,
-adjusted for inflation and regional variations in the cost of living
+\replaced{RPI}{Real per-capita income (RPI)} measures the real purchasing power of
+per-capita personal income, adjusted for inflation and regional variations in the
+cost of living
 \citep{bea:rpp.methodology:2016}, and thus reflects prosperity.
-At the state level, greater RPI correlates with lower conservation scores on
+At the state level, greater \replaced{RPI}{income} correlates with lower conservation scores on
 all three measures, but the
-\replaced{effect}{correlation with VWCI and requirements}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
+correlation with VWCI and requirements
 is small and
-\replaced{ambiguous (consistent with zero)}{consistent with zero},
+consistent with zero,
 whereas it is large and clearly nonzero for rebates.
 Perhaps this reflects greater political support for choosing rebates over
 requirements when households have less disposable income with which to pay for
 conservation actions.
 At the MSA-level,
-\replaced{variations of RPI within a state}{correlations of all three scores with RPI}
-\replaced{have negligibly small effects, which are}{are negligibly small and}
-consistent with zero\deleted{, on all three scores}.
+correlations of all three scores with RPI
+are negligibly small and
+consistent with zero.
 
-What emerges in the big picture is that cities in states with higher
-(more Democratic-leaning) PVIs and more arid climates tend to adopt more
+What emerges in the big picture is that cities in states with
+\deleted{higher (more Democratic-leaning) PVIs and }%
+more arid climates tend to adopt more
 conservation measures, including more requirements and more rebates.
-State-level RPI does not have a clear
-\replaced{effect on}{correlation with}
-\explain{Be clear that we're not claiming to demonstrate causality.}%
-VWCI\replaced{,
-but RPI appears to affect the composition of conservation policies, with lower
-RPI corresponding to a greater reliance on rebates.
-}{;
+Partisan voting patterns are also important, and while the separate roles
+of state-level and MSA-level voting are ambiguous, greater support for
+Democratic Party candidates is clearly associated with adopting more conservation policies.
+State-level \replaced{RPI}{income} does not have a clear correlation with VWCI;
 but when we look at the composition of policies, states with lower personal
 income tend to rely more heavily on rebates.
-}%
-Within a state, cities in MSAs with greater PVI than the state average and those
+Within a state, cities in MSAs with greater
+\replaced{PVI than the state average}{preference for Democratic candidates}
+and those
 with large and rapidly growing populations tend to adopt more total conservation
 measures, including more rebates and requirements.
 Variations in aridity from one MSA to another within a state do not have an appreciable
-\replaced{effect on}{correlation with}
-total VWCI, but
-\replaced{%
-they do affect the composition of policies, with MSAs whose climate is more arid
-than the state average tending%
-}{%
-more arid MSAs tend%
-}
-to favor requirements over other conservation measures.
+correlation with total VWCI, but more arid MSAs tend to favor requirements over other
+conservation measures.
+\added{Finally, dependence on surface water at either the state- or MSA-level
+does not correlate with conservation policies.}
 
 \citet{brown:politics:2016} report on detailed interviews with decision-makers
 from four cities, including San Antonio and Phoenix, which have the largest
 and ninth-largest residuals, respectively
 (Table~\ref{tab:vwci_top_residuals}).
 This merits some discussion:
-San Antonio has a low predicted VWCI in part
-because of its low (Republican-leaning) PVI. However, federal policy may have
+San Antonio has a low predicted VWCI in part because
+\replaced{of its low (Republican-leaning) PVI}{it leans Republican (low PVI)}.
+However, federal policy may have
 contributed to San Antonio having a much higher VWCI than predicted by our
 regression: San Antonio's options for increasing its water supply are
 constrained by the settlement of a lawsuit over endangered species, which
@@ -1352,21 +1392,29 @@ of selected cities to study both the patterns that represent what cities
 have in common and the distinctive individual characteristics of different cities.
 
 In comparing the findings of this analysis to those of our previous preliminary
-analysis of the 22~largest MSAs in the Southwest, both studies identified PVI as
-a very important predictor of water conservation policies, but with its much
+analysis of the 22~largest MSAs in the Southwest, both studies identified
+\replaced{PVI}{partisan political preference (PVI)}
+as a very important predictor of water conservation policies, but with its much
 smaller and less diverse sample, the previous study could not identify other
-effects after controlling for PVI, and it could not quantitatively distinguish
-state-level from MSA-level effects of PVI or other covariates. Here we observe
-clearly that variations in both environmental and societal characteristics at
-the state level are relevant to policy adoption; that within a state, variations
-from MSA to MSA of PVI, population, and population growth are consistently
-important; and that MSA-level variation in climate does not
-\replaced{affect}{correlate with}
-the number of conservation policies adopted, but
-\replaced{affects}{with}
-the kinds of policies adopted.
+effects after controlling for
+\replaced{PVI}{political preference},
+and it could not quantitatively distinguish state-level from MSA-level effects of
+\replaced{PVI}{political preference}
+or other covariates.
+Here we observe clearly that variations in\deleted{ both}
+environmental\deleted{ and societal}
+characteristics at the state level are relevant to policy adoption;
+that within a state, variations from MSA to MSA of PVI, population,
+and population growth are consistently important;
+and that MSA-level variation in climate does not correlate with the number of
+conservation policies adopted, but with the kinds of policies adopted.
+\added{We find that the role of state-level political preference is ambiguous and two formulations
+are equally plausible: first, that water-conservation policy adoption correlates independently with
+state-level political preferences and with differences in preference between the state and MSA;
+and second, that policy adoption correlates only with MSA-level political preferences.
+In practice, both formulations lead to similar predictions, so we do not expect the ambiguity to
+affect the practical applications of these results.}
 
-\added{%
 We emphasize that this study investigates associations and correlations, which
 are not necessarily causal.
 We only consider water policies at one point in time, which limits both our
@@ -1379,8 +1427,6 @@ Thus, this study only considers the number of
 policies cities adopt, and cannot speak to how effective those policies are.
 We expect that extending this work longitudinally would provide a richer
 understanding of conservation policy adoption and policy effectiveness.
-}
-\explain{Be clear that we're not claiming to demonstrate causality.}
 
 \section{Conclusion}
 An integrated perspective that draws on social science and natural science
@@ -1389,56 +1435,49 @@ explained by considering only hydroclimatological factors, such as aridity and
 the surface water fraction. Societal variables, such as political leanings, are
 also important.
 
-\replaced{%
-This analysis finds that for the most part hydroclimatological variables
-are important at the state level, but not at the MSA level, whereas PVI is
-important at both the state and MSA level.
-}{%
 We find that correlations between
 hydroclimatological variables
 and conservation policies are greater at the state level than at
 the MSA level, and that state-level aridity is the only hydroclimatological
-variable \replaced{that}{whose effect} is consistently clearly distinct
+variable whose effect is consistently clearly distinct
 from zero across all the conservation measures.
-PVI, on the other hand, is consistently important at both the state and MSA
-levels.
-}%
-\explain{Be clear that we're not claiming to demonstrate causality.}%
+\replaced{PVI, on the other hand, is consistently important at both the state and MSA
+levels.}{Political preferences (how much a city or state leans toward the Democratic
+Party), are consistently significant at the MSA level, but their importance at the state
+level is ambiguous and depends on the way the statistical model is formulated.}
 Economic well-being has smaller correlations with policies, but
-\replaced{appears to affect which}{does correlate with the}
+does correlate with the
 categories of conservation policies a city is likely to favor.
 These results suggest that large, rapidly growing, and more politically liberal
 cities, and cities in arid and politically liberal states,
-\replaced{will be}{are}
+are
 more likely to
 adopt water conservation policies.
 
-\replaced{Policy}{We conclude that policy}
+We conclude that policy
 rationales for water conservation and proposals for specific conservation measures
 would likely benefit from taking into account the complex mix of factors revealed
 by integrated social and natural science research.
 
-\added{We also expect that further integrated interdisciplinary research along
+We also expect that further integrated interdisciplinary research along
 these lines can produce a more detailed understanding of the number and character
 of conservation policies that different kinds of cities are likely to adopt,
-which would be relevant and useful for decision makers.}
-\explain{Be clear that we do not aspire to be the last word, but that there is
-a lot of potential for future research to consider other interdisciplinary
-questions about water conservation policies.}
+which would be relevant and useful for decision makers.
 
 \acknowledgments
 This material is based upon work supported by the National Science Foundation
 under Grant \#EAR-1416964.
 %, and by the U.S. Geological Survey, National Water-Use Information Program and the Lower Mississippi-Gulf Water Science Center project ``Water Conservation in American Cities.''
 The authors thank Christopher Fonnesbeck for helpful discussions and suggestions.
-All data used for this paper are \deleted{properly} cited and listed in the references or
+We thank the journal reviewers who provided valuable comments on our manuscript:
+Andrew Lockley and an anonymous reviewer.
+All data used for this paper are cited and listed in the references or
 included in the supplementary information.
-\replaced{The complete VWCI data set, together with the code (R scripts and Stan models) used for this analysis, will also be posted publicly on github prior to publication.}{The complete VWCI data set with
+The complete VWCI data set with
 covariates is available on figshare at \url{https://doi.org/10.6084/m9.figshare.5714944},
 and \url{https://figshare.com/s/278fb7278d174163a2a9}.
 The code (R scripts and Stan models) used for this analysis, will be
-posted publicly on github prior to publication.}
-\explain{URL and DOI for data used in this paper, which we have posted to figshare.}%
+posted publicly on github prior to publication.
 %
 % Bibliography
 %\bibliography{gilligan_vwci_ef_2017}
@@ -1469,6 +1508,12 @@ posted publicly on github prior to publication.}
   Stan: A probabilistic programming language.
   \textit{Journal of Statistical Software}, \textit{76}, 1--32.
   \url{https://doi.org/10.18637/jss.v076.i01}.
+
+\bibitem[{\textit{Chupp}(2011)}]{chupp:environ.voting:2011}
+  Chupp, B.~A. (2011).
+  Environmental constituent interest, green electricity policies, and legislative voting.
+  \textit{Journal of Environmental Economics and Management}, \textit{62}, 254--266.
+  \url{https://doi.org/10.1016/j.jeem.2011.03.008}.
 
 \bibitem[{\textit{{CQ Press}}(2016)}]{cq:elections:2016}
 {CQ Press} (2016).
@@ -1505,7 +1550,7 @@ posted publicly on github prior to publication.}
   A weakly informative default prior distribution for logistic and other
   regression models.
   \textit{Annals of Applied Statistics}, \textit{2}, 1360--1383.
-  \url{https:\\doi.org/10.1214/08-AOAS191}.
+  \url{https://doi.org/10.1214/08-AOAS191}.
 
 \bibitem[{\textit{Gelman et~al.}(2014)\textit{Gelman, Carlin, Stern, Dunson,
   Vehtari, and Rubin}}]{gelman:bda:2014}
@@ -1519,6 +1564,14 @@ posted publicly on github prior to publication.}
   Water management: {S}oft water paths.
   \textit{Nature},
   \textit{418}, 373--373, \url{https://doi.org/10.1038/418373a}.
+
+\bibitem[{\textit{Grant and Vasi}(2017)}]{grant:environ.accountability:2017}
+  Grant, D. and Vasi, I.B. (2016)
+  Civil society in an age of environmental accountability:
+  How local environmental nongovernmental organizations reduce
+  U.S. power plants' carbon dioxide emissions.
+  \textit{Sociological Forum}, \textit{32}, 94--115.
+  \url{https://doi.org/10.1111/socf.12318}.
 
 \bibitem[{\textit{Hawkins and Nosek}(2012)}]{hawkins:motivated:2012}
   Hawkins, C.~B., \& B.~A. Nosek (2012).
@@ -1748,7 +1801,7 @@ cat(str_c("\\begin{figure}[h]\n",
 
 \listofchanges
 \end{document}
-<<embed_fonts, echo=F, results="hide", eval=T, cache=T, cache.rebuild = c(setNames(list.files('figure') %>% keep(~str_detect(.x, '\\.pdf$')) %>% file.path('figure',.) %>% file.mtime(), list.files('figure'))), cache.extra=c(figure_font)>>=
+<<embed_fonts, echo=F, results="hide", eval=T, cache=F, cache.rebuild = c(setNames(list.files('figure') %>% keep(~str_detect(.x, '\\.pdf$')) %>% file.path('figure',.) %>% file.mtime(), list.files('figure'))), cache.extra=c(figure_font)>>=
 if (figure_font == 'CM Sans') {
   fig_path_1 <- file.path(output_dir, 'figures')
   fig_path_2 <- file.path(figures_dir)

@@ -3,6 +3,7 @@ options(tidyverse.quiet=TRUE)
 p_load(tidyverse)
 p_load(broom)
 p_load(RColorBrewer)
+p_load(hms)
 
 p_load(rstan)
 # p_load(shinystan)
@@ -30,105 +31,240 @@ desal_msas <- c('Brownsville, TX', 'Cape Coral, FL', 'El Paso, TX', 'Jacksonvill
                 'Laredo, TX', 'Oxnard, CA', 'SanDiego, CA', 'Tampa, FL')
 
 std_data <- read_rds(file.path(data_dir, 'standardized_data.Rds'))
+
 std_pooled_data <- read_rds(file.path(data_dir, 'standardized_pooled_data.Rds'))
-std_data$pooled_means = std_pooled_data$means
-std_data$pooled_sds = std_pooled_data$sds
-std_data$msa_pooled_data = std_pooled_data$msa_data
-std_data$state_pooled_data = std_pooled_data$state_data
 
-msa_vars_1 <- c('pvi', 'rpp', 'log.pop', 'pop.growth',
-                'precip', 'temp','surface.water')
+std_data$pooled_means       = std_pooled_data$means
+std_data$pooled_state_means = std_pooled_data$state_means
+std_data$pooled_sds         = std_pooled_data$sds
+std_data$pooled_state_sds   = std_pooled_data$state_sds
+std_data$msa_pooled_data    = std_pooled_data$msa_data
+std_data$state_pooled_data  = std_pooled_data$state_data
 
-state_vars_1 <- c('state.pvi', 'state.rpp',
-                  'state.precip', 'state.temp',
-                  'state.surface.water')
-
-vars_1 <- list(msa_vars = msa_vars_1, state_vars = state_vars_1)
+std_pooled_data$pooled_means       = std_pooled_data$means
+std_pooled_data$pooled_state_means = std_pooled_data$state_means
+std_pooled_data$pooled_sds         = std_pooled_data$sds
+std_pooled_data$pooled_state_sds   = std_pooled_data$state_sds
+std_pooled_data$msa_pooled_data    = std_pooled_data$msa_data
+std_pooled_data$state_pooled_data  = std_pooled_data$state_data
 
 #
 # Original analysis set.
 #
+msa_vars_1 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
+                'aridity', 'surface.water'
+                )
+
+state_vars_1 <- c('state.pvi', 'state.rpi',
+                  'state.aridity', 'state.surface.water'
+                  )
+
+captions_vars_1 <- list( years_fig = "1985-2014",
+                      vars_fig = "baseline",
+                      years_tbl = "1985--2014",
+                      vars_tbl = "baseline")
+
+vars_1 <- list(msa_vars = msa_vars_1, state_vars = state_vars_1,
+               captions = captions_vars_1)
+
+#
+# Consider aridity trend since 1970 (previous 45 years)
+#
 msa_vars_2 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
-                'aridity','surface.water')
+                'aridity_70', 'surface.water'
+)
 
 state_vars_2 <- c('state.pvi', 'state.rpi',
-                  'state.aridity', 'state.surface.water')
+                  'state.aridity_70', 'state.surface.water'
+)
 
-vars_2 <- list(msa_vars = msa_vars_2, state_vars = state_vars_2)
+captions_vars_2 <- list( years_fig = "1970-2014",
+                         vars_fig = "1970-2014",
+                         years_tbl = "1970--2014",
+                         vars_tbl = "1970--2014")
 
+vars_2 <- list(msa_vars = msa_vars_2, state_vars = state_vars_2,
+               captions = captions_vars_2)
+
+#
+# Consider aridity trend since 1995 (previous 20 years)
+#
+msa_vars_3 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
+                'aridity_95', 'surface.water'
+)
+
+state_vars_3 <- c('state.pvi', 'state.rpi',
+                  'state.aridity_95', 'state.surface.water'
+)
+
+captions_vars_3 <- list( years_fig = "1995-2014",
+                         vars_fig = "1995-2014",
+                         years_tbl = "1995--2014",
+                         vars_tbl = "1995--2014")
+
+vars_3 <- list(msa_vars = msa_vars_3, state_vars = state_vars_3,
+               captions = captions_vars_3)
+
+#
+# Consider aridity trend since 2005 (previous 10 years)
+#
+msa_vars_4 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
+                'aridity_05', 'surface.water'
+)
+
+state_vars_4 <- c('state.pvi', 'state.rpi',
+                  'state.aridity_05', 'state.surface.water'
+)
+
+captions_vars_4 <- list( years_fig = "2005-2014",
+                         vars_fig = "2005-2014",
+                         years_tbl = "2005--2014",
+                         vars_tbl = "2005--2014")
+
+vars_4 <- list(msa_vars = msa_vars_4, state_vars = state_vars_4,
+               captions = captions_vars_4)
 
 #
 # Population density instead of population
 #
-msa_vars_3 <- c('pvi', 'rpi', 'log.pop.dens', 'pop.dens.growth',
-                'aridity','surface.water')
+msa_vars_5 <- c('pvi', 'rpi', 'log.pop.dens', 'pop.dens.growth',
+                'aridity', 'surface.water'
+                )
 
-state_vars_3 <- c('state.pvi', 'state.rpi',
-                  'state.aridity', 'state.surface.water')
+state_vars_5 <- c('state.pvi', 'state.rpi',
+                  'state.aridity', 'state.surface.water'
+                  )
 
-vars_3 <- list(msa_vars = msa_vars_3, state_vars = state_vars_3)
+captions_vars_5 <- list( years_fig = "1985-2014 with population density",
+                         vars_fig = "with population density",
+                         years_tbl = "1985--2014 with pop.\\ density",
+                         vars_tbl = "with pop.\\ density")
+
+vars_5 <- list(msa_vars = msa_vars_5, state_vars = state_vars_5,
+               captions = captions_vars_5)
 
 
 #
 # Include MSA area as a predictor
 #
-msa_vars_4 <- c('pvi', 'rpi', 'log.pop', 'pop.growth', 'area',
-                'aridity','surface.water')
+msa_vars_6 <- c('pvi', 'rpi', 'log.pop', 'pop.growth', 'area',
+                'aridity', 'surface.water'
+                )
 
-state_vars_4 <- c('state.pvi', 'state.rpi',
-                  'state.aridity', 'state.surface.water')
+state_vars_6 <- c('state.pvi', 'state.rpi',
+                  'state.aridity', 'state.surface.water'
+                  )
 
-vars_4 <- list(msa_vars = msa_vars_4, state_vars = state_vars_4)
+captions_vars_6 <- list( years_fig = "1985-2014 with MSA area",
+                         vars_fig = "with MSA area",
+                         years_tbl = "1985--2014 with MSA area",
+                         vars_tbl = "with MSA area")
+
+vars_6 <- list(msa_vars = msa_vars_6, state_vars = state_vars_6,
+               captions = captions_vars_6)
 
 #
 # Include Gini coefficient as a predictor
 #
-msa_vars_5 <- c('pvi', 'rpi', 'gini', 'log.pop', 'pop.growth',
-                'aridity','surface.water')
+msa_vars_7 <- c('pvi', 'rpi', 'gini', 'log.pop', 'pop.growth',
+                'aridity', 'surface.water'
+                )
 
-state_vars_5 <- c('state.pvi', 'state.rpi', 'state.gini',
-                  'state.aridity', 'state.surface.water')
+state_vars_7 <- c('state.pvi', 'state.rpi', 'state.gini',
+                  'state.aridity', 'state.surface.water'
+                  )
 
-vars_5 <- list(msa_vars = msa_vars_5, state_vars = state_vars_5)
+captions_vars_7 <- list( years_fig = "1985-2014 with MSA Gini",
+                         vars_fig = "with MSA Gini",
+                         years_tbl = "1985--2014 with MSA Gini coefficient",
+                         vars_tbl = "with MSA Gini coefficient")
 
-#
-# Consider aridity trend since 1985 (previous 30 years)
-#
-msa_vars_6 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
-                'aridity_85','surface.water')
-
-state_vars_6 <- c('state.pvi', 'state.rpi',
-                  'state.aridity_85', 'state.surface.water')
-
-vars_6 <- list(msa_vars = msa_vars_6, state_vars = state_vars_6)
+vars_7 <- list(msa_vars = msa_vars_7, state_vars = state_vars_7,
+               captions = captions_vars_7)
 
 #
-# Consider aridity trend since 1995 (previous 20 years)
+# Add interaction between aridity and PVI
 #
-msa_vars_7 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
-                'aridity_95','surface.water')
+msa_vars_8 <- c('aridity', 'pvi', 'rpi', 'log.pop', 'pop.growth',
+                 'pvi.aridity', 'pvi.state.aridity', 'surface.water'
+)
 
-state_vars_7 <- c('state.pvi', 'state.rpi',
-                  'state.aridity_95', 'state.surface.water')
+state_vars_8 <- c('state.aridity', 'state.pvi', 'state.rpi',
+                   'state.pvi.aridity', 'state.surface.water'
+)
 
-vars_7 <- list(msa_vars = msa_vars_7, state_vars = state_vars_7)
+captions_vars_8 <- list( years_fig = "1985-2014 with PVI/aridity interactions",
+                          vars_fig = "with PVI/aridity interactions",
+                          years_tbl = "1985--2014  with PVI/aridity interactions",
+                          vars_tbl = "with PVI/aridity interactions")
+
+vars_8 <- list(msa_vars = msa_vars_8, state_vars = state_vars_8,
+                captions = captions_vars_8)
+
+
 
 #
-# Consider aridity trend since 2005 (previous 10 years)
+# Omit PVI
 #
-msa_vars_8 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
-                'aridity_05','surface.water')
+msa_vars_9 <- c('rpi', 'log.pop', 'pop.growth',
+                'aridity', 'surface.water'
+                )
 
-state_vars_8 <- c('state.pvi', 'state.rpi',
-                  'state.aridity_05', 'state.surface.water')
+state_vars_9 <- c('state.rpi',
+                  'state.aridity', 'state.surface.water'
+                  )
 
-vars_8 <- list(msa_vars = msa_vars_8, state_vars = state_vars_8)
+captions_vars_9 <- list( years_fig = "1985-2014 without PVI",
+                         vars_fig = "without PVI",
+                         years_tbl = "1985--2014 without PVI",
+                         vars_tbl = "without PVI")
 
+vars_9 <- list(msa_vars = msa_vars_9, state_vars = state_vars_9,
+               captions = captions_vars_9)
+
+#
+# Omit Aridity
+#
+msa_vars_10 <- c('pvi', 'rpi', 'log.pop', 'pop.growth', 'surface.water'
+                 )
+
+state_vars_10 <- c('state.pvi', 'state.rpi', 'state.surface.water'
+                   )
+
+captions_vars_10 <- list( years_fig = "1985-2014 without aridity",
+                          vars_fig = "without aridity",
+                          years_tbl = "1985--2014 without aridity",
+                          vars_tbl = "without aridity")
+
+vars_10 <- list(msa_vars = msa_vars_10, state_vars = state_vars_10,
+                captions = captions_vars_10)
+
+
+#
+# Omit Surface water
+#
+msa_vars_11 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
+                'aridity' #, 'surface.water'
+)
+
+state_vars_11 <- c('state.pvi', 'state.rpi',
+                  'state.aridity' #, 'state.surface.water'
+)
+
+captions_vars_11 <- list( years_fig = "1985-2014 without surface water",
+                         vars_fig = "with surface water",
+                         years_tbl = "1985--2014 without surface water",
+                         vars_tbl = "without surface water")
+
+vars_11 <- list(msa_vars = msa_vars_11, state_vars = state_vars_11,
+               captions = captions_vars_11)
 
 
 model_vars <- list(vars_1 = vars_1, vars_2 = vars_2, vars_3 = vars_3,
                    vars_4 = vars_4, vars_5 = vars_5,
-                   vars_6 = vars_6, vars_7 = vars_7, vars_8 = vars_8)
+                   vars_6 = vars_6, vars_7 = vars_7, vars_8 = vars_8,
+                   vars_9 = vars_9, vars_10 = vars_10,
+                   vars_11 = vars_11)
 
 parse_target <- function(target = c('vwci', 'req', 'reb'), k_actions = NA) {
   target = match.arg(target)
@@ -145,6 +281,35 @@ parse_target <- function(target = c('vwci', 'req', 'reb'), k_actions = NA) {
 index_states <- function(msa_data) {
   msa_data %>% mutate(state = factor(state), state.index = as.integer(state)) %>%
     invisible()
+}
+
+initialize_models <- function(force = FALSE) {
+  if(!exists("stan_model_env", envir = globalenv())) {
+    assign("stan_model_env", new.env(parent = globalenv()), envir = globalenv())
+  }
+  stan_model_env <- get("stan_model_env", envir = globalenv())
+
+  if (force || !exists("stan_models", envir = stan_model_env)) {
+    models <- list()
+    models$multilevel_beta_alpha <-
+      list(model_source = 'scripts/water_conserve_ml_vary_intercept_beta_alpha.stan',
+           model_name = "Basic hierarchical beta-binomial regression with varying intercepts and random alpha")
+    models$multilevel_beta <- list(model_source = 'scripts/water_conserve_ml_vary_intercept_beta.stan',
+                                   model_name = "Basic hierarchical beta-binomial regression with varying intercepts")
+    models$multilevel_alpha <- list(model_source = 'scripts/water_conserve_ml_vary_intercept_alpha.stan',
+                                    model_name = "Basic hierarchical binomial regression with varying intercepts and random alpha")
+    models$multilevel <- list(model_source = 'scripts/water_conserve_ml_vary_intercept.stan',
+                              model_name = "Basic hierarchical binomial regression with varying intercepts")
+    models$single_beta <- list(model_source = 'scripts/water_conserve_sl_beta.stan',
+                               model_name = "Basic single-level beta-binomial logistic regression")
+    models$single <- list(model_source = 'scripts/water_conserve_sl.stan',
+                          model_name = "Basic single-level binomial logistic regression")
+    for(i in seq_along(models)) {
+      models[[i]] <- within(models[[i]], model <- stan_model(model_source, model_name = model_name))
+    }
+    assign("stan_models", value = models, envir = stan_model_env)
+  }
+  invisible(get("stan_models", envir = stan_model_env))
 }
 
 
@@ -203,22 +368,20 @@ fit_model <- function(df, vars, target = c('vwci', 'req', 'reb'), k_actions = NA
 
   y <- msa_data[,target] %>% unlist()
 
+  stan_models <- initialize_models()
+
   if (multilevel) {
     if (beta) {
       if (random_alpha) {
-        mdl <- list(model_source = 'scripts/water_conserve_ml_vary_intercept_beta_alpha.stan',
-                    model_name = "Basic hierarchical beta-binomial regression with varying intercepts and random alpha")
+        mdl <- stan_models$multilevel_beta_alpha
       } else {
-        mdl <- list(model_source = 'scripts/water_conserve_ml_vary_intercept_beta.stan',
-                    model_name = "Basic hierarchical beta-binomial regression with varying intercepts")
+        mdl <- stan_models$multilevel_beta
       }
     } else {
       if (random_alpha) {
-        mdl <- list(model_source = 'scripts/water_conserve_ml_vary_intercept_alpha.stan',
-                    model_name = "Basic hierarchical binomial regression with varying intercepts and random alpha")
+        mdl <- stan_models$multilevel_alpha
       } else {
-        mdl <- list(model_source = 'scripts/water_conserve_ml_vary_intercept.stan',
-                    model_name = "Basic hierarchical binomial regression with varying intercepts")
+        mdl <- stan_models$multilevel
       }
     }
     stan_data <- list(N = nrow(mm_msa), K = ncol(mm_msa),
@@ -229,11 +392,9 @@ fit_model <- function(df, vars, target = c('vwci', 'req', 'reb'), k_actions = NA
 
   } else {
     if (beta) {
-      mdl <- list(model_source = 'scripts/water_conserve_sl_beta.stan',
-                  model_name = "Basic single-level beta-binomial logistic regression")
+      mdl <- stan_models$single_beta
     } else {
-      mdl <- list(model_source = 'scripts/water_conserve_sl.stan',
-                  model_name = "Basic single-level binomial logistic regression")
+      mdl <- stan_models$single
     }
     stan_data <- list(N = nrow(mm_msa), K = ncol(mm_msa),
                       xx = mm_msa, y = y,
@@ -254,7 +415,7 @@ fit_model <- function(df, vars, target = c('vwci', 'req', 'reb'), k_actions = NA
   # message("Preparing to sample from model ", mdl$model_source)
   # message("Variables: ", str_c(names(stan_data), collapse = ", "))
 
-  model <- stan_model(mdl$model_source, model_name = mdl$model_name)
+  model <- mdl$model
 
   # stan_env <- new.env(parent = emptyenv())
   # stan_env$model <- force(model)
@@ -279,12 +440,12 @@ fit_model <- function(df, vars, target = c('vwci', 'req', 'reb'), k_actions = NA
 
   loaded_dlls = getLoadedDLLs()
   loaded_dlls = loaded_dlls[str_detect(names(loaded_dlls), '^file')]
-  if (length(loaded_dlls) > 10) {
-    for (dll in head(loaded_dlls, -10)) {
-      message("Unloading DLL ", dll[['name']], ": ", dll[['path']])
-      dyn.unload(dll[['path']])
-    }
-  }
+  # if (length(loaded_dlls) > 10) {
+  #   for (dll in head(loaded_dlls, -10)) {
+  #     message("Unloading DLL ", dll[['name']], ": ", dll[['path']])
+  #     dyn.unload(dll[['path']])
+  #   }
+  # }
   message("DLL Count = ", length(getLoadedDLLs()), ": [", str_c(names(loaded_dlls), collapse = ","), "]")
 
   invisible(sfit)
@@ -592,10 +753,13 @@ make_scatter_plot <- function(residuals, color = F, pt.alpha = 0.5, residual.plo
   }
 
   if (color) {
-    p <- p + geom_point(aes(color=state_2), alpha=pt.alpha) +
+    p <- p + geom_point(aes(color=state_2, fill = state_2), shape = 21, alpha=pt.alpha) +
       scale_color_manual(values=set_names(c(brewer.pal(4, "Dark2")[-3], "gray50"),
                                           c('CA', 'FL', 'TX', 'Other')),
-                         name = "State")
+                         name = "State") +
+      scale_fill_manual(values=set_names(c(brewer.pal(4, "Dark2")[-3], "gray50"),
+                                        c('CA', 'FL', 'TX', 'Other')),
+                        name = "State")
   } else {
     p <- p +
       geom_point(color="dark blue", alpha=pt.alpha)
@@ -674,7 +838,7 @@ process_models <- function(std_data, vars, data.dir = data_dir,
                            sigma_sigma_delta = 0.5,
                            dependent_vars = c("vwci", "req", "reb"),
                            filename = file.path(data.dir, "model_fits.Rds"),
-                           seed = NULL) {
+                           seed = NULL, comment = "") {
   if (!is.null(seed)) {
     set.seed(seed)
   }
@@ -704,6 +868,16 @@ process_models <- function(std_data, vars, data.dir = data_dir,
   model_ggs <- list()
   model_res <- list()
 
+  start_time = Sys.time()
+
+  model_count <- length(var_sel) * length(beta) * length(dependent_vars) *
+    (length(multilevel) + ifelse(TRUE %in% multilevel, length(random_alpha) - 1, 0))
+  model_index = 0
+
+  comment <- str_trim(comment)
+  if (str_length(comment) > 0)
+    comment <- str_c(comment, " ")
+
   for (vi in var_sel) {
     vv = vars[[vi]]
     vid = str_replace(vi, fixed("vars_"), "")
@@ -720,7 +894,22 @@ process_models <- function(std_data, vars, data.dir = data_dir,
               mu_phi = mu_phi_rr
               sigma_phi = sigma_phi_rr
             }
-            message(timestamp(), " Fitting model\n    ", m_name, " with vars = ", vi, ', target = ', dv,
+            now = Sys.time()
+            delta = difftime(now, start_time, units="secs")
+            model_index <- model_index + 1
+            if (model_index > 1) {
+              time_msg <- str_c(": elapsed = ", as.hms(round(delta)), ", est: ",
+                                as.hms(round(delta * (1 + model_count - model_index) / (model_index - 1))),
+                                " remaining, ",
+                                as.hms(round(delta * model_count / (model_index - 1))),
+                                " total."
+                                )
+            } else {
+              time_msg <- ""
+            }
+            message(timestamp(), " Fitting ", comment, "model #",
+                    model_index, "/", model_count, time_msg, "\n    ",
+                    m_name, " with vars = ", vi, ', target = ', dv,
                     ', beta = ', b, ', multilevel = ', ml, ', random alpha = ', ra)
             # message('vv = ', map(vv, ~str_c("name = ", names(.x), "(", str_c(.x, collapse = ", "), ")", collapse = "; ")))
             sfit <- fit_model(df = std_data, vars = vv, target = dv,
@@ -730,8 +919,12 @@ process_models <- function(std_data, vars, data.dir = data_dir,
                               mu_phi = mu_phi, sigma_phi = sigma_phi,
                               sigma_sigma_delta = sigma_sigma_delta,
                               seed = seeds[m_name])
-            message(timestamp(), " Finished fitting model.")
+            message(timestamp(), " Finished fitting model in ", as.hms(round(difftime(Sys.time(), now, units="secs"))), ".")
             message('saving model sfit', m_name, ' classs = ', class(sfit))
+            if (sfit@sim$chains == 0 || sum(sfit@sim$n_save) == 0) {
+              warning("Model ", m_name, " did not sample. Skipping to next.")
+              next
+            }
             model_fits <- c(model_fits, setNames(list(sfit), str_c('sfit', m_name)))
             if (TRUE || ml) {
               g <- make_ggs_var_intercept(sfit, vv, abs_rank = abs_rank,
@@ -746,6 +939,8 @@ process_models <- function(std_data, vars, data.dir = data_dir,
             }
             # saveRDS(list(model_fits = model_fits, model_ggs = model_ggs, model_res = model_res),
             #         file = file.path(data.dir, 'model_fit_checkpoint.rds'))
+            if (! dir.exists(file.path(data.dir, "checkpoints")))
+              dir.create(file.path(data.dir, "checkpoints"))
             saveRDS(list(sfit  = sfit, ggs = ggs, res = res),
                     file = file.path(data.dir, 'checkpoints', str_c('temp_checkpoint', m_name, '.rds')))
             file.rename(from = file.path(data.dir, 'checkpoints', str_c('temp_checkpoint', m_name, '.rds')),

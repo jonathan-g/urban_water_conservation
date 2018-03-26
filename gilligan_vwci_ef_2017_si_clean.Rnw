@@ -29,6 +29,7 @@
 
 \documentclass[draft]{agujournal}
 %\documentclass{agujournal}
+% \usepackage{jglucida}
 \usepackage[hyphens]{url}
 % \usepackage[hidelinks]{hyperref}
 \usepackage{amsmath}
@@ -93,12 +94,13 @@ opts_knit$set(progress = TRUE, verbose = TRUE,
               self.contained="FALSE"
 )
 
-do_cache = TRUE
+do_cache = FALSE
 
 si_output_dir <- 'si_files_clean/'
 figures_dir <- 'figures_si_clean/'
 
-opts_chunk$set(cache = do_cache, echo = FALSE,
+opts_chunk$set(cache = do_cache,
+               echo = FALSE,
                message = FALSE, warning = TRUE,
                error = FALSE, # stop knitting on errors
                out.width="0.8\\linewidth",
@@ -127,7 +129,7 @@ sigma_phi_rr <- 10
 pop_target_year <- 2014
 bea_year <- 2014
 @
-<<setup, echo=F, include=F, eval=T, cache = F, results='hide'>>=
+<<setup, echo=F, include=F, eval=T, cache=F, results='hide'>>=
 library(pacman)
 p_load(tidyverse, rlang, readxl, stringr, xtable,
        extrafont, ggrepel, gridExtra, ggthemes, viridis,
@@ -183,30 +185,39 @@ data_dir <- 'data'
 <<load_scripts, echo=F, eval=T, results='hide', cache.extra=c(file.mtime(file.path(script_dir, 'fit_model.R')))>>=
 source(file.path(script_dir, 'fit_model.R'))
 @
-<<load_data, include = FALSE, cache=do_cache, cache.extra=c(file.mtime(file.path(data_dir, "model_fits.Rds")))>>=
-filtered_data <- read_rds(file.path('data', 'filtered_data.Rds'))
+<<load_data, include = FALSE, cache=FALSE>>=
+filtered_data <- read_rds(file.path(data_dir, 'filtered_data.Rds'))
 
-msa_vars <- vars_2$msa_vars
-# state_vars <- vars_2$state_vars %>% set_names(.) %>% map(~str_replace_all(.x, fixed('state.'), ''))
-state_vars <- vars_2$state_vars %>% str_replace_all(fixed('state.'), '')
+msa_vars <- vars_1$msa_vars
+# state_vars <- vars_1$state_vars %>% set_names(.) %>% map(~str_replace_all(.x, fixed('state.'), ''))
+state_vars <- vars_1$state_vars %>% str_replace_all(fixed('state.'), '')
 
 msa_data <- filtered_data$msa_data %>%
-  select_(~city, ~state, ~msa.name, ~vwci, ~reqtotal, ~rebtotal, ~pop,
+  dplyr::select_(~city, ~state, ~msa.name, ~vwci, ~reqtotal, ~rebtotal, ~pop,
           .dots = msa_vars) %>%
   rename(state.abb = state, requirements = reqtotal, rebates = rebtotal) %>%
   mutate(vwci.rank = rank(-vwci, ties.method = 'min'),
          msa.name = str_extract(msa.name, "^(.+?)(?=([[:space:]]*Metro +Area)?$)"))
 
 state_data <- filtered_data$state_data %>%
-  select_(~state, ~state.name, ~state.fips,
+  dplyr::select_(~state, ~state.name, ~state.fips,
           .dots = state_vars) %>%
   rename(state.abb = state)
 
 n_cities <- nrow(msa_data)
 n_states <- length(unique(msa_data$state.abb))
 
+message("Reading model fits...")
 model_fits <- read_rds(file.path(data_dir, "model_fits.Rds"))
+message("...finished reading model fits")
+
+message("Reading test model fits...")
 loo_model_fits <- read_rds(file.path(data_dir, "test_model_fits.Rds"))
+message("...finished reading test model fits")
+
+message("Reading pooled model fits...")
+pooled_loo_model_fits <- read_rds(file.path(data_dir, "test_model_fits_pooled.Rds"))
+message("...finished reading pooled model fits")
 @
 
 \begin{document}
@@ -231,8 +242,8 @@ loo_model_fits <- read_rds(file.path(data_dir, "test_model_fits.Rds"))
 %%%Remove or add items as needed%%%
 \begin{enumerate}
 \item Text S1
-\item Figures S1 to S6
-\item Tables S1 to S9
+\item Figures S1 to S10
+\item Tables S1 to S17
 %if Tables are larger than 1 page, upload as separate excel file
 \end{enumerate}
 
@@ -240,7 +251,7 @@ loo_model_fits <- read_rds(file.path(data_dir, "test_model_fits.Rds"))
 \begin{enumerate}
 \item Captions for Datasets S1 to S4
 \item Data Analysis Scripts S1 (zip file)
-\item Captions for Large Tables S1, S2, S7--S9
+\item Captions for Large Tables S1, S2, S15--S17
 \end{enumerate}
 
 
@@ -296,14 +307,17 @@ of VWCI, requirements, and rebates
 (Figures~S\ref{fig:vwci_pairs_plot}--S\ref{fig:reb_pairs_plot}) are smooth with
 little correlation and give no cause for concern.
 In addition, the Hamiltonian Monte Carlo calculations proceeded without any
-divergences or exceessive tree depths, and the Gelman-Rubin $\hat R$ potential
+divergences or exceessive tree depths after warm-up, and the
+Gelman-Rubin $\hat R$ potential
 scale-reduction factor converged to $\ge 0.999$ for each parameter
 \citep{stan:manual:2015}.
 \else
 Pairwise correlation plots of the posterior probability distributions of
 regressions parameters (Figures~S\ref{fig:vwci_pairs_plot}--S\ref{fig:reb_pairs_plot})
-are smooth and show little correlation. The Hamiltonian Monte Carlo calculations
-proceeded without any divergences or exceessive tree depths, and the Gelman-Rubin
+are smooth and show little correlation.
+The Hamiltonian Monte Carlo calculations
+proceeded without any divergences or exceessive tree depths after warm-up, and the
+Gelman-Rubin
 $\hat R$ potential scale-reduction factor
 (Tabs~S\ref{tab:vwci_posterior}--S\ref{tab:reb_posterior}) converged to
 $\ge 0.999$ for each parameter.
@@ -339,14 +353,6 @@ accuracy of our estimates of LOO-IC and WAIC \citep{vehtari:loo:2016},
 but we do not worry overly about this potential inaccuracy both because the
 posterior prediction test yields the same results and because a pure binomial
 model gives very similar results to those presented here.
-
-We had initially used the interval 1970--2014 for climatological averaging,
-but in response to reviewer comments, we
-investigated other averaging intervals and switched to the
-1984--2014 interval because it performed slightly, but insignificantly better
-according to the information criteria.
-There are no important differences between between the two analyses
-(Figure~S\ref{fig:vwci_years_cat_plots}).
 \else
 Leave-one-out cross-validation (Table~S\ref{tab:loo.years}--S\ref{tab:loo.vars})
 and the Widely Applicable Information Criterion
@@ -363,22 +369,22 @@ Tables~S\ref{tab:vwci_posterior}--S\ref{tab:reb_posterior}.
 \subsubsection*{Robustness Tests}
 We chose our explanatory variables based on theoretical considerations, as
 described in \citet{hess:drought:2016}. To test the robustness of our analysis,
-we compared the results described above to two kinds of alternate regression
+we compared the results described above to several kinds of alternate regression
 analyses for the VWCI.
 
 In the first series, we varied the interval over which we averaged
-the K\"oppen aridity index, considering the 45 year period 1970--2014,
+the K\"oppen aridity index, considering the 30-year period 1985--2014,
+the 45 year period 1970--2014,
 the 20 year period 1995--2014, and the 10-year period 2005--2014. This tests
 for sensitivity to recent extreme events versus the longer-term average
-climate. We observed very little difference in the regression coefficients
-and very little difference in the information criteria
-(Figure~S5 and Tables~S3 and S5).
-The 1985--2014 interval produced the best results (by a small and insignificant
-margin)
-and  all of the intervals were statistically consistent with one another.
+climate.
+There were no significant differences between the regressions using the
+four different intervals: the posterior distributions were nearly identical
+(Figure~S5) and the information criteria differed by less than one tenth
+of the standard error (Tables~S3 and S6).
 
 Second, we performed regressions with additional or different explanatory
-variables (Figure~S6 and Tables~S4 and S6).
+variables (Figures~S6--S7 and Tables~S4--S5 and S7--S8).
 Population density has been found to correlate well with
 voting patterns, and thus might affect water conservation policies
 \citep{rodden:geographic:2010}.
@@ -387,7 +393,7 @@ and the rate of change of population density from 2000--2010
 \citep{wilson:pop.density:2012}
 for total population.
 The results were similar to those of our original analysis,
-and produced slightly and insignificantly inferior information criteria scores.
+and produced slightly, but insignificantly, inferior information criteria scores.
 
 We also considered that the area of an MSA might be important to collecting and
 distributing water, so we conducted regressions that included an additional
@@ -397,7 +403,7 @@ in the 2010 U.S. Census
 for area was consistent with zero and the information criteria scores were
 slightly and insignificantly inferior to our original analysis.
 
-Finally, we considered that in addition to mean personal
+We also considered that in addition to mean personal
 income and relative purchasing power, the distribution of income might be
 important, so we performed regressions that included Gini indices of
 income inequality at both the MSA and the state levels,
@@ -413,6 +419,12 @@ with zero.
 The information criteria scores were slightly and insignificantly inferior
 to our original model.
 
+In order to test alternative model structures, we introduced interaction terms
+between aridity and PVI at both the state and MSA levels. As with the previous
+tests, introducing this term did not change the posterior distributions of the
+coefficients for the other covariates by very much and the information criteria
+scores were slightly, but insignificantly, worse.
+
 All of these different analyses of VWCI consistently found that
 at the state level, the largest coefficients were for aridity and PVI,
 and at the MSA-level PVI, population (or population density), and population
@@ -421,7 +433,17 @@ The variations in coefficients across all of the alternate analyses
 were well within the 95\% highest-density
 intervals of the posterior probability distribution.
 
-Similarly, in all of the analyses, the MSA-level PVI, population, and population
+In order to test that aridity and PVI were, in fact, significant We also performed
+regressions leaving out either the aridity or PVI covariates.
+These regressions produced information criteria scores that were inferior to the
+original regression by slightly more than one standard error in the case of PVI
+and by about one-third of the standard error in the case of aridity.
+We also observed that removing either one of these covariates did not significantly
+change the coefficients for any of the other covariates. This reinforces the evidence
+of the pairwise correlation plots that there are no important problems with
+interdependence or multicollinearity among the covariates.
+
+In all of these analyses, the MSA-level PVI, population, and population
 growth coefficients were positive and distinct from zero. The values and the
 ranking of these three coefficients changed, but by amounts that were well
 within the posterior probability distributions. The remaining MSA-level
@@ -435,8 +457,52 @@ replacing the Cauchy priors on $\alpha_0$, $\beta$, and $\gamma$ with normal
 priors.
 The results were very similar to and consistent with the original analysis.
 
+We also tested alternative regressions that used different normalizations for the
+MSA-level variables: In this alternative normalization, instead of taking the
+differences between the MSA-level variables and the state-level variables, and
+scaling this difference to the state-level scales, we took the raw values for
+each MSA-level variable and scaled them to have zero-mean and a standard deviation
+of 0.5 across all of the MSAs, without referring them to the state-level variables.
+
+We repeated all of the regressions described above using this alternative scaling
+of the MSA-variables (Figures~S8--10 and Tables~9--14).
+The information criteria scores for these regressions were generally slightly,
+but insignificantly, inferior to the corresponding regressions using the original
+MSA-scaling and the posterior distributions of the regression coefficients
+differed in one important way: The coefficient for state-level PVI shifted to
+lower values, becoming consistent with zero, and its
+median was roughly one third of its value for the original scaling.
+The other regresion coefficients did not change much under the new scaling.
+
+This result reveals an ambiguity in interpreting the role of PVI:
+Under the original scaling, PVI was important at both the state and MSA levels,
+leading to the interpretation that both the state-level PVI and the difference between
+the state-level and MSA-level PVI were well corelated with the propensity to adopt
+water-conservation policies. Under the alternative scaling, the
+coefficient for state-level PVI is consistent with zero
+(with an 84\% probability of being positive)
+and the coefficient for MSA-level PVI is clearly positive, with an almost
+identical distribution as with the original scaling.
+Because the information criteria scores are only slightly different between
+the two analyses (the difference is roughly 5\% of the standard error on the LOO-IC),
+there is no good reason to prefer one to the other and from a statistical perspective
+two alternative interpretations are equally plausible: That both the state-level PVI
+and the difference between the state- and MSA-level PVI are independently significant,
+or that the effect of the state-level PVI is not significantly different from zero,
+but that the MSA-level PVI is significant.
+
 We conclude from this that the results of our analysis are robust against
-many changes of time-spans, explanatory variables, and assumptions about priors.
+many changes of time-spans, explanatory variables, and assumptions about priors,
+except for the ambituity over the importance of state-level PVI.
+
+Aside from state-level PVI, the effects of state-level aridity and
+MSA-level PVI, population, and population growth are robust and stable.
+Alternate model structures and alternate specifications of covariates were either
+markedly inferior (as measured by information criteria scores) or produced
+regression coefficients that were consistent with the original analysis.
+
+Although many of the differences between information criteria were small,
+our original analysis produced the best score.
 
 There are myriad other potential explanatory variables, but our concern that
 further exploration of alternative models might
@@ -445,7 +511,7 @@ unintentionally become an exercise in ``$p$-hacking'' due to
 led us to confine this analysis to our original set of variables, which
 we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
 
-\section*{Figures S1--S6}
+\section*{Figures S1--S10}
 <<msa_vars_distribution, include=TRUE, fig.cap = "Kernel-density distribution of MSA-level covariates. Population in millions and RPI in thousands of chained 2009 dollars.", fig.width=15, fig.height=8, out.width="6in", fig.pos='H'>>=
 sci_10 <- function(x) {
   parse(text=gsub("e\\+?","%*% 10^",x))
@@ -457,7 +523,10 @@ sc_breaks <- function(x) {
   ifelse(x[[2]] <= 1000, default, default[c(1, 3, 5)])
 }
 
-msa_data %>% select(pvi, aridity, rpi, surface.water, pop, pop.growth) %>%
+sel_vars <- c('pvi', 'aridity', 'rpi', 'surface.water', 'pop', 'pop.growth') %>%
+  keep(~.x %in% names(msa_data))
+
+msa_data %>% dplyr::select(one_of(sel_vars)) %>%
   mutate(log.pop = log(pop), pop = pop / 1E+6, rpi = rpi / 1000) %>%
   gather(key = covariate, value = value) %>%
   mutate(covariate =
@@ -484,7 +553,7 @@ print(p2)
 
 @
 
-<<vwci_pairs_plot, cache = TRUE, include = TRUE, dependson="load_data", fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for VWCI. The diagonal panels show the probability density for each coefficient, panels in the upper triangle show scatterplots of 4000 HMC samples, and panels in the lower triangle show joint probability density contours corresponding to the scatterplot in the upper triangle. Slight correlations are apparent, as between $\\gamma_{\\text{aridity}}$ and $\\gamma_{\\text{SW}}$, $\\gamma_{\\text{PVI}}$ and $\\gamma_{\\text{RPI}}$, and $\\beta_{\\text{SW}}$ and $\\alpha_0$, but these are small enough not to pose problems apart from slightly increasing the uncertainty in the parameter estimates.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits)>>=
+<<vwci_pairs_plot_function, cache=do_cache, include = FALSE>>=
 
 plot_vwci_pairs <- function(g) {
   g <- g %>% mutate(ParameterOriginal = str_replace_all(ParameterOriginal, '[\\[\\]]', '.'))
@@ -515,31 +584,70 @@ plot_vwci_pairs <- function(g) {
           strip.background = element_blank())
   plt
 }
+@
 
-plot_vwci_pairs(model_fits$ggs$ggs_2_ml_beta_alpha) -> p3
+<<vwci_pairs_plot, cache=do_cache, include = TRUE, fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for VWCI. The diagonal panels show the probability density for each coefficient, panels in the upper triangle show scatterplots of 4000 HMC samples, and panels in the lower triangle show joint probability density contours corresponding to the scatterplot in the upper triangle. Slight correlations are apparent, as between $\\gamma_{\\text{aridity}}$ and $\\gamma_{\\text{SW}}$, $\\gamma_{\\text{PVI}}$ and $\\gamma_{\\text{RPI}}$, and $\\beta_{\\text{SW}}$ and $\\alpha_0$, but these are small enough not to pose problems apart from slightly increasing the uncertainty in the parameter estimates.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits)>>=
+plot_vwci_pairs(model_fits$ggs$ggs_1_ml_beta_alpha) -> p3
 
 ggsave(file.path(si_output_dir, 'figures', 'fig_S2.png'), p3, 'png', height=6, width = 6, dpi = 600)
 
 print(p3)
 @
 
-<<req_pairs_plot, cache = TRUE, include = TRUE, dependson="load_data", fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for requirements.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits, plot_vwci_pairs)>>=
-plot_vwci_pairs(model_fits$ggs$ggs_2_ml_beta_alpha_req) -> p4
+<<req_pairs_plot, cache=do_cache, include = TRUE, fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for requirements.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits, plot_vwci_pairs)>>=
+plot_vwci_pairs(model_fits$ggs$ggs_1_ml_beta_alpha_req) -> p4
 
 ggsave(file.path(si_output_dir, 'figures', 'fig_S3.png'), p4, 'png', height=6, width = 6, dpi = 600)
 
 print(p4)
 @
 
-<<reb_pairs_plot, cache = TRUE, include = TRUE, dependson="load_data", fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for rebates.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits, plot_vwci_pairs)>>=
-plot_vwci_pairs(model_fits$ggs$ggs_2_ml_beta_alpha_reb) -> p5
+<<reb_pairs_plot, cache=do_cache, include = TRUE, fig.cap="Correlation plot of posterior probability distribution of regression coefficients $\\alpha$, $\\beta$, and $\\gamma$ for rebates.", fig.height=6, fig.width=6, out.width="6.25in", dev = "png", cache.extra=c(model_fits, plot_vwci_pairs)>>=
+plot_vwci_pairs(model_fits$ggs$ggs_1_ml_beta_alpha_reb) -> p5
 
 ggsave(file.path(si_output_dir, 'figures', 'fig_S4.png'), p5, 'png', height=6, width = 6, dpi = 600)
 
 print(p5)
 @
 
-<<vwci_years_cat_plots, cache=TRUE, include=TRUE, dependson="load_data", fig.cap="Regression coefficients for VWCI, averaging state and MSA aridity over different intervals.", fig.height=8, fig.width=6, out.width="6.25in", cache.extra=c(loo_model_fits)>>=
+<<setup_cat_plots, cache=do_cache, include=FALSE>>=
+source('scripts/gen_cat_plot.R')
+
+model_indices <- c(1:10)
+
+
+make_indexed_cat_plot <- function(ggs_list, model_vars, limits, param_levels,
+                                  index, subplot_label = "", label_suffix = "",
+                                  use_legend = TRUE,
+                                  fig_type = c("years", "vars"),
+                                  dep_var = c("vwci", "req", "reb")) {
+  fig_type = match.arg(fig_type)
+  dep_var = match.arg(dep_var)
+  ggs <- ggs_list[[str_c("ggs_", index, "_ml_beta_alpha")]]
+  v <- model_vars[[str_c("vars_", index)]]
+  fig_index = str_c(fig_type, "_fig")
+  title <- str_trim(subplot_label)
+  if (str_length(title) > 0) {
+    title <- str_c(" ", title, " ")
+  }
+  suffix <- str_trim(label_suffix)
+  if (str_length(suffix) > 0) {
+    suffix <- str_c(" ", suffix)
+  }
+  title <- str_c(title, v$captions[[fig_index]], suffix)
+  p <- generate_cat_plot(ggs, dep_var, title,
+                         limits = limits, levels = param_levels,
+                         legend = use_legend) +
+    theme(axis.title.x = element_text(size = rel(0.8)),
+          plot.title = element_text(size = rel(0.8)),
+          axis.text.x = element_text(size = rel(0.7)),
+          axis.text.y = element_text(size = rel(0.6))
+    )
+
+  p
+}
+@
+<<load_ggs, cache=do_cache, include=FALSE>>=
 model_ggs <- loo_model_fits$ggs %>% discard(str_detect(names(.), '_re[qb]$')) %>%
   keep(str_detect(names(.), '_ml_beta_alpha$'))
 
@@ -549,13 +657,14 @@ for (i in seq_along(model_ggs)) {
   model_ggs[[i]]$Parameter <- ordered(model_ggs[[i]]$Parameter, levels = old_levels, labels = new_levels)
 }
 
-param_levels <- levels(model_ggs$ggs_2_ml_beta_alpha$Parameter)
+param_levels <- levels(model_ggs$ggs_1_ml_beta_alpha$Parameter)
 
-extra_levels <- model_ggs %>% keep(str_detect(names(.), '^ggs_[4-5]')) %>%
-  map(~levels(.x$Parameter)) %>% simplify() %>% unname() %>% unique() %>% setdiff(param_levels)
-
-dens_levels <- levels(model_ggs$ggs_3_ml_beta_alpha$Parameter) %>% setdiff(param_levels) %>%
+dens_levels <- levels(model_ggs$ggs_2_ml_beta_alpha$Parameter) %>% setdiff(param_levels) %>%
   set_names(str_replace(., " *dens", ""))
+
+extra_levels <- model_ggs %>% keep(str_detect(names(.), '^ggs_[0-9]+')) %>%
+  map(~levels(.x$Parameter)) %>% simplify() %>% unname() %>% unique() %>%
+  setdiff(param_levels) %>% setdiff(dens_levels)
 
 for (i in seq_along(dens_levels)) {
   index <- which(param_levels == names(dens_levels)[i])
@@ -575,61 +684,47 @@ for (i in seq_along(model_ggs)) {
   model_ggs[[i]]$Parameter <- ordered(model_ggs[[i]]$Parameter, levels = param_levels)
 }
 
-source('scripts/gen_cat_plot.R')
+limits <- tibble(lower = 0.0, upper = 0.0)
 
-limits <- model_ggs$ggs_2_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
-  group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
-  ungroup() %>% summarize(lower = min(lower), upper = max(upper))
-limits <- model_ggs$ggs_6_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
-  group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
-  ungroup() %>% bind_rows(limits) %>%
-  summarize(lower = min(lower), upper = max(upper))
-limits <- model_ggs$ggs_7_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
-  group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
-  ungroup() %>% bind_rows(limits) %>%
-  summarize(lower = min(lower), upper = max(upper))
-limits <- model_ggs$ggs_8_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
-  group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
-  ungroup() %>% bind_rows(limits) %>%
+for (model_num in c(model_indices)) {
+  limits <- model_ggs[[str_c('ggs', model_num, 'ml_beta_alpha', sep = "_")]] %>%
+    dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
+    group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
+    ungroup() %>% bind_rows(limits)
+}
+
+limits <- limits %>%
   summarize(lower = min(lower), upper = max(upper)) %>%
   mutate_all(funs(./4)) %>%
   unlist()
 
-
-p2 <- generate_cat_plot(model_ggs$ggs_2_ml_beta_alpha, "vwci", " (a) 1985-2014",
-                        limits = limits, legend = TRUE) +
+@
+<<vwci_years_cat_plots, cache=do_cache, include=TRUE, fig.cap="Regression coefficients for VWCI, averaging state and MSA aridity over different intervals.", fig.height=8, fig.width=6, out.width="6.25in", cache.extra=c(loo_model_fits)>>=
+p1 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            index = 1, subplot_label = "(a)", label_suffix = "",
+                            use_legend = TRUE,
+                            fig_type = "years", dep_var = "vwci") +
   theme(legend.position = c(0.99,0.01),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = rel(0.8)),
-        axis.text.x = element_text(size = rel(0.7)),
-        axis.text.y = element_text(size = rel(0.6))
-        )
+        axis.title.x = element_blank()
+  )
 
-p6 <- generate_cat_plot(model_ggs$ggs_6_ml_beta_alpha, "vwci", " (b) 1970-2014",
-                        limits = limits, legend = FALSE) +
-  theme(axis.title.x = element_blank(),
-        plot.title = element_text(size = rel(0.8)),
-        axis.text.x = element_text(size = rel(0.7)),
-        axis.text.y = element_text(size = rel(0.6))
-        )
+p2 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            2, "(b)", "", FALSE,
+                            "years", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
 
-p7 <- generate_cat_plot(model_ggs$ggs_7_ml_beta_alpha, "vwci", " (c) 1995-2014",
-                        limits = limits, legend = FALSE) +
-  theme(axis.title.x = element_blank(),
-        plot.title = element_text(size = rel(0.8)),
-        axis.text.x = element_text(size = rel(0.7)),
-        axis.text.y = element_text(size = rel(0.6))
-        )
+p3 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            3, "(c)", "", FALSE,
+                            "years", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
 
-p8 <- generate_cat_plot(model_ggs$ggs_8_ml_beta_alpha, "vwci", " (d) 2005-2014",
-                        limits = limits, legend = FALSE) +
-  theme(axis.title.x = element_text(size = rel(0.8)),
-        plot.title = element_text(size = rel(0.8)),
-        axis.text.x = element_text(size = rel(0.7)),
-        axis.text.y = element_text(size = rel(0.6))
-        )
+p4 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            4, "(d)", "", FALSE,
+                            "years", "vwci")
 
-p_cat_years <- egg::ggarrange(p2, p6, p7, p8, ncol = 1, draw = FALSE)
+p_cat_years <- egg::ggarrange(p1, p2, p3, p4, ncol = 1, draw = FALSE)
 
 ggsave(file.path(si_output_dir, 'figures', 'fig_S5.pdf'), p_cat_years, 'pdf', height=9, width = 6)
 
@@ -637,83 +732,232 @@ print(p_cat_years)
 
 @
 
-<<vwci_vars_cat_plots, cache=TRUE, include=TRUE, dependson="vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates.", fig.height=8, fig.width=6, out.width="6.25in">>=
-limits <- model_ggs$ggs_2_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
-  group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
-  ungroup() %>% summarize(lower = min(lower), upper = max(upper))
-limits <- model_ggs$ggs_3_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
-  group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
-  ungroup() %>% bind_rows(limits) %>%
-  summarize(lower = min(lower), upper = max(upper))
-limits <- model_ggs$ggs_4_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
-  group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
-  ungroup() %>% bind_rows(limits) %>%
-  summarize(lower = min(lower), upper = max(upper))
-limits <- model_ggs$ggs_5_ml_beta_alpha %>% dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
-  group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
-  ungroup() %>% bind_rows(limits) %>%
-  summarize(lower = min(lower), upper = max(upper)) %>%
-  mutate_all(funs(./4)) %>%
-  unlist()
-
-
-p2 <- generate_cat_plot(model_ggs$ggs_2_ml_beta_alpha, "vwci", " (a) baseline",
-                        limits = limits, legend = TRUE) +
+<<vwci_vars_cat_plots, cache=do_cache, include=TRUE, dependson="vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates.", fig.height=8, fig.width=6, out.width="6.25in">>=
+p1 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            1, "(a)", "", TRUE,
+                            "vars", "vwci") +
   theme(legend.position = c(0.99,0.01),
-        axis.title.x = element_blank(),
-        plot.title = element_text(size = rel(0.8)),
-        axis.text.x = element_text(size = rel(0.7)),
-        axis.text.y = element_text(size = rel(0.6))
-        )
+        axis.title.x = element_blank()
+  )
 
-p3 <- generate_cat_plot(model_ggs$ggs_3_ml_beta_alpha, "vwci", " (b) substituting population density",
-                        limits = limits, legend = FALSE) +
-  theme(axis.title.x = element_blank(),
-        plot.title = element_text(size = rel(0.8)),
-        axis.text.x = element_text(size = rel(0.7)),
-        axis.text.y = element_text(size = rel(0.6))
-        )
+p5 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            5, "(b)", "", FALSE,
+                            "vars", "vwci")
 
-p4 <- generate_cat_plot(model_ggs$ggs_4_ml_beta_alpha, "vwci", " (c) adding MSA area",
-                        limits = limits, legend = FALSE) +
-  theme(axis.title.x = element_blank(),
-        plot.title = element_text(size = rel(0.8)),
-        axis.text.x = element_text(size = rel(0.7)),
-        axis.text.y = element_text(size = rel(0.6))
-        )
+p6 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            6, "(c)", "", FALSE,
+                            "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
 
-p5 <- generate_cat_plot(model_ggs$ggs_5_ml_beta_alpha, "vwci", " (d) adding Gini index",
-                        limits = limits, legend = FALSE) +
-  theme(axis.title.x = element_text(size = rel(0.8)),
-        plot.title = element_text(size = rel(0.8)),
-        axis.text.x = element_text(size = rel(0.7)),
-        axis.text.y = element_text(size = rel(0.6))
-        )
+p7 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            7, "(d)", "", FALSE,
+                            "vars", "vwci")
 
-
-p_cat_vars <- egg::ggarrange(p2, p3, p4, p5, ncol = 1, draw = FALSE)
+p_cat_vars <- egg::ggarrange(p1, p5, p6, p7, ncol = 1, draw = FALSE)
 
 ggsave(file.path(si_output_dir, 'figures', 'fig_S6.pdf'), p_cat_vars, 'pdf', height=9, width = 6)
 
 print(p_cat_vars)
 @
 
+<<vwci_pvi_cat_plots, cache=do_cache, include=TRUE, dependson="vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates.", fig.height=8, fig.width=6, out.width="6.25in">>=
+p1 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            1, "(a)", "", TRUE,
+                            "vars", "vwci") +
+  theme(legend.position = c(0.99,0.01),
+        axis.title.x = element_blank()
+  )
+
+p8 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                            8, "(b)", "", FALSE,
+                            "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
+
+p9 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                             9, "(c)", "", FALSE,
+                             "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
+
+p10 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
+                             10, "(d)", "", FALSE,
+                             "vars", "vwci")
+
+p_cat_pvi <- egg::ggarrange(p1, p8, p9, p10, ncol = 1, draw = FALSE)
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S7.pdf'), p_cat_pvi, 'pdf', height=9, width = 6)
+
+print(p_cat_pvi)
+@
+
+<<load_pooled_vwci, cache=do_cache, include=FALSE>>=
+pooled_model_ggs <- pooled_loo_model_fits$ggs %>% discard(str_detect(names(.), '_re[qb]$')) %>%
+  keep(str_detect(names(.), '_ml_beta_alpha$'))
+
+for (i in seq_along(pooled_model_ggs)) {
+  old_levels <- levels(pooled_model_ggs[[i]]$Parameter)
+  new_levels <- old_levels %>% set_names(.) %>% str_replace_all(c("aridity_[0-9]+" = "aridity", "gini" = "Gini"))
+  pooled_model_ggs[[i]]$Parameter <- ordered(pooled_model_ggs[[i]]$Parameter, levels = old_levels, labels = new_levels)
+}
+
+pooled_param_levels <- levels(pooled_model_ggs$ggs_1_ml_beta_alpha$Parameter)
+
+pooled_dens_levels <- levels(pooled_model_ggs$ggs_2_ml_beta_alpha$Parameter) %>% setdiff(pooled_param_levels) %>%
+  set_names(str_replace(., " *dens", ""))
+
+pooled_extra_levels <- pooled_model_ggs %>% keep(str_detect(names(.), '^ggs_[0-9]+')) %>%
+  map(~levels(.x$Parameter)) %>% simplify() %>% unname() %>% unique() %>%
+  setdiff(pooled_param_levels) %>% setdiff(pooled_dens_levels)
+
+for (i in seq_along(pooled_dens_levels)) {
+  index <- which(param_levels == names(pooled_dens_levels)[i])
+  pooled_param_levels <- c(head(pooled_param_levels, index), pooled_dens_levels[i], tail(pooled_param_levels, -index))
+}
+
+pooled_gamma_levels <- pooled_param_levels %>% keep(str_detect(., "^gamma"))
+pooled_beta_levels <- pooled_param_levels %>% keep(str_detect(., "^beta"))
+pooled_other_levels <- pooled_param_levels %>% discard(str_detect(., "^beta|gamma"))
+
+pooled_gamma_levels <- c(pooled_extra_levels %>% keep(str_detect(., "^gamma")), pooled_gamma_levels)
+pooled_beta_levels <- c(pooled_extra_levels %>% keep(str_detect(., "^beta")), pooled_beta_levels)
+
+pooled_param_levels <- c(pooled_other_levels, pooled_beta_levels, pooled_gamma_levels)
+
+for (i in seq_along(pooled_model_ggs)) {
+  # To keep things consistent with the previous figures, I am not changing the levels between
+  # so I use param_levels, not pooled_param_levels
+  pooled_model_ggs[[i]]$Parameter <- ordered(pooled_model_ggs[[i]]$Parameter, levels = param_levels)
+}
+
+
+pooled_limits <- tibble(lower = 0.0, upper = 0.0)
+
+for (model_num in c(model_indices)) {
+  pooled_limits <- pooled_model_ggs[[str_c('ggs', model_num, 'ml_beta_alpha', sep = "_")]] %>%
+    dplyr::filter(str_detect(Parameter, '^(beta|gamma)')) %>%
+    group_by(Parameter) %>% summarize(lower = quantile(value, 0.025), upper = quantile(value,0.975)) %>%
+    ungroup() %>% bind_rows(pooled_limits)
+}
+
+pooled_limits <- pooled_limits %>%
+  summarize(lower = min(lower), upper = max(upper)) %>%
+  mutate_all(funs(./4)) %>%
+  unlist()
+@
+<<pooled_vwci_years_cat_plots, cache=do_cache, include=TRUE, fig.cap="Regression coefficients for VWCI, averaging state and MSA aridity over different intervals, using alternative scaling of MSA-level variables.", fig.height=8, fig.width=6, out.width="6.25in", cache.extra=c(loo_model_fits)>>=
+pp1 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             1, "(a)", "(alt. scaling)", TRUE,
+                             "years", "vwci") +
+  theme(legend.position = c(0.01,0.01), legend.justification = c(0,0),
+        axis.title.x = element_blank()
+  )
+
+pp2 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             2, "(b)", "(alt. scaling)", FALSE,
+                             "years", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
+
+pp3 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             3, "(c)", "(alt. scaling)", FALSE,
+                             "years", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
+
+pp4 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             4, "(d)", "(alt. scaling)", FALSE,
+                             "years", "vwci")
+
+pp_cat_years <- egg::ggarrange(pp1, pp2, pp3, pp4, ncol = 1, draw = FALSE)
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S9.pdf'), pp_cat_years, 'pdf', height=9, width = 6)
+
+print(pp_cat_years)
+
+@
+
+<<pooled_vwci_vars_cat_plots, cache=do_cache, include=TRUE, dependson="pooled_vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates, using alternative scaling of MSA-level variables.", fig.height=8, fig.width=6, out.width="6.25in">>=
+pp1 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             1, "(a)", "(alt. scaling)", TRUE,
+                             "vars", "vwci") +
+  theme(legend.position = c(0.01,0.01), legend.justification = c(0,0),
+        axis.title.x = element_blank()
+  )
+
+pp5 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             5, "(b)", "(alt. scaling)", FALSE,
+                             "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
+
+pp6 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             6, "(c)", "(alt. scaling)", FALSE,
+                             "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
+
+pp7 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             7, "(d)", "(alt. scaling)", FALSE,
+                             "vars", "vwci")
+
+
+
+pp_cat_vars <- egg::ggarrange(pp1, pp5, pp7, pp7, ncol = 1, draw = FALSE)
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S10.pdf'), pp_cat_vars, 'pdf', height=9, width = 6)
+
+print(pp_cat_vars)
+@
+
+<<pooled_vwci_pvi_cat_plots, cache=do_cache, include=TRUE, dependson="pooled_vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates, using alternative scaling of MSA-level variables.", fig.height=8, fig.width=6, out.width="6.25in">>=
+pp1 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             1, "(a)", "(alt. scaling)", TRUE,
+                             "vars", "vwci") +
+  theme(legend.position = c(0.01,0.01), legend.justification = c(0,0),
+        axis.title.x = element_blank()
+  )
+
+pp8 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                             8, "(b)", "(alt. scaling)", FALSE,
+                             "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
+
+pp9 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                              9, "(c)", "(alt. scaling)", FALSE,
+                              "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
+
+pp10 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
+                              10, "(d)", "(alt. scaling)", FALSE,
+                              "vars", "vwci")
+
+pp_cat_pvi <- egg::ggarrange(pp1, pp8, pp9, pp10, ncol = 1, draw = FALSE)
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S11.pdf'), pp_cat_pvi, 'pdf', height=9, width = 6)
+
+print(pp_cat_pvi)
+@
 
 \clearpage
-\section{Tables S1--S9}
-<<vwci_table, cache = TRUE, include = TRUE, dependson = 'load_data', results = "asis">>=
+\section{Tables S1--S17}
+<<vwci_table, cache=do_cache, include = TRUE, results = "asis">>=
 table_counter <- 1
 vwci_table_num <- table_counter
 cat(str_c("\\subsection*{Table S", vwci_table_num, " Caption}", "\n"))
 vwci_tbl <- msa_data %>% arrange(city, state.abb) %>%
   mutate(pvi = round(pvi, 2), aridity = round(aridity, 1),
          pop.growth = round(100 * pop.growth, 3),
-         surface.water = round(100 * surface.water, 1),
+         # surface.water = round(100 * surface.water, 1),
          pop = round(pop / 1000., 0), rpi = round(rpi / 1000., 1)) %>%
   dplyr::select(City = city, State = state.abb, Rank = vwci.rank, VWCI = vwci, Req. = requirements, Reb. = rebates,
                 PVI = pvi, Aridity = aridity,
                 RPI = rpi, # RPI = rpi, # Afford. = affordability,
-                Pop. = pop, `Growth (%)` = pop.growth, `Surf. W. (%)` = surface.water)
+                Pop. = pop, `Growth (%)` = pop.growth # , `Surf. W. (%)` = surface.water
+                )
 
 vwci_caption <-   list(str_c("Conservation scores and covariates for ", nrow(tbl), " cities: VWCI = Vanderbilt Water Conservation Index (total \\# of conservation measures), Req.\\ = \\# requirements, Reb.\\ = \\# rebates, PVI = Cook Partisan Voting Index, Aridity = K\\\"oppen aridity index, RPI\\ = per-capita real personal income (thousands of regionally adjusted chained 2009 dollars), Pop.\\ = population (thousands), Growth = population growth rate (2010--", pop_target_year, "), Surf.\\ W.\\ = surface-water fraction."),
                        str_c("Conservation scores for ", nrow(tbl), " cities.")
@@ -723,44 +967,55 @@ write_csv(vwci_tbl, path = file.path(si_output_dir, 'tables', str_c("Table_S", t
 cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", vwci_caption[[1]], "}\n\\label{tab:vwci}\n\\end{table}\n"))
 table_counter <- table_counter + 1
 @
-<<state_covar_table, include = TRUE, dependson="load_data", results="asis">>=
+<<state_covar_table, include = TRUE, results="asis">>=
 state_table_num <- table_counter
 cat(str_c("\\subsection*{Table S", state_table_num, " Caption}", "\n"))
 state_tbl <- state_data %>% arrange(state.name) %>%
-  mutate(surface.water = round(100 * surface.water, 3),
-         pvi = round(pvi, 2), aridity = round(aridity, 1),
-         rpi = round(rpi / 1000., 1)) %>%
+  mutate(
+    # surface.water = round(100 * surface.water, 3),
+    pvi = round(pvi, 2), aridity = round(aridity, 1),
+    rpi = round(rpi / 1000., 1)) %>%
   dplyr::select(State = state.name, PVI = pvi, Aridity = aridity,
-                RPI = rpi, # RPP = rpp, RPI = rpi, # Afford. = affordability,
-                `Surf. W. (%)` = surface.water)
+                RPI = rpi
+                # RPP = rpp, RPI = rpi, # Afford. = affordability,
+                # `Surf. W. (%)` = surface.water
+                )
 
 state_caption <-   list("State-level covariates: PVI = Cook Partisan Voting Index, RPI = per-capita real personal income (thousands of regionally-adjusted chained 2009 dollars), Aridity = the K\\\"oppen aridity index, Surf.\\ W.\\ = the surface-water fraction.", "State-level covariates.")
 write_csv(state_tbl, path = file.path(si_output_dir, 'tables', str_c("Table_S", state_table_num, ".csv")))
 cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", state_caption[[1]], "}\n\\label{tab:state}\n\\end{table}\n"))
 table_counter <- table_counter + 1
 @
-<<loo_table_setup, cache = TRUE, include = FALSE, warning=FALSE, message=FALSE, dependson='load_data'>>=
-lwmf <- loo_model_fits$fits
-lwmf <- lwmf[ (!str_detect(names(lwmf), '_re[qb]$')) & str_detect(names(lwmf), '_ml_.*alpha|_sl')] %>% lapply(extract_log_lik)
+<<loo_table_setup, cache=do_cache, include = FALSE, warning=FALSE, message=FALSE>>=
+var_indices = 1:10
 
 model_names <- list(
-  years = c('ml' = 'hierarchical', 'sl' = 'single-level', 'beta' = 'beta-', '_alpha'='',
+  years = c('ml' = 'hierarchical', 'sl' = 'single-level', 'beta' = '\\beta-', '_alpha'='',
             '_'=' ', '- $' = '-',
-            '^sfit 2[_ ]+(.*)$' = '\\1: 1985--2014', '^sfit 3[_ ]+(.*)$' = '\\1: 1985--2014 with density,',
-            '^sfit 4[_ ]+(.*)$' = '\\1: 1985--2014 with area,', '^sfit 5[_ ]+(.*)$' = '\\1: 1985--2014 with Gini index,',
-            '^sfit 6[_ ]+(.*)$' = '\\1: 1970--2014', '^sfit 7[_ ]+(.*)$' = '\\1: 1995--2014',
-            '^sfit 8[_ ]+(.*)$' = '\\1: 2005--2014'),
-  vars = c('ml' = 'hierarchical', 'sl' = 'single-level', 'beta' = 'beta-', '_alpha'='',
-           '_'=' ', '- $' = '-',
-           '^sfit 2[_ ]+(.*)$' = '\\1: baseline', '^sfit 3[_ ]+(.*)$' = '\\1: population density,',
-           '^sfit 4[_ ]+(.*)$' = '\\1: with area,', '^sfit 5[_ ]+(.*)$' = '\\1: with Gini index,',
-           '^sfit 6[_ ]+(.*)$' = '\\1: 1970--2014', '^sfit 7[_ ]+(.*)$' = '\\1: 1995--2014',
-           '^sfit 8[_ ]+(.*)$' = '\\1: 2005--2014')
+            set_names(
+              str_c("\\1: ", model_vars[str_c('vars_', var_indices)] %>%
+                      map_chr(~.x$captions$years_tbl) %>%
+                      str_replace_all("\\\\", "\\\\\\\\")
+              ),
+              str_c("^sfit ", var_indices, "[_ ]+(.*)$")
+            )
+  ),
+  vars =  c('ml' = 'hierarchical', 'sl' = 'single-level', 'beta' = 'beta-', '_alpha'='',
+            '_'=' ', '- $' = '-',
+            set_names(
+              str_c("\\1: ", model_vars[str_c('vars_', var_indices)] %>%
+                      map_chr(~.x$captions$vars_tbl) %>%
+                      str_replace_all("\\\\", "\\\\\\\\")
+              ),
+              str_c("^sfit ", var_indices, "[_ ]+(.*)$")
+            )
+  )
 )
 
 model_sets <- list(
-  years = str_c('^sfit_', c("2", "6", "7", "8"), collapse = "|"),
-  vars = str_c('^sfit_', c("2", "3", "4", "5"), collapse = "|")
+  years = str_c('^sfit_', c("1", "2", "3", "4"), "_", collapse = "|"),
+  vars = str_c('^sfit_', c("1", "5", "6", "7", "8", "9", "10"), "_",
+               collapse = "|")
 )
 
 compare_ic <- function(df, ic, criterion) {
@@ -776,8 +1031,8 @@ compare_ic <- function(df, ic, criterion) {
                         '_'=' ', '- $' = '-')) %>% str_c(., 'binomial') %>%
       str_replace_all(model_names[[criterion]])
   ) %>%
-    lapply(ic) %>% loo::compare(x = .) %>% as.data.frame() %>% rownames_to_column('model') %>%
-    select(-matches('^(se_)?p_'))
+    lapply(ic) %>% loo::compare(x = .) %>% as.data.frame() %>% as_tibble(rownames = 'model') %>%
+    dplyr::select(-matches('^(se_)?p_'))
 }
 
 ic_table <- function(df, ic, subset, caption) {
@@ -791,11 +1046,11 @@ ic_table <- function(df, ic, subset, caption) {
   } else stop("Illegal ic specification: ic must be \"loo\" or \"waic\"")
 
   ic_se_column = str_c("se_", ic_column)
-  ic_se_name = str_c("s.c.\\ ", ic_name)
+  ic_se_name = str_c("$\\text{s.e.}_{\\text{IC}}$")
   elpd_column = str_c("elpd_", ic)
   elpd_name = str_c("$\\text{ELPD}_{\\text{\\scshape{", ic, "}}}$")
   elpd_se_column = str_c("se_elpd_", ic)
-  elpd_se_name = str_c("s.e.\\ ", elpd_name)
+  elpd_se_name = str_c("$\\text{s.e.}_{\\text{ELPD}}$")
 
 
   ic_column = quo(!!as.name(ic_column))
@@ -806,59 +1061,167 @@ ic_table <- function(df, ic, subset, caption) {
   tbl <- df %>%
     rename(Model = model, !!ic_name := !!ic_column, !!ic_se_name := !!ic_se_column,
            !!elpd_name := !!elpd_column, !!elpd_se_name := !!elpd_se_column) %>%
-    xtable(label=str_c("tab:", str_c(ic,subset,sep=".")) , align=c('r', 'r','r','r','r','r'),
+    xtable(label=str_c("tab:", str_c(ic,subset,sep=".")) , align=c('r', 'p{3in}', 'r','r','r','r'),
            display = c('s','s','f','f','f','f'),
            digits = 1, caption = caption)
-  print(tbl, table.placement = 'H', include.rownames = FALSE, include.colnames = TRUE,
-        sanitize.colnames.function = function(x) x)
+  print(tbl, size = "small", table.placement = 'H', include.rownames = FALSE, include.colnames = TRUE,
+        sanitize.colnames.function = function(x) x, sanitize.text.function = function(x) x)
 }
 
 @
-<<loo_table_years, cache = TRUE, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_setup', results="asis">>=
+<<prepare_ic, cache=do_cache, include=FALSE>>=
+lwmf <- loo_model_fits$fits
+lwmf <- lwmf[ (!str_detect(names(lwmf), '_re[qb]$')) & str_detect(names(lwmf), '_ml_.*alpha|_sl')] %>% lapply(extract_log_lik)
+
+loo_ic_years <- compare_ic(lwmf, "loo", "years")
+loo_ic_vars <- compare_ic(lwmf, "loo", "vars")
+waic_ic_years <- compare_ic(lwmf, "waic", "years")
+waic_ic_vars <- compare_ic(lwmf, "waic", "vars")
+@
+<<loo_table_years, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_setup', results="asis">>=
 loo_year_table_num <- table_counter
 table_counter <- table_counter + 1
 cat(str_c("\\subsection*{Table S", loo_year_table_num, "}", "\n"))
 
-loo_ic_years <- compare_ic(lwmf, "loo", "years")
-
-loo_caption <- c("Comparing different climatological averaging periods and models: LOO = leave-one-out cross-validation, LOO-IC = LOO information criterion, ELPD = expected log pointwise predictive density, and s.e.\ indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance. Models are labelled by the time-period for averaging aridity and the structure of the statistical mode.", "Model comparison: LOO (climatological interval).")
+loo_caption <- c("Comparing different climatological averaging periods and models: LOO = leave-one-out cross-validation, LOO-IC = LOO information criterion, ELPD = expected log pointwise predictive density, and s.e.\ indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance. Models are labelled by the time-period for averaging aridity and the structure of the statistical model.", "Model comparison: LOO (climatological interval).")
 
 tbl <- ic_table(loo_ic_years, "loo", "years", loo_caption)
 @
-<<loo_table_vars, cache = TRUE, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_setup', results="asis">>=
-loo_var_table_num <- table_counter
+<<loo_table_vars_a, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_setup', results="asis">>=
+loo_var_table_a_num <- table_counter
 table_counter <- table_counter + 1
-cat(str_c("\\subsection*{Table S", loo_var_table_num, "}", "\n"))
 
-loo_ic_vars <- compare_ic(lwmf, "loo", "vars")
+loo_ic_vars_a <- loo_ic_vars %>% dplyr::filter(str_detect(model, "hierarchical"))
+loo_ic_vars_b <- loo_ic_vars %>% dplyr::filter(!str_detect(model, "hierarchical"))
 
-loo_caption <- c("Comparing different models and sets of covariates with LOO-IC. Models are labelled by the covariates that differ from the baseline case and the baseline and by the structure of the statistical mode.", "Model comparison: LOO (covariates).")
+loo_caption <- c("Comparing different models and sets of covariates with LOO-IC for hierarchical regressions. Models are labelled by the covariates that differ from the baseline case and the baseline and by the structure of the statistical model.",
+                 "Model comparison: LOO (covariates) for hierarchical regressions.")
 
-tbl <- ic_table(loo_ic_vars, "loo", "vars", loo_caption)
+cat(str_c("\\subsection*{Table S", loo_var_table_a_num, "}", "\n"))
+tbl <- ic_table(loo_ic_vars_a, "loo", "vars", loo_caption)
 @
-<<waic_table_years, cache = TRUE, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_setup', results="asis">>=
+<<loo_table_vars_b, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_vars_a', results="asis">>=
+loo_var_table_b_num <- table_counter
+table_counter <- table_counter + 1
+
+loo_caption_b <- c("Model Comparison with LOO-IC for single-level regressions and different sets of covariates.",
+                 "Model comparison: LOO (covariates) for single-level regressions.")
+
+cat(str_c("\\subsection*{Table S", loo_var_table_b_num, "}", "\n"))
+tbl <- ic_table(loo_ic_vars_b, "loo", "vars", loo_caption_b)
+@
+<<waic_table_years, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_setup', results="asis">>=
 waic_year_table_num <- table_counter
 table_counter <- table_counter + 1
+
+waic_caption <- c("Model comparison: WAIC = widely applicable information criterion (also known as the Watanabe-Aikake Information Criterion), ELPD = expected log-probability density, and s.e.\ indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance. Models are labelled by the time-period for averaging aridity and the structure of the statistical model.", "Model comparison: WAIC (climatological interval).")
+
 cat(str_c("\\subsection*{Table S", waic_year_table_num, "}", "\n"))
-waic_ic_years <- compare_ic(lwmf, "waic", "years")
-
-waic_caption <- c("Model comparison: WAIC = widely applicable information criterion (also known as the Watanabe-Aikake Information Criterion), ELPD = expected log-probability density, and s.e.\ indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance. Models are labelled by the time-period for averaging aridity and the structure of the statistical mode.", "Model comparison: WAIC (climatological interval).")
-
 tbl <- ic_table(waic_ic_years, "waic", "years", waic_caption)
 @
-<<waic_table_vars, cache = TRUE, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_setup', results="asis">>=
-waic_var_table_num <- table_counter
+<<waic_table_vars_a, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='loo_table_setup', results="asis">>=
+waic_var_table_a_num <- table_counter
 table_counter <- table_counter + 1
-cat(str_c("\\subsection*{Table S", waic_var_table_num, "}", "\n"))
-waic_ic_vars <- compare_ic(lwmf, "waic", "vars")
 
-waic_caption <- c("Model comparison with WAIC. Models are labelled by the covariates that differ from the baseline case and by the structure of the statistical mode.", "Model comparison: WAIC (climatological interval).")
+waic_ic_vars_a <- waic_ic_vars %>% dplyr::filter(str_detect(model, "hierarchical"))
+waic_ic_vars_b <- waic_ic_vars %>% dplyr::filter(!str_detect(model, "hierarchical"))
 
-tbl <- ic_table(waic_ic_vars, "waic", "vars", waic_caption)
+waic_caption <- c("Model comparison with WAIC for hierarchical regressions. Models are labelled by the covariates that differ from the baseline case and by the structure of the statistical model.",
+                  "Model comparison: WAIC (alternate covariates) for hierarchical regressions.")
+
+cat(str_c("\\subsection*{Table S", waic_var_table_a_num, "}", "\n"))
+tbl <- ic_table(waic_ic_vars_a, "waic", "vars", waic_caption)
 @
-<<vwci_posterior_table, echo=F, include=T, results='asis', cache = T, dependson = 'load_data', cache.extra=c(model_fits, vars_2, std_data, summarize_fit)>>=
-vwci_posterior_table_num <- table_counter
-cat(str_c("\\subsection*{Table S", vwci_posterior_table_num, " Caption}", "\n"))
+<<waic_table_vars_b, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='waic_table_vars_a', results="asis">>=
+waic_var_table_b_num <- table_counter
+table_counter <- table_counter + 1
+
+waic_caption_b <- c("Model comparison with WAIC for single-level regressions and different sets of covariates.",
+                  "Model comparison: WAIC (alternate covariates) for single-level regressions.")
+
+cat(str_c("\\subsection*{Table S", waic_var_table_b_num, "}", "\n"))
+tbl <- ic_table(waic_ic_vars_b, "waic", "vars", waic_caption_b)
+@
+
+<<setup_pooled_lwmf, echo=F, include=F, dependson="loo_table_setup">>=
+pooled_lwmf <- pooled_loo_model_fits$fits
+pooled_lwmf <- pooled_lwmf[ (!str_detect(names(pooled_lwmf), '_re[qb]$')) & str_detect(names(pooled_lwmf), '_ml_.*alpha|_sl')] %>%
+  lapply(extract_log_lik)
+
+pooled_loo_ic_years <- compare_ic(pooled_lwmf, "loo", "years")
+pooled_loo_ic_vars <- compare_ic(pooled_lwmf, "loo", "vars")
+pooled_waic_ic_years <- compare_ic(pooled_lwmf, "waic", "years")
+pooled_waic_ic_vars <- compare_ic(pooled_lwmf, "waic", "vars")
+@
+<<pooled_loo_table_years, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='setup_pooled_lwmf', results="asis">>=
+pooled_loo_year_table_num <- table_counter
+table_counter <- table_counter + 1
+
+pooled_loo_caption <- c("Model comparison with LOO-IC for different climatological averaging periods and models, using the alternative scaling for MSA-level covariates.", "Model comparison: LOO (climatological interval using alternative scaling).")
+
+cat(str_c("\\subsection*{Table S", pooled_loo_year_table_num, "}", "\n"))
+tbl <- ic_table(pooled_loo_ic_years, "loo", "years", pooled_loo_caption)
+@
+<<pooled_loo_table_vars_a, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='setup_pooled_lwmf', results="asis">>=
+pooled_loo_var_table_a_num <- table_counter
+table_counter <- table_counter + 1
+
+pooled_loo_ic_vars_a <- pooled_loo_ic_vars %>% dplyr::filter(str_detect(model, "hierarchical"))
+pooled_loo_ic_vars_b <- pooled_loo_ic_vars %>% dplyr::filter(!str_detect(model, "hierarchical"))
+
+pooled_loo_caption <- c("Model comparison with LOO-IC for hierarchical regressions using the alternative scaling for MSA-level covariates.",
+                        "Model comparison: LOO (alternate covariates using alternative scaling) for hierarchical regressions.")
+
+cat(str_c("\\subsection*{Table S", pooled_loo_var_table_a_num, "}", "\n"))
+tbl <- ic_table(pooled_loo_ic_vars_a, "loo", "vars", pooled_loo_caption)
+@
+
+<<pooled_loo_table_vars_b, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='pooled_loo_table_vars_a', results="asis">>=
+pooled_loo_var_table_b_num <- table_counter
+table_counter <- table_counter + 1
+
+pooled_loo_caption_b <- c("Model comparison with LOO-IC for single-level regressions using the alternative scaling for MSA-level covariates.",
+                          "Model comparison: LOO (alternate covariates using alternative scaling) for single-level.")
+
+cat(str_c("\\subsection*{Table S", pooled_loo_var_table_b_num, "}", "\n"))
+tbl <- ic_table(pooled_loo_ic_vars_b, "loo", "vars", pooled_loo_caption_b)
+@
+
+<<pooled_waic_table_years, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='setup_pooled_lwmf', results="asis">>=
+pooled_waic_year_table_num <- table_counter
+table_counter <- table_counter + 1
+
+pooled_waic_caption <- c("Model comparison with WAIC for different climatological intervals, using the alternative scaling for MSA-level covariates.",
+                         "Model comparison: WAIC (climatological interval using absolute MSA-level values).")
+
+cat(str_c("\\subsection*{Table S", pooled_waic_year_table_num, "}", "\n"))
+tbl <- ic_table(pooled_waic_ic_years, "waic", "years", pooled_waic_caption)
+@
+<<pooled_waic_table_vars_a, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='setup_pooled_lwmf', results="asis">>=
+pooled_waic_var_table_a_num <- table_counter
+table_counter <- table_counter + 1
+
+pooled_waic_ic_vars_a <- pooled_waic_ic_vars %>% dplyr::filter(str_detect(model, "hierarchical"))
+pooled_waic_ic_vars_b <- pooled_waic_ic_vars %>% dplyr::filter(!str_detect(model, "hierarchical"))
+
+pooled_waic_caption <- c("Model comparison with WAIC for hierarchical regressions against absolute MSA covariates.",
+                         "Model comparison: WAIC (alternate-covariates using alternative scaling) for hierarchical regressions.")
+
+cat(str_c("\\subsection*{Table S", pooled_waic_var_table_a_num, "}", "\n"))
+tbl <- ic_table(pooled_waic_ic_vars_a, "waic", "vars", pooled_waic_caption)
+@
+<<pooled_waic_table_vars_b, cache=do_cache, include = TRUE, warning=FALSE, message=FALSE, dependson='pooled_waic_table_vars_a', results="asis">>=
+pooled_waic_var_table_b_num <- table_counter
+table_counter <- table_counter + 1
+
+pooled_loo_caption_b <- c("Model comparison with WAIC for single-level regressions against absolute MSA covariates.",
+                          "Model comparison: WAIC (alternate-covariates using alternative scaling) for single-level regressions.")
+
+cat(str_c("\\subsection*{Table S", pooled_waic_var_table_b_num, "}", "\n"))
+tbl <- ic_table(pooled_waic_ic_vars_b, "waic", "vars", pooled_waic_caption_b)
+@
+
+<<posterior_table_definition, echo=F, include=F>>=
 posterior_table <- function(sfit, vars, std_data, caption,
                             multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
                             digits = 2) {
@@ -870,43 +1233,47 @@ posterior_table <- function(sfit, vars, std_data, caption,
     mutate(coefficient = str_replace_all(coefficient, c('\\\\text'='', '\\\\'='', '\\{'='', '\\}'='', '\\$'='', ' +' = '.'))) %>%
     invisible()
 }
+@
+<<vwci_posterior_table, echo=F, include=T, results='asis', cache=do_cache, cache.extra=c(model_fits, vars_1, std_data, summarize_fit)>>=
+vwci_posterior_table_num <- table_counter
+table_counter <- table_counter + 1
 
 vwci_posterior_caption <-  list('Posterior probability distributions of regression coefficients for VWCI: mean, standard error of the mean, standard deviation of the posterior, quantiles of the posterior, and the Gelman-Rubin potential scale-reduction factor $\\hat R$. $\\gamma$ coefficients correspond to state-level effects, $\\beta$ coefficients to MSA-level effects, $\\delta$ coefficients represent state-level intercepts, $\\alpha_0$ is the overall intercept, and $\\phi$ characterizes the overdispersion of the beta-binomial distribution. For more detail, see Materials and Methods.',
                                 'Regression coefficients for VWCI')
 
-posterior_table(model_fits$fits$sfit_2_ml_beta_alpha, vars_2, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
+cat(str_c("\\subsection*{Table S", vwci_posterior_table_num, " Caption}", "\n"))
+posterior_table(model_fits$fits$sfit_1_ml_beta_alpha, vars_1, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
                 caption = vwci_posterior_caption) %>%
   write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", vwci_posterior_table_num, ".csv")))
 cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", vwci_posterior_caption[[1]], "}\n\\label{tab:vwci_posterior}\n\\end{table}\n"))
-table_counter <- table_counter + 1
 @
 
-<<req_posterior_table, echo=F, include=T, results='asis', cache = T, cache.extra=c(model_fits, vars_2, std_data, summarize_fit)>>=
+<<req_posterior_table, echo=F, include=T, results='asis', cache=do_cache, cache.extra=c(model_fits, vars_1, std_data, summarize_fit)>>=
 req_posterior_table_num <- table_counter
-cat(str_c("\\subsection*{Table S", req_posterior_table_num, " Caption}", "\n"))
+table_counter <- table_counter + 1
 
 req_posterior_caption = list("Posterior probability distribution of regression coefficients for requirements",
                              "Regression coefficients for requirements")
 
-posterior_table(model_fits$fits$sfit_2_ml_beta_alpha_req, vars_2, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
+cat(str_c("\\subsection*{Table S", req_posterior_table_num, " Caption}", "\n"))
+posterior_table(model_fits$fits$sfit_1_ml_beta_alpha_req, vars_1, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
                 caption = req_posterior_caption) %>%
   write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", req_posterior_table_num, ".csv")))
 cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", req_posterior_caption[[1]], "}\n\\label{tab:req_posterior}\n\\end{table}\n"))
-table_counter <- table_counter + 1
 @
 
-<<reb_posterior_table, echo=F, include=T, results='asis', cache = T, cache.extra=c(model_fits, vars_2, std_data, summarize_fit)>>=
+<<reb_posterior_table, echo=F, include=T, results='asis', cache=do_cache, cache.extra=c(model_fits, vars_1, std_data, summarize_fit)>>=
 reb_posterior_table_num <- table_counter
-cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n"))
+table_counter <- table_counter + 1
 
 reb_posterior_caption = list("Posterior probability distribution of regression coefficients for rebates",
                                  "Regression coefficients for rebates")
 
-posterior_table(model_fits$fits$sfit_2_ml_beta_alpha_reb, vars_2, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
+cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n"))
+posterior_table(model_fits$fits$sfit_1_ml_beta_alpha_reb, vars_1, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
                     caption = reb_posterior_caption) %>%
   write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", reb_posterior_table_num, ".csv")))
 cat(str_c("\\begin{table}[H]\n\\centering\n\\caption{", reb_posterior_caption[[1]], "}\n\\label{tab:reb_posterior}\n\\end{table}\n"))
-table_counter <- table_counter + 1
 @
 
 
@@ -969,27 +1336,27 @@ cat(str_c("\\subsection*{Table S", vwci_table_num, " Caption}", "\n",
           "\\begin{table}[H]\n\\centering\n\\caption{", vwci_caption[[1]], "}\n\\end{table}\n"))
 @
 
-<<state_covar_large_table, include = TRUE, dependson="load_data", results="asis">>=
+<<state_covar_large_table, include = TRUE, results="asis">>=
 cat (str_c("\\subsection*{Table S", state_table_num, " Caption}", "\n",
           "\\setcounter{table}{", state_table_num - 1, "}%\n",
      "\\begin{table}[H]\n\\centering\n\\caption{", state_caption[[1]], "}\n\\end{table}\n"))
 
 @
 
-<<vwci_posterior_large_table, echo=F, include=T, results='asis', cache = F, dependson='vwci_posterior_table'>>=
+<<vwci_posterior_large_table, echo=F, include=T, results='asis', cache=F, dependson='vwci_posterior_table'>>=
 cat(str_c("\\subsection*{Table S", vwci_posterior_table_num, " Caption}", "\n",
           "\\setcounter{table}{", vwci_posterior_table_num - 1, "}%\n",
           "\\begin{table}[H]\n\\centering\n\\caption{", vwci_posterior_caption[[1]], "}\n\\end{table}\n"))
 
 @
 
-<<req_posterior_large_table, echo=F, include=T, results='asis', cache = F, dependson='req_poosterior_table'>>=
+<<req_posterior_large_table, echo=F, include=T, results='asis', cache=F, dependson='req_poosterior_table'>>=
 cat(str_c("\\subsection*{Table S", req_posterior_table_num, " Caption}", "\n",
           "\\setcounter{table}{", req_posterior_table_num - 1, "}%\n",
           "\\begin{table}[H]\n\\centering\n\\caption{", req_posterior_caption[[1]], "}\n\\end{table}\n"))
 @
 
-<<reb_posterior_large_table, echo=F, include=T, results='asis', cache = F, dependson='reb_posterior_table'>>=
+<<reb_posterior_large_table, echo=F, include=T, results='asis', cache=F, dependson='reb_posterior_table'>>=
 cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n",
           "\\setcounter{table}{", reb_posterior_table_num - 1, "}%\n",
           "\\begin{table}[H]\n\\centering\n\\caption{", reb_posterior_caption[[1]], "}\n\\end{table}\n"))
@@ -1030,6 +1397,12 @@ cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n",
   \textit{Journal of Statistical Software}, \textit{76}, 1--32.
   \url{https://doi.org/10.18637/jss.v076.i01}.
 
+\bibitem[{\textit{Chupp}(2011)}]{chupp:environ.voting:2011}
+  Chupp, B.~A. (2011).
+  Environmental constituent interest, green electricity policies, and legislative voting.
+  \textit{Journal of Environmental Economics and Management}, \textit{62}, 254--266.
+  \url{https://doi.org/10.1016/j.jeem.2011.03.008}.
+
 \bibitem[{\textit{{CQ Press}}(2016)}]{cq:elections:2016}
 {CQ Press} (2016).
   Voting and elections collection.
@@ -1065,7 +1438,7 @@ cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n",
   A weakly informative default prior distribution for logistic and other
   regression models.
   \textit{Annals of Applied Statistics}, \textit{2}, 1360--1383.
-  \url{https:\\doi.org/10.1214/08-AOAS191}.
+  \url{https://doi.org/10.1214/08-AOAS191}.
 
 \bibitem[{\textit{Gelman et~al.}(2014)\textit{Gelman, Carlin, Stern, Dunson,
   Vehtari, and Rubin}}]{gelman:bda:2014}
@@ -1079,6 +1452,14 @@ cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n",
   Water management: {S}oft water paths.
   \textit{Nature},
   \textit{418}, 373--373, \url{https://doi.org/10.1038/418373a}.
+
+\bibitem[{\textit{Grant and Vasi}(2017)}]{grant:environ.accountability:2017}
+  Grant, D. and Vasi, I.B. (2016)
+  Civil society in an age of environmental accountability:
+  How local environmental nongovernmental organizations reduce
+  U.S. power plants' carbon dioxide emissions.
+  \textit{Sociological Forum}, \textit{32}, 94--115.
+  \url{https://doi.org/10.1111/socf.12318}.
 
 \bibitem[{\textit{Hawkins and Nosek}(2012)}]{hawkins:motivated:2012}
   Hawkins, C.~B., \& B.~A. Nosek (2012).

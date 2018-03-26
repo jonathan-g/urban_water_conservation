@@ -2,6 +2,8 @@
 /cache_si/
 /cache_clean/
 /cache_si_clean/
+/cache_preprint/
+/cache_si_preprint/
 /data/checkpoints/
 .RData
 .Rhistory
@@ -60,3 +62,5 @@ AGU_template/agusuppinfosample.pdf
 *~
 old.RData
 cache_clean
+test.RData
+~*

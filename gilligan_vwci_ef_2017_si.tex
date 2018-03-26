@@ -27,11 +27,8 @@
 % files on the Upload Files tab during the submission process, using
 % file type “Supporting Information (SI)”
 
-\documentclass[draft]{agujournal}
-%\usepackage{knitr}
-%\documentclass{agujournal}
+\documentclass[draft]{agujournal}\usepackage{knitr}
 \usepackage[hyphens]{url}
-% \usepackage[hidelinks]{hyperref}
 \usepackage{amsmath}
 \usepackage{float}
 % Please type in the journal name: \journalname{<Journal Name>}
@@ -89,16 +86,16 @@
 %%%Remove or add items as needed%%%
 \begin{enumerate}
 \item Text S1
-\item Figures S1 to S6
-\item Tables S1 to S9
+\item Figures S1 to S10
+\item Tables S1 to S17
 %if Tables are larger than 1 page, upload as separate excel file
 \end{enumerate}
 
-\section*{Additional Supporting Information (Files uploaded separately)}
+\section*{Additional Supporting Information}
 \begin{enumerate}
-\item Captions for Datasets S1 to \replaced{S2}{S4}
+\item Captions for Datasets S1 to S4
 \item Data Analysis Scripts S1 (zip file)
-\item Captions for Large Tables S1, S2, \replaced{S5--S7}{S7--S9}
+\item Captions for Large Tables S1, S2, S15--S17
 \end{enumerate}
 
 
@@ -112,8 +109,8 @@ This supporting information document presents additional details of the data and
 We used VWCI data for 195~cities in 45~states, as shown in Table~S\ref{tab:vwci}.
 
 At the MSA level (Dataset~S1, Table~S\ref{tab:vwci}), our regression analysis used the following six covariates: $\ln(\text{population})$, population growth rate between 2010 and 2014, the K\"oppen aridity index, the fraction of the municipal water supply coming from surface water (henceforth, surface-water fraction), the Cook Partisan Voting Index (PVI), and the per-capita real personal income (RPI) for 2014 normalized for inflation and regional variations in the cost of living. We used the natural logarithm of the population rather than the raw population because the raw population was
-\replaced{sharply peaked}{skewed, with a sharp peak} near 500,000%
-\added{, and a long tail at higher populations}
+skewed, with a sharp peak near 500,000%
+, and a long tail at higher populations
 (Figure~S\ref{fig:msa_vars_distribution}).
 
 At the state level (Dataset~S2, Table~S\ref{tab:state}), our analysis used the following four covariates: PVI, RPI, the K\"oppen aridity index, and the surface-water fraction.
@@ -125,7 +122,6 @@ At the state level (Dataset~S2, Table~S\ref{tab:state}), our analysis used the f
 \subsubsection*{Diagnostics}
 
 \iftrue
-\added{%
 Our Monte Carlo analysis sampled four Markov chains,
 allowing each chain to warm-up and tune sampling parameters for
 the first 1000 iterations
@@ -143,18 +139,7 @@ The samples approximate random draws from the joint posterior probability
 distribution of the parameters, given the priors and the observed
 data. Thus, the statistics of the sampled values approximate the statistics
 of the joint posterior distribution.
-}%
-\explain{Explain in detail what the Monte Carlo samples are.}%
 
-\replaced{%
-Pairwise correlation plots of the posterior probability distributions of
-regressions parameters (Figures~S3--S5)
-are smooth and show little correlation. The Hamiltonian Monte Carlo calculations
-proceeded without any divergences or exceessive tree depths, and the Gelman-Rubin
-$\hat R$ potential scale-reduction factor
-(Tabs~S\ref{tab:vwci_posterior}--S\ref{tab:reb_posterior}) converged to
-$\ge 0.999$ for each parameter.
-}{%
 Collinearity among the predictor variables is diagnosed by observing correlations
 in the joint posterior probability distributions of the regression coefficients
 \citep[pp.~288--293]{stan:manual:2015}.
@@ -166,46 +151,37 @@ of VWCI, requirements, and rebates
 (Figures~S\ref{fig:vwci_pairs_plot}--S\ref{fig:reb_pairs_plot}) are smooth with
 little correlation and give no cause for concern.
 In addition, the Hamiltonian Monte Carlo calculations proceeded without any
-divergences or exceessive tree depths, and the Gelman-Rubin $\hat R$ potential
-scale-reduction factor converged to $\ge 0.999$ for each parameter
+divergences or exceessive tree depths after warm-up, and the
+Gelman-Rubin $\hat R$ potential
+scale-reduction factor converged to $\le 1.02$ for each parameter
 \citep{stan:manual:2015}.
-}%
-\explain{Explain using the pair correlation plots to diagnose multicollinearity
-among predictors.}%
 \else
 Pairwise correlation plots of the posterior probability distributions of
 regressions parameters (Figures~S\ref{fig:vwci_pairs_plot}--S\ref{fig:reb_pairs_plot})
-are smooth and show little correlation. The Hamiltonian Monte Carlo calculations
-proceeded without any divergences or exceessive tree depths, and the Gelman-Rubin
+are smooth and show little correlation.
+The Hamiltonian Monte Carlo calculations
+proceeded without any divergences or exceessive tree depths after warm-up, and the
+Gelman-Rubin
 $\hat R$ potential scale-reduction factor
 (Tabs~S\ref{tab:vwci_posterior}--S\ref{tab:reb_posterior}) converged to
-$\ge 0.999$ for each parameter.
+$\le 1.02$ for each parameter.
 \fi
 
 \subsubsection*{Model Selection}
 
 \iftrue
-\added{%
 We used several model-selection criteria in deciding whether to model the VWCI,
 requirements, and rebates as binomial or beta-binomial processes. At each joint
 sample of the model parameters in the Monte-Carlo process, we both computed the
 log-likelihood of the observed data under the sampled parameters and also
 generated posterior predictions obtained by drawing simulated observations from
 binomial or beta-binomial distribution at each joint sample of the model parameters.
-}%
-\explain{Detailed discussion of model selection: hierarchical versus single-level
-and beta-binomial versus ordinary binomial.}
 
-\added{%
 Visual comparisons of distributions of posterior predictions to observed data and
 comparisons of the posterior predictions of mean, maximum, and minimum VWCI over
 the cities in our data set showed better agreement for the overdispersed
 $\beta$-binomial process than for a purely binomial one \citep{gelman:bda:2014}.
-}
 
-\replaced{%
-Leave-one-out cross-validation (Table~S\ref{tab:loo.years}) and the Widely Applicable Information Criterion (Table~S\ref{tab:loo.vars}) were used for model selection (overdispersed beta-binomial versus binomial and hierarchical versus single-level regressions).
-}{%
 A separate test for overdispersion, which accounts for the danger of overfitting
 by introducing new free parameters, uses the
 Leave-One-Out cross-validation Information Criterion (LOO-IC)
@@ -221,20 +197,6 @@ accuracy of our estimates of LOO-IC and WAIC \citep{vehtari:loo:2016},
 but we do not worry overly about this potential inaccuracy both because the
 posterior prediction test yields the same results and because a pure binomial
 model gives very similar results to those presented here.
-}%
-\explain{Detailed description of model-selection using information criteria.}
-
-\added{%
-We had initially used the interval 1970--2014 for climatological averaging,
-but in response to reviewer comments, we
-investigated other averaging intervals and switched to the
-1984--2014 interval because it performed slightly, but insignificantly better
-according to the information criteria.
-There are no important differences between between the two analyses
-(Figure~S\ref{fig:vwci_years_cat_plots}).
-}%
-\explain{Explain why we replaced the original 1970--2014 averaging period
-with the shorter 30-year period 1985--2014.}
 \else
 Leave-one-out cross-validation (Table~S\ref{tab:loo.years}--S\ref{tab:loo.vars})
 and the Widely Applicable Information Criterion
@@ -249,31 +211,24 @@ Results of the analysis are summarized in
 Tables~S\ref{tab:vwci_posterior}--S\ref{tab:reb_posterior}.
 
 \subsubsection*{Robustness Tests}
-\added{%
 We chose our explanatory variables based on theoretical considerations, as
 described in \citet{hess:drought:2016}. To test the robustness of our analysis,
-we compared the results described above to two kinds of alternate regression
+we compared the results described above to several kinds of alternate regression
 analyses for the VWCI.
-}%
-\explain{Add section with details of robustness checks and alternate predictor
-variables.}
 
-\added{%
 In the first series, we varied the interval over which we averaged
-the K\"oppen aridity index, considering the 45 year period 1970--2014,
+the K\"oppen aridity index, considering the 30-year period 1985--2014,
+the 45 year period 1970--2014,
 the 20 year period 1995--2014, and the 10-year period 2005--2014. This tests
 for sensitivity to recent extreme events versus the longer-term average
-climate. We observed very little difference in the regression coefficients
-and very little difference in the information criteria
-(Figure~S5 and Tables~S3 and S5).
-The 1985--2014 interval produced the best results (by a small and insignificant
-margin)
-and  all of the intervals were statistically consistent with one another.
-}
+climate.
+There were no significant differences between the regressions using the
+four different intervals: the posterior distributions were nearly identical
+(Figure~S5) and the information criteria differed by less than one tenth
+of the standard error (Tables~S3 and S6).
 
-\added{%
 Second, we performed regressions with additional or different explanatory
-variables (Figure~S6 and Tables~S4 and S6).
+variables (Figures~S6--S7 and Tables~S4--S5 and S7--S8).
 Population density has been found to correlate well with
 voting patterns, and thus might affect water conservation policies
 \citep{rodden:geographic:2010}.
@@ -282,10 +237,8 @@ and the rate of change of population density from 2000--2010
 \citep{wilson:pop.density:2012}
 for total population.
 The results were similar to those of our original analysis,
-and produced slightly and insignificantly inferior information criteria scores.
-}
+and produced slightly, but insignificantly, inferior information criteria scores.
 
-\added{%
 We also considered that the area of an MSA might be important to collecting and
 distributing water, so we conducted regressions that included an additional
 explanatory variable representing the total area of the MSA as reported
@@ -293,10 +246,8 @@ in the 2010 U.S. Census
 \citep{wilson:pop.density:2012}, the coefficient
 for area was consistent with zero and the information criteria scores were
 slightly and insignificantly inferior to our original analysis.
-}
 
-\added{%
-Finally, we considered that in addition to mean personal
+We also considered that in addition to mean personal
 income and relative purchasing power, the distribution of income might be
 important, so we performed regressions that included Gini indices of
 income inequality at both the MSA and the state levels,
@@ -311,9 +262,13 @@ and the coefficient for the MSA-level Gini index was very small and consistent
 with zero.
 The information criteria scores were slightly and insignificantly inferior
 to our original model.
-}
 
-\added{%
+In order to test alternative model structures, we introduced interaction terms
+between aridity and PVI at both the state and MSA levels. As with the previous
+tests, introducing this term did not change the posterior distributions of the
+coefficients for the other covariates by very much and the information criteria
+scores were slightly, but insignificantly, worse.
+
 All of these different analyses of VWCI consistently found that
 at the state level, the largest coefficients were for aridity and PVI,
 and at the MSA-level PVI, population (or population density), and population
@@ -321,17 +276,23 @@ and at the MSA-level PVI, population (or population density), and population
 The variations in coefficients across all of the alternate analyses
 were well within the 95\% highest-density
 intervals of the posterior probability distribution.
-}
 
-\added{%
-Similarly, in all of the analyses, the MSA-level PVI, population, and population
+In order to test that aridity and PVI were, in fact, significant We also performed
+regressions leaving out either the aridity or PVI covariates.
+These regressions produced information criteria scores that were inferior to the
+original regression by slightly more than one standard error in the case of PVI
+and by about one-third of the standard error in the case of aridity.
+We also observed that removing either one of these covariates did not significantly
+change the coefficients for any of the other covariates. This reinforces the evidence
+of the pairwise correlation plots that there are no problems with
+interdependence or multicollinearity among the covariates.
+
+In all of these analyses, the MSA-level PVI, population, and population
 growth coefficients were positive and distinct from zero. The values and the
 ranking of these three coefficients changed, but by amounts that were well
 within the posterior probability distributions. The remaining MSA-level
 variables were consistent with zero.
-}
 
-\added{%
 The posterior distributions were considerably narrower than the prior
 distributions and lay well within those prior distributions,
 which indicates that they are not constrained by the priors.
@@ -339,28 +300,72 @@ We tested this by varying the scales of the priors and by
 replacing the Cauchy priors on $\alpha_0$, $\beta$, and $\gamma$ with normal
 priors.
 The results were very similar to and consistent with the original analysis.
-}
 
-\added{%
+We also tested alternative regressions that used different normalizations for the
+MSA-level variables: In this alternative normalization, instead of taking the
+differences between the MSA-level variables and the state-level variables and
+scaling this difference to the state-level scales
+($x_{\text{scaled}} = (x - w) / (2 \sigma_w)$),
+we took the raw values for
+each MSA-level variable and scaled them to have zero-mean and a standard deviation
+of 0.5 across all 195 MSAs, without referring them to the state-level variables
+($x_{\text{scaled}} = (x - \mu_x) / (2 \sigma_x)$), as described in the main text.
+
+We repeated all of the regressions described above using this alternative scaling
+of the MSA-variables (Figures~S8--10 and Tables~9--14).
+The information criteria scores for these regressions were generally slightly,
+but insignificantly, inferior to the corresponding regressions using the original
+MSA-scaling and the posterior distributions of the regression coefficients
+differed in one important way: The coefficient for state-level PVI shifted to
+lower values, becoming consistent with zero, and its
+median was roughly one third of its value for the original scaling.
+The other regresion coefficients did not change much under the new scaling.
+
+This result reveals an ambiguity in interpreting the role of PVI:
+Under the original scaling, PVI was important at both the state and MSA levels,
+leading to the interpretation that both the state-level PVI and the difference between
+the state-level and MSA-level PVI were well corelated with the propensity to adopt
+water-conservation policies. Under the alternative scaling, the
+coefficient for state-level PVI is consistent with zero
+(with an 85\% probability of being positive)
+and the coefficient for MSA-level PVI is clearly positive, with an almost
+identical distribution as with the original scaling.
+Because the information criteria scores are only slightly different between
+the two analyses (the difference is roughly 5\% of the standard error on the LOO-IC),
+there is no good reason to prefer one to the other and from a statistical perspective
+two alternative interpretations are equally plausible: That both the state-level PVI
+and the difference between the state- and MSA-level PVI are independently significant,
+or that the effect of the state-level PVI is not significantly different from zero,
+but that the MSA-level PVI is significant.
+
 We conclude from this that the results of our analysis are robust against
-many changes of time-spans, explanatory variables, and assumptions about priors.
-}
+many changes of time-spans, explanatory variables, and assumptions about priors,
+except for the ambituity over the importance of state-level PVI.
 
-\added{%
+Aside from state-level PVI, the effects of state-level aridity and
+MSA-level PVI, population, and population growth are robust and stable.
+Alternate model structures and alternate specifications of covariates were either
+markedly inferior (as measured by information criteria scores) or produced
+regression coefficients that were consistent with the original analysis.
+
+Although many of the differences between information criteria were small,
+our original analysis produced the best score.
+
 There are myriad other potential explanatory variables, but our concern that
 further exploration of alternative models might
 unintentionally become an exercise in ``$p$-hacking'' due to
 ``garden of forking paths'' effects \citep{gelman:forking.paths:2014}
 led us to confine this analysis to our original set of variables, which
 we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
-}
 
-\section*{Figures S1--S6}
+\section*{Figures S1--S10}
 % jg_tex_chunk_hook
 
 \begin{figure}[H]
 \includegraphics[width=6in]{figures_si/msa_vars_distribution-1} \caption[Kernel-density distribution of MSA-level covariates]{Kernel-density distribution of MSA-level covariates. Population in millions and RPI in thousands of chained 2009 dollars.}\label{fig:msa_vars_distribution}
 \end{figure}
+
+
 
 
 
@@ -388,6 +393,8 @@ we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
 
 
 
+
+
 % jg_tex_chunk_hook
 
 \begin{figure}
@@ -404,9 +411,41 @@ we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
 
 
 
+% jg_tex_chunk_hook
+
+\begin{figure}
+\includegraphics[width=6.25in]{figures_si/vwci_pvi_cat_plots-1} \caption[Regression coefficients for VWCI, with different covariates]{Regression coefficients for VWCI, with different covariates.}\label{fig:vwci_pvi_cat_plots}
+\end{figure}
+
+
+
+
+% jg_tex_chunk_hook
+
+\begin{figure}
+\includegraphics[width=6.25in]{figures_si/pooled_vwci_years_cat_plots-1} \caption[Regression coefficients for VWCI, averaging state and MSA aridity over different intervals, using alternative scaling of MSA-level variables]{Regression coefficients for VWCI, averaging state and MSA aridity over different intervals, using alternative scaling of MSA-level variables.}\label{fig:pooled_vwci_years_cat_plots}
+\end{figure}
+
+
+
+% jg_tex_chunk_hook
+
+\begin{figure}
+\includegraphics[width=6.25in]{figures_si/pooled_vwci_vars_cat_plots-1} \caption[Regression coefficients for VWCI, with different covariates, using alternative scaling of MSA-level variables]{Regression coefficients for VWCI, with different covariates, using alternative scaling of MSA-level variables.}\label{fig:pooled_vwci_vars_cat_plots}
+\end{figure}
+
+
+
+% jg_tex_chunk_hook
+
+\begin{figure}
+\includegraphics[width=6.25in]{figures_si/pooled_vwci_pvi_cat_plots-1} \caption[Regression coefficients for VWCI, with different covariates, using alternative scaling of MSA-level variables]{Regression coefficients for VWCI, with different covariates, using alternative scaling of MSA-level variables.}\label{fig:pooled_vwci_pvi_cat_plots}
+\end{figure}
+
+
 
 \clearpage
-\section{Tables S1--S9}
+\section{Tables S1--S17}
 \subsection*{Table S1 Caption}
 \begin{table}[H]
 \centering
@@ -422,131 +461,394 @@ we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
 \end{table}
 
 
+
 \subsection*{Table S3}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 26 00:13:13 2017
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:34:14 2018
 \begin{table}[H]
 \centering
-\begin{tabular}{rrrrr}
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
   \hline
-Model & LOO-IC & s.c.\ LOO-IC & $\text{ELPD}_{\text{\scshape{loo}}}$ & s.e.\ $\text{ELPD}_{\text{\scshape{loo}}}$ \\
+Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: 1985--2014 & 1247.3 & 20.4 & -623.7 & 10.2 \\
-  hierarchical beta--binomial: 1970--2014 & 1248.2 & 20.5 & -624.1 & 10.2 \\
-  hierarchical beta--binomial: 1995--2014 & 1249.6 & 20.4 & -624.8 & 10.2 \\
-  hierarchical beta--binomial: 2005--2014 & 1249.8 & 20.5 & -624.9 & 10.3 \\
-  hierarchical binomial: 1985--2014 & 1330.3 & 44.3 & -665.2 & 22.1 \\
-  hierarchical binomial: 2005--2014 & 1331.0 & 44.1 & -665.5 & 22.0 \\
-  hierarchical binomial: 1995--2014 & 1332.2 & 44.3 & -666.1 & 22.1 \\
-  hierarchical binomial: 1970--2014 & 1332.8 & 44.4 & -666.4 & 22.2 \\
-  single-level binomial: 2005--2014 & 2056.9 & 142.1 & -1028.4 & 71.1 \\
-  single-level binomial: 1970--2014 & 2060.4 & 143.2 & -1030.2 & 71.6 \\
-  single-level binomial: 1985--2014 & 2060.7 & 143.3 & -1030.3 & 71.7 \\
-  single-level binomial: 1995--2014 & 2063.4 & 143.5 & -1031.7 & 71.8 \\
-  single-level beta--binomial: 2005--2014 & 2429.2 & 182.0 & -1214.6 & 91.0 \\
-  single-level beta--binomial: 1970--2014 & 2439.8 & 182.2 & -1219.9 & 91.1 \\
-  single-level beta--binomial: 1985--2014 & 2440.3 & 182.3 & -1220.1 & 91.1 \\
-  single-level beta--binomial: 1995--2014 & 2440.8 & 181.4 & -1220.4 & 90.7 \\
+hierarchical beta--binomial: 1995--2014 & 1247.8 & 20.2 & -623.9 & 10.1 \\ 
+  hierarchical beta--binomial: 1985--2014 & 1248.4 & 20.5 & -624.2 & 10.3 \\ 
+  hierarchical beta--binomial: 1970--2014 & 1248.8 & 20.4 & -624.4 & 10.2 \\ 
+  hierarchical beta--binomial: 2005--2014 & 1249.2 & 20.5 & -624.6 & 10.2 \\ 
+  hierarchical binomial: 1970--2014 & 1329.3 & 44.1 & -664.6 & 22.1 \\ 
+  hierarchical binomial: 1985--2014 & 1330.8 & 44.2 & -665.4 & 22.1 \\ 
+  hierarchical binomial: 1995--2014 & 1332.1 & 44.3 & -666.1 & 22.1 \\ 
+  hierarchical binomial: 2005--2014 & 1333.4 & 44.3 & -666.7 & 22.1 \\ 
+  single-level binomial: 2005--2014 & 1585.3 & 73.7 & -792.6 & 36.8 \\ 
+  single-level binomial: 1985--2014 & 1598.0 & 76.4 & -799.0 & 38.2 \\ 
+  single-level binomial: 1970--2014 & 1599.2 & 76.5 & -799.6 & 38.2 \\ 
+  single-level binomial: 1995--2014 & 1614.8 & 78.5 & -807.4 & 39.3 \\ 
+  single-level beta--binomial: 2005--2014 & 1719.6 & 89.6 & -859.8 & 44.8 \\ 
+  single-level beta--binomial: 1985--2014 & 1730.4 & 91.5 & -865.2 & 45.8 \\ 
+  single-level beta--binomial: 1970--2014 & 1738.0 & 92.9 & -869.0 & 46.4 \\ 
+  single-level beta--binomial: 1995--2014 &  &  &  &  \\ 
    \hline
 \end{tabular}
-\caption[Model comparison: LOO (climatological interval).]{Comparing different climatological averaging periods and models: LOO = leave-one-out cross-validation, LOO-IC = LOO information criterion, ELPD = expected log pointwise predictive density, and s.e. indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance. Models are labelled by the time-period for averaging aridity and the structure of the statistical mode.}
+\endgroup
+\caption[Model comparison: LOO (climatological interval).]{Comparing different climatological averaging periods and models: LOO = leave-one-out cross-validation, LOO-IC = LOO information criterion, ELPD = expected log pointwise predictive density, and s.e. indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance. Models are labelled by the time-period for averaging aridity and the structure of the statistical model.} 
 \label{tab:loo.years}
 \end{table}
 
 \subsection*{Table S4}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 26 00:13:51 2017
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:34:14 2018
 \begin{table}[H]
 \centering
-\begin{tabular}{rrrrr}
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
   \hline
-Model & LOO-IC & s.c.\ LOO-IC & $\text{ELPD}_{\text{\scshape{loo}}}$ & s.e.\ $\text{ELPD}_{\text{\scshape{loo}}}$ \\
+Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: baseline & 1247.3 & 20.4 & -623.7 & 10.2 \\
-  hierarchical beta--binomial: with area, & 1251.8 & 20.6 & -625.9 & 10.3 \\
-  hierarchical beta--binomial: with Gini index, & 1252.5 & 20.3 & -626.3 & 10.1 \\
-  hierarchical beta--binomial: population density, & 1261.8 & 23.1 & -630.9 & 11.6 \\
-  hierarchical binomial: baseline & 1330.3 & 44.3 & -665.2 & 22.1 \\
-  hierarchical binomial: with area, & 1336.6 & 44.3 & -668.3 & 22.2 \\
-  hierarchical binomial: with Gini index, & 1337.2 & 44.2 & -668.6 & 22.1 \\
-  hierarchical binomial: population density, & 1371.9 & 54.3 & -686.0 & 27.1 \\
-  single-level binomial: population density, & 2037.6 & 112.3 & -1018.8 & 56.1 \\
-  single-level binomial: with area, & 2059.4 & 145.4 & -1029.7 & 72.7 \\
-  single-level binomial: with Gini index, & 2060.4 & 139.9 & -1030.2 & 70.0 \\
-  single-level binomial: baseline & 2060.7 & 143.3 & -1030.3 & 71.7 \\
-  single-level beta--binomial: population density, & 2364.0 & 136.9 & -1182.0 & 68.4 \\
-  single-level beta--binomial: baseline & 2440.3 & 182.3 & -1220.1 & 91.1 \\
-  single-level beta--binomial: with Gini index, & 2500.4 & 185.9 & -1250.2 & 92.9 \\
-  single-level beta--binomial: with area, & 2514.5 & 192.8 & -1257.3 & 96.4 \\
+hierarchical beta--binomial: baseline & 1248.4 & 20.5 & -624.2 & 10.3 \\ 
+  hierarchical beta--binomial: with MSA Gini coefficient & 1251.1 & 20.1 & -625.5 & 10.1 \\ 
+  hierarchical beta--binomial: with MSA area & 1252.3 & 20.6 & -626.1 & 10.3 \\ 
+  hierarchical beta--binomial: with PVI/aridity interactions & 1254.0 & 21.4 & -627.0 & 10.7 \\ 
+  hierarchical beta--binomial: without aridity & 1254.7 & 20.7 & -627.4 & 10.4 \\ 
+  hierarchical beta--binomial: with pop.\ density & 1260.9 & 23.1 & -630.4 & 11.6 \\ 
+  hierarchical beta--binomial: without PVI & 1269.2 & 21.4 & -634.6 & 10.7 \\ 
+  hierarchical binomial: without aridity & 1328.5 & 43.7 & -664.3 & 21.8 \\ 
+  hierarchical binomial: baseline & 1330.8 & 44.2 & -665.4 & 22.1 \\ 
+  hierarchical binomial: with MSA Gini coefficient & 1336.2 & 44.2 & -668.1 & 22.1 \\ 
+  hierarchical binomial: with MSA area & 1336.4 & 44.5 & -668.2 & 22.2 \\ 
+  hierarchical binomial: with PVI/aridity interactions & 1337.3 & 46.5 & -668.7 & 23.2 \\ 
+  hierarchical binomial: with pop.\ density & 1371.9 & 54.1 & -685.9 & 27.0 \\ 
+  hierarchical binomial: without PVI & 1387.4 & 50.7 & -693.7 & 25.4 \\ 
    \hline
 \end{tabular}
-\caption[Model comparison: LOO (covariates).]{Comparing different models and sets of covariates with LOO-IC. Models are labelled by the covariates that differ from the baseline case and the baseline and by the structure of the statistical mode.}
+\endgroup
+\caption[Model comparison: LOO (covariates) for hierarchical regressions.]{Comparing different models and sets of covariates with LOO-IC for hierarchical regressions. Models are labelled by the covariates that differ from the baseline case and the baseline and by the structure of the statistical model.} 
 \label{tab:loo.vars}
 \end{table}
 
 \subsection*{Table S5}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 26 00:13:52 2017
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:34:14 2018
 \begin{table}[H]
 \centering
-\begin{tabular}{rrrrr}
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
   \hline
-Model & WAIC & s.c.\ WAIC & $\text{ELPD}_{\text{\scshape{waic}}}$ & s.e.\ $\text{ELPD}_{\text{\scshape{waic}}}$ \\
+Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: 1985--2014 & 1243.7 & 20.1 & -621.9 & 10.1 \\
-  hierarchical beta--binomial: 1970--2014 & 1244.4 & 20.2 & -622.2 & 10.1 \\
-  hierarchical beta--binomial: 2005--2014 & 1244.9 & 20.0 & -622.4 & 10.0 \\
-  hierarchical beta--binomial: 1995--2014 & 1245.5 & 20.1 & -622.8 & 10.0 \\
-  hierarchical binomial: 1985--2014 & 1317.3 & 43.4 & -658.7 & 21.7 \\
-  hierarchical binomial: 2005--2014 & 1318.7 & 43.4 & -659.3 & 21.7 \\
-  hierarchical binomial: 1970--2014 & 1318.8 & 43.5 & -659.4 & 21.7 \\
-  hierarchical binomial: 1995--2014 & 1319.6 & 43.6 & -659.8 & 21.8 \\
-  single-level binomial: 2005--2014 & 2056.0 & 142.0 & -1028.0 & 71.0 \\
-  single-level binomial: 1970--2014 & 2058.9 & 143.1 & -1029.5 & 71.6 \\
-  single-level binomial: 1985--2014 & 2059.1 & 143.1 & -1029.6 & 71.6 \\
-  single-level binomial: 1995--2014 & 2061.9 & 143.3 & -1030.9 & 71.7 \\
-  single-level beta--binomial: 2005--2014 & 2381.3 & 177.0 & -1190.6 & 88.5 \\
-  single-level beta--binomial: 1970--2014 & 2387.3 & 177.1 & -1193.6 & 88.6 \\
-  single-level beta--binomial: 1985--2014 & 2387.4 & 177.4 & -1193.7 & 88.7 \\
-  single-level beta--binomial: 1995--2014 & 2392.3 & 177.7 & -1196.1 & 88.8 \\
+single-level binomial: with PVI/aridity interactions & 1591.8 & 76.9 & -795.9 & 38.4 \\ 
+  single-level binomial: with MSA Gini coefficient & 1593.7 & 78.7 & -796.9 & 39.3 \\ 
+  single-level binomial: baseline & 1598.0 & 76.4 & -799.0 & 38.2 \\ 
+  single-level binomial: with MSA area & 1602.5 & 76.7 & -801.2 & 38.3 \\ 
+  single-level binomial: with pop.\ density & 1679.0 & 87.1 & -839.5 & 43.6 \\ 
+  single-level binomial: without PVI & 1684.5 & 89.2 & -842.3 & 44.6 \\ 
+  single-level beta--binomial: baseline & 1730.4 & 91.5 & -865.2 & 45.8 \\ 
+  single-level beta--binomial: with MSA Gini coefficient & 1745.1 & 95.5 & -872.6 & 47.8 \\ 
+  single-level beta--binomial: with PVI/aridity interactions & 1768.0 & 98.3 & -884.0 & 49.1 \\ 
+  single-level beta--binomial: with MSA area & 1806.9 & 108.4 & -903.5 & 54.2 \\ 
+  single-level beta--binomial: without PVI & 1832.9 & 101.8 & -916.5 & 50.9 \\ 
+  single-level beta--binomial: with pop.\ density & 1834.0 & 100.5 & -917.0 & 50.2 \\ 
+  single-level binomial: without aridity & 1850.3 & 112.1 & -925.2 & 56.1 \\ 
+  single-level beta--binomial: without aridity & 2080.6 & 140.2 & -1040.3 & 70.1 \\ 
    \hline
 \end{tabular}
-\caption[Model comparison: WAIC (climatological interval).]{Model comparison: WAIC = widely applicable information criterion (also known as the Watanabe-Aikake Information Criterion), ELPD = expected log-probability density, and s.e. indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance. Models are labelled by the time-period for averaging aridity and the structure of the statistical mode.}
-\label{tab:waic.years}
+\endgroup
+\caption[Model comparison: LOO (covariates) for single-level regressions.]{Model Comparison with LOO-IC for single-level regressions and different sets of covariates.} 
+\label{tab:loo.vars}
 \end{table}
 
 \subsection*{Table S6}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 26 00:13:52 2017
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:34:14 2018
 \begin{table}[H]
 \centering
-\begin{tabular}{rrrrr}
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
   \hline
-Model & WAIC & s.c.\ WAIC & $\text{ELPD}_{\text{\scshape{waic}}}$ & s.e.\ $\text{ELPD}_{\text{\scshape{waic}}}$ \\
+Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: baseline & 1243.7 & 20.1 & -621.9 & 10.1 \\
-  hierarchical beta--binomial: with area, & 1247.1 & 20.2 & -623.5 & 10.1 \\
-  hierarchical beta--binomial: with Gini index, & 1248.6 & 19.9 & -624.3 & 10.0 \\
-  hierarchical beta--binomial: population density, & 1259.1 & 23.0 & -629.5 & 11.5 \\
-  hierarchical binomial: baseline & 1317.3 & 43.4 & -658.7 & 21.7 \\
-  hierarchical binomial: with area, & 1322.5 & 43.5 & -661.2 & 21.8 \\
-  hierarchical binomial: with Gini index, & 1324.3 & 43.5 & -662.2 & 21.7 \\
-  hierarchical binomial: population density, & 1361.1 & 53.7 & -680.5 & 26.9 \\
-  single-level binomial: population density, & 2037.5 & 112.3 & -1018.7 & 56.2 \\
-  single-level binomial: with Gini index, & 2057.8 & 139.6 & -1028.9 & 69.8 \\
-  single-level binomial: with area, & 2058.3 & 145.4 & -1029.2 & 72.7 \\
-  single-level binomial: baseline & 2059.1 & 143.1 & -1029.6 & 71.6 \\
-  single-level beta--binomial: population density, & 2314.6 & 133.1 & -1157.3 & 66.6 \\
-  single-level beta--binomial: baseline & 2387.4 & 177.4 & -1193.7 & 88.7 \\
-  single-level beta--binomial: with Gini index, & 2430.9 & 179.1 & -1215.4 & 89.5 \\
-  single-level beta--binomial: with area, & 2438.5 & 185.6 & -1219.2 & 92.8 \\
+hierarchical beta--binomial: 1995--2014 & 1244.0 & 20.0 & -622.0 & 10.0 \\ 
+  hierarchical beta--binomial: 1985--2014 & 1244.1 & 20.2 & -622.1 & 10.1 \\ 
+  hierarchical beta--binomial: 1970--2014 & 1244.6 & 20.1 & -622.3 & 10.0 \\ 
+  hierarchical beta--binomial: 2005--2014 & 1245.3 & 20.1 & -622.7 & 10.1 \\ 
+  hierarchical binomial: 1970--2014 & 1317.0 & 43.5 & -658.5 & 21.7 \\ 
+  hierarchical binomial: 1985--2014 & 1317.7 & 43.5 & -658.9 & 21.7 \\ 
+  hierarchical binomial: 1995--2014 & 1319.1 & 43.6 & -659.5 & 21.8 \\ 
+  hierarchical binomial: 2005--2014 & 1319.1 & 43.4 & -659.5 & 21.7 \\ 
+  single-level binomial: 2005--2014 & 1584.8 & 73.5 & -792.4 & 36.8 \\ 
+  single-level binomial: 1985--2014 & 1597.5 & 76.4 & -798.8 & 38.2 \\ 
+  single-level binomial: 1970--2014 & 1598.9 & 76.5 & -799.4 & 38.2 \\ 
+  single-level binomial: 1995--2014 & 1614.0 & 78.4 & -807.0 & 39.2 \\ 
+  single-level beta--binomial: 2005--2014 & 1700.7 & 86.3 & -850.4 & 43.1 \\ 
+  single-level beta--binomial: 1985--2014 & 1716.6 & 89.5 & -858.3 & 44.8 \\ 
+  single-level beta--binomial: 1970--2014 & 1723.0 & 90.5 & -861.5 & 45.2 \\ 
+  single-level beta--binomial: 1995--2014 & 471976.3 & 79550.5 & -235988.2 & 39775.2 \\ 
    \hline
 \end{tabular}
-\caption[Model comparison: WAIC (climatological interval).]{Model comparison with WAIC. Models are labelled by the covariates that differ from the baseline case and by the structure of the statistical mode.}
+\endgroup
+\caption[Model comparison: WAIC (climatological interval).]{Model comparison: WAIC = widely applicable information criterion (also known as the Watanabe-Aikake Information Criterion), ELPD = expected log-probability density, and s.e. indicates the standard error of estimates of quantities. Lower values of the information criteria and greater (less negative) values of ELPD indicate superior model performance. Models are labelled by the time-period for averaging aridity and the structure of the statistical model.} 
+\label{tab:waic.years}
+\end{table}
+
+\subsection*{Table S7}
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:34:14 2018
+\begin{table}[H]
+\centering
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
+  \hline
+Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
+  \hline
+hierarchical beta--binomial: baseline & 1244.1 & 20.2 & -622.1 & 10.1 \\ 
+  hierarchical beta--binomial: with MSA Gini coefficient & 1247.4 & 19.8 & -623.7 & 9.9 \\ 
+  hierarchical beta--binomial: with MSA area & 1247.4 & 20.2 & -623.7 & 10.1 \\ 
+  hierarchical beta--binomial: without aridity & 1248.5 & 20.2 & -624.2 & 10.1 \\ 
+  hierarchical beta--binomial: with PVI/aridity interactions & 1248.7 & 20.9 & -624.4 & 10.5 \\ 
+  hierarchical beta--binomial: with pop.\ density & 1258.5 & 23.0 & -629.2 & 11.5 \\ 
+  hierarchical beta--binomial: without PVI & 1265.4 & 21.0 & -632.7 & 10.5 \\ 
+  hierarchical binomial: without aridity & 1315.8 & 43.2 & -657.9 & 21.6 \\ 
+  hierarchical binomial: baseline & 1317.7 & 43.5 & -658.9 & 21.7 \\ 
+  hierarchical binomial: with MSA area & 1321.5 & 43.6 & -660.8 & 21.8 \\ 
+  hierarchical binomial: with MSA Gini coefficient & 1322.4 & 43.4 & -661.2 & 21.7 \\ 
+  hierarchical binomial: with PVI/aridity interactions & 1322.4 & 45.4 & -661.2 & 22.7 \\ 
+  hierarchical binomial: with pop.\ density & 1361.6 & 53.8 & -680.8 & 26.9 \\ 
+  hierarchical binomial: without PVI & 1372.7 & 49.8 & -686.3 & 24.9 \\ 
+   \hline
+\end{tabular}
+\endgroup
+\caption[Model comparison: WAIC (alternate covariates) for hierarchical regressions.]{Model comparison with WAIC for hierarchical regressions. Models are labelled by the covariates that differ from the baseline case and by the structure of the statistical model.} 
 \label{tab:waic.vars}
 \end{table}
 
-\subsection*{Table S7 Caption}
+\subsection*{Table S8}
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:34:14 2018
+\begin{table}[H]
+\centering
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
+  \hline
+Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
+  \hline
+single-level binomial: with PVI/aridity interactions & 1590.5 & 76.6 & -795.2 & 38.3 \\ 
+  single-level binomial: with MSA Gini coefficient & 1593.1 & 78.5 & -796.6 & 39.3 \\ 
+  single-level binomial: baseline & 1597.5 & 76.4 & -798.8 & 38.2 \\ 
+  single-level binomial: with MSA area & 1600.6 & 76.4 & -800.3 & 38.2 \\ 
+  single-level binomial: with pop.\ density & 1678.7 & 87.1 & -839.3 & 43.6 \\ 
+  single-level binomial: without PVI & 1684.2 & 89.2 & -842.1 & 44.6 \\ 
+  single-level beta--binomial: baseline & 1716.6 & 89.5 & -858.3 & 44.8 \\ 
+  single-level beta--binomial: with MSA Gini coefficient & 1726.2 & 93.0 & -863.1 & 46.5 \\ 
+  single-level beta--binomial: with PVI/aridity interactions & 1745.1 & 95.6 & -872.6 & 47.8 \\ 
+  single-level beta--binomial: with MSA area & 1769.3 & 100.0 & -884.6 & 50.0 \\ 
+  single-level beta--binomial: with pop.\ density & 1814.3 & 98.1 & -907.2 & 49.1 \\ 
+  single-level beta--binomial: without PVI & 1815.9 & 99.9 & -907.9 & 49.9 \\ 
+  single-level binomial: without aridity & 1849.6 & 112.0 & -924.8 & 56.0 \\ 
+  single-level beta--binomial: without aridity & 2058.0 & 137.5 & -1029.0 & 68.7 \\ 
+   \hline
+\end{tabular}
+\endgroup
+\caption[Model comparison: WAIC (alternate covariates) for single-level regressions.]{Model comparison with WAIC for single-level regressions and different sets of covariates.} 
+\label{tab:waic.vars}
+\end{table}
+
+
+
+\subsection*{Table S9}
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:38:48 2018
+\begin{table}[H]
+\centering
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
+  \hline
+Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
+  \hline
+hierarchical beta--binomial: 1970--2014 & 1249.1 & 20.5 & -624.5 & 10.2 \\ 
+  hierarchical beta--binomial: 1985--2014 & 1249.3 & 20.5 & -624.6 & 10.3 \\ 
+  hierarchical beta--binomial: 1995--2014 & 1249.3 & 20.4 & -624.7 & 10.2 \\ 
+  hierarchical beta--binomial: 2005--2014 & 1250.3 & 20.4 & -625.1 & 10.2 \\ 
+  hierarchical binomial: 1970--2014 & 1330.1 & 44.2 & -665.1 & 22.1 \\ 
+  hierarchical binomial: 1985--2014 & 1330.3 & 44.1 & -665.1 & 22.1 \\ 
+  hierarchical binomial: 2005--2014 & 1332.6 & 44.1 & -666.3 & 22.1 \\ 
+  hierarchical binomial: 1995--2014 & 1333.3 & 44.2 & -666.6 & 22.1 \\ 
+  single-level binomial: 2005--2014 & 1586.2 & 73.7 & -793.1 & 36.9 \\ 
+  single-level binomial: 1985--2014 & 1599.0 & 76.4 & -799.5 & 38.2 \\ 
+  single-level binomial: 1970--2014 & 1599.8 & 76.8 & -799.9 & 38.4 \\ 
+  single-level binomial: 1995--2014 & 1614.6 & 78.5 & -807.3 & 39.3 \\ 
+  single-level beta--binomial: 2005--2014 & 1722.7 & 89.5 & -861.3 & 44.7 \\ 
+  single-level beta--binomial: 1985--2014 & 1737.7 & 92.2 & -868.8 & 46.1 \\ 
+  single-level beta--binomial: 1970--2014 & 1741.7 & 93.3 & -870.9 & 46.6 \\ 
+  single-level beta--binomial: 1995--2014 & 1758.2 & 95.4 & -879.1 & 47.7 \\ 
+   \hline
+\end{tabular}
+\endgroup
+\caption[Model comparison: LOO (climatological interval using alternative scaling).]{Model comparison with LOO-IC for different climatological averaging periods and models, using the alternative scaling for MSA-level covariates.} 
+\label{tab:loo.years}
+\end{table}
+
+\subsection*{Table S10}
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:38:48 2018
+\begin{table}[H]
+\centering
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
+  \hline
+Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
+  \hline
+hierarchical beta--binomial: baseline & 1249.3 & 20.5 & -624.6 & 10.3 \\ 
+  hierarchical beta--binomial: with MSA area & 1252.3 & 20.6 & -626.2 & 10.3 \\ 
+  hierarchical beta--binomial: with MSA Gini coefficient & 1252.8 & 20.4 & -626.4 & 10.2 \\ 
+  hierarchical beta--binomial: with PVI/aridity interactions & 1252.9 & 21.2 & -626.5 & 10.6 \\ 
+  hierarchical beta--binomial: without aridity & 1254.0 & 20.8 & -627.0 & 10.4 \\ 
+  hierarchical beta--binomial: with pop.\ density & 1262.7 & 23.1 & -631.4 & 11.5 \\ 
+  hierarchical beta--binomial: without PVI & 1268.1 & 21.2 & -634.0 & 10.6 \\ 
+  hierarchical binomial: without aridity & 1329.9 & 43.9 & -664.9 & 22.0 \\ 
+  hierarchical binomial: baseline & 1330.3 & 44.1 & -665.1 & 22.1 \\ 
+  hierarchical binomial: with PVI/aridity interactions & 1334.3 & 45.9 & -667.2 & 23.0 \\ 
+  hierarchical binomial: with MSA area & 1336.7 & 44.3 & -668.3 & 22.2 \\ 
+  hierarchical binomial: with MSA Gini coefficient & 1339.2 & 44.5 & -669.6 & 22.3 \\ 
+  hierarchical binomial: with pop.\ density & 1372.8 & 54.2 & -686.4 & 27.1 \\ 
+  hierarchical binomial: without PVI & 1386.8 & 50.6 & -693.4 & 25.3 \\ 
+   \hline
+\end{tabular}
+\endgroup
+\caption[Model comparison: LOO (alternate covariates using alternative scaling) for hierarchical regressions.]{Model comparison with LOO-IC for hierarchical regressions using the alternative scaling for MSA-level covariates.} 
+\label{tab:loo.vars}
+\end{table}
+
+
+\subsection*{Table S11}
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:38:48 2018
+\begin{table}[H]
+\centering
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
+  \hline
+Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
+  \hline
+single-level binomial: with PVI/aridity interactions & 1590.9 & 76.6 & -795.4 & 38.3 \\ 
+  single-level binomial: with MSA Gini coefficient & 1591.8 & 78.2 & -795.9 & 39.1 \\ 
+  single-level binomial: baseline & 1599.0 & 76.4 & -799.5 & 38.2 \\ 
+  single-level binomial: with MSA area & 1601.9 & 76.6 & -801.0 & 38.3 \\ 
+  single-level binomial: with pop.\ density & 1678.9 & 87.2 & -839.4 & 43.6 \\ 
+  single-level binomial: without PVI & 1683.9 & 89.1 & -842.0 & 44.6 \\ 
+  single-level beta--binomial: baseline & 1737.7 & 92.2 & -868.8 & 46.1 \\ 
+  single-level beta--binomial: with MSA Gini coefficient & 1750.3 & 97.0 & -875.1 & 48.5 \\ 
+  single-level beta--binomial: with PVI/aridity interactions & 1770.8 & 99.5 & -885.4 & 49.8 \\ 
+  single-level beta--binomial: with MSA area & 1788.8 & 103.5 & -894.4 & 51.7 \\ 
+  single-level beta--binomial: without PVI & 1817.6 & 100.4 & -908.8 & 50.2 \\ 
+  single-level beta--binomial: with pop.\ density & 1833.4 & 99.9 & -916.7 & 49.9 \\ 
+  single-level binomial: without aridity & 1850.4 & 112.0 & -925.2 & 56.0 \\ 
+  single-level beta--binomial: without aridity & 2083.3 & 139.8 & -1041.7 & 69.9 \\ 
+   \hline
+\end{tabular}
+\endgroup
+\caption[Model comparison: LOO (alternate covariates using alternative scaling) for single-level.]{Model comparison with LOO-IC for single-level regressions using the alternative scaling for MSA-level covariates.} 
+\label{tab:loo.vars}
+\end{table}
+
+
+\subsection*{Table S12}
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:38:48 2018
+\begin{table}[H]
+\centering
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
+  \hline
+Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
+  \hline
+hierarchical beta--binomial: 1970--2014 & 1244.8 & 20.2 & -622.4 & 10.1 \\ 
+  hierarchical beta--binomial: 1985--2014 & 1245.1 & 20.2 & -622.5 & 10.1 \\ 
+  hierarchical beta--binomial: 1995--2014 & 1245.3 & 20.1 & -622.6 & 10.0 \\ 
+  hierarchical beta--binomial: 2005--2014 & 1246.0 & 20.0 & -623.0 & 10.0 \\ 
+  hierarchical binomial: 1985--2014 & 1317.6 & 43.4 & -658.8 & 21.7 \\ 
+  hierarchical binomial: 1970--2014 & 1317.7 & 43.5 & -658.9 & 21.7 \\ 
+  hierarchical binomial: 2005--2014 & 1319.1 & 43.3 & -659.5 & 21.7 \\ 
+  hierarchical binomial: 1995--2014 & 1319.1 & 43.4 & -659.6 & 21.7 \\ 
+  single-level binomial: 2005--2014 & 1585.3 & 73.5 & -792.6 & 36.8 \\ 
+  single-level binomial: 1985--2014 & 1598.4 & 76.3 & -799.2 & 38.2 \\ 
+  single-level binomial: 1970--2014 & 1599.1 & 76.6 & -799.6 & 38.3 \\ 
+  single-level binomial: 1995--2014 & 1614.1 & 78.4 & -807.0 & 39.2 \\ 
+  single-level beta--binomial: 2005--2014 & 1705.3 & 86.9 & -852.7 & 43.4 \\ 
+  single-level beta--binomial: 1985--2014 & 1721.3 & 89.8 & -860.6 & 44.9 \\ 
+  single-level beta--binomial: 1970--2014 & 1725.9 & 91.0 & -863.0 & 45.5 \\ 
+  single-level beta--binomial: 1995--2014 & 1741.8 & 92.6 & -870.9 & 46.3 \\ 
+   \hline
+\end{tabular}
+\endgroup
+\caption[Model comparison: WAIC (climatological interval using absolute MSA-level values).]{Model comparison with WAIC for different climatological intervals, using the alternative scaling for MSA-level covariates.} 
+\label{tab:waic.years}
+\end{table}
+
+\subsection*{Table S13}
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:38:48 2018
+\begin{table}[H]
+\centering
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
+  \hline
+Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
+  \hline
+hierarchical beta--binomial: baseline & 1245.1 & 20.2 & -622.5 & 10.1 \\ 
+  hierarchical beta--binomial: with MSA area & 1247.4 & 20.2 & -623.7 & 10.1 \\ 
+  hierarchical beta--binomial: with PVI/aridity interactions & 1247.8 & 20.8 & -623.9 & 10.4 \\ 
+  hierarchical beta--binomial: without aridity & 1248.0 & 20.3 & -624.0 & 10.1 \\ 
+  hierarchical beta--binomial: with MSA Gini coefficient & 1248.6 & 20.0 & -624.3 & 10.0 \\ 
+  hierarchical beta--binomial: with pop.\ density & 1260.1 & 22.9 & -630.0 & 11.5 \\ 
+  hierarchical beta--binomial: without PVI & 1264.6 & 21.0 & -632.3 & 10.5 \\ 
+  hierarchical binomial: without aridity & 1316.5 & 43.2 & -658.3 & 21.6 \\ 
+  hierarchical binomial: baseline & 1317.6 & 43.4 & -658.8 & 21.7 \\ 
+  hierarchical binomial: with PVI/aridity interactions & 1320.1 & 45.1 & -660.1 & 22.6 \\ 
+  hierarchical binomial: with MSA area & 1321.7 & 43.4 & -660.9 & 21.7 \\ 
+  hierarchical binomial: with MSA Gini coefficient & 1325.0 & 43.7 & -662.5 & 21.8 \\ 
+  hierarchical binomial: with pop.\ density & 1361.0 & 53.7 & -680.5 & 26.8 \\ 
+  hierarchical binomial: without PVI & 1371.9 & 49.7 & -685.9 & 24.9 \\ 
+   \hline
+\end{tabular}
+\endgroup
+\caption[Model comparison: WAIC (alternate-covariates using alternative scaling) for hierarchical regressions.]{Model comparison with WAIC for hierarchical regressions against absolute MSA covariates.} 
+\label{tab:waic.vars}
+\end{table}
+
+\subsection*{Table S14}
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Sun Mar 25 23:38:48 2018
+\begin{table}[H]
+\centering
+\begingroup\small
+\begin{tabular}{p{3in}rrrr}
+  \hline
+Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
+  \hline
+single-level binomial: with PVI/aridity interactions & 1589.3 & 76.4 & -794.7 & 38.2 \\ 
+  single-level binomial: with MSA Gini coefficient & 1591.3 & 78.1 & -795.6 & 39.1 \\ 
+  single-level binomial: baseline & 1598.4 & 76.3 & -799.2 & 38.2 \\ 
+  single-level binomial: with MSA area & 1600.5 & 76.4 & -800.2 & 38.2 \\ 
+  single-level binomial: with pop.\ density & 1678.2 & 87.2 & -839.1 & 43.6 \\ 
+  single-level binomial: without PVI & 1683.6 & 89.1 & -841.8 & 44.5 \\ 
+  single-level beta--binomial: baseline & 1721.3 & 89.8 & -860.6 & 44.9 \\ 
+  single-level beta--binomial: with MSA Gini coefficient & 1730.6 & 94.3 & -865.3 & 47.2 \\ 
+  single-level beta--binomial: with PVI/aridity interactions & 1744.8 & 96.1 & -872.4 & 48.1 \\ 
+  single-level beta--binomial: with MSA area & 1761.8 & 97.6 & -880.9 & 48.8 \\ 
+  single-level beta--binomial: without PVI & 1805.8 & 99.1 & -902.9 & 49.6 \\ 
+  single-level beta--binomial: with pop.\ density & 1815.5 & 98.1 & -907.7 & 49.1 \\ 
+  single-level binomial: without aridity & 1849.3 & 111.8 & -924.7 & 55.9 \\ 
+  single-level beta--binomial: without aridity & 2056.3 & 136.4 & -1028.2 & 68.2 \\ 
+   \hline
+\end{tabular}
+\endgroup
+\caption[Model comparison: WAIC (alternate-covariates using alternative scaling) for single-level regressions.]{Model comparison with WAIC for single-level regressions against absolute MSA covariates.} 
+\label{tab:waic.vars}
+\end{table}
+
+
+
+\subsection*{Table S15 Caption}
 \begin{table}[H]
 \centering
 \caption{Posterior probability distributions of regression coefficients for VWCI: mean, standard error of the mean, standard deviation of the posterior, quantiles of the posterior, and the Gelman-Rubin potential scale-reduction factor $\hat R$. $\gamma$ coefficients correspond to state-level effects, $\beta$ coefficients to MSA-level effects, $\delta$ coefficients represent state-level intercepts, $\alpha_0$ is the overall intercept, and $\phi$ characterizes the overdispersion of the beta-binomial distribution. For more detail, see Materials and Methods.}
@@ -554,7 +856,7 @@ hierarchical beta--binomial: baseline & 1243.7 & 20.1 & -621.9 & 10.1 \\
 \end{table}
 
 
-\subsection*{Table S8 Caption}
+\subsection*{Table S16 Caption}
 \begin{table}[H]
 \centering
 \caption{Posterior probability distribution of regression coefficients for requirements}
@@ -562,7 +864,7 @@ hierarchical beta--binomial: baseline & 1243.7 & 20.1 & -621.9 & 10.1 \\
 \end{table}
 
 
-\subsection*{Table S9 Caption}
+\subsection*{Table S17 Caption}
 \begin{table}[H]
 \centering
 \caption{Posterior probability distribution of regression coefficients for rebates}
@@ -586,9 +888,7 @@ the BEA 2014 regional price parity and per-capita real personal income for the M
 
 \subsection*{Dataset S2: MSA-Level Data Codebook}
 
-\added{%
 This dataset contains a codebook explaining the variable corresponding to each column in Dataset S1.
-}
 
 \subsection*{Dataset S3: State-Level Data}
 
@@ -600,10 +900,7 @@ and the BEA 2014 state-level regional price parity and per-capita real personal 
 
 \subsection*{Dataset S4: State-Level Data Codebook}
 
-\added{%
 This dataset contains a codebook explaining the variable corresponding to each column in Dataset S3.
-}
-
 
 \section*{Data Analysis Scripts S1}
 
@@ -616,45 +913,47 @@ and S3 into the \verb+data+ subdirectory, and run the scripts
 This paper was produced with the following R packages:
 
 \begin{itemize}\raggedright
-  \item R version 3.4.3 (2017-11-30), \verb|x86_64-pc-linux-gnu|
-  \item Locale: \verb|LC_CTYPE=en_US.UTF-8|, \verb|LC_NUMERIC=C|, \verb|LC_TIME=en_US.UTF-8|, \verb|LC_COLLATE=en_US.UTF-8|, \verb|LC_MONETARY=en_US.UTF-8|, \verb|LC_MESSAGES=en_US.UTF-8|, \verb|LC_PAPER=en_US.UTF-8|, \verb|LC_NAME=C|, \verb|LC_ADDRESS=C|, \verb|LC_TELEPHONE=C|, \verb|LC_MEASUREMENT=en_US.UTF-8|, \verb|LC_IDENTIFICATION=C|
-  \item Running under: \verb|Ubuntu 16.04.3 LTS|
+  \item R version 3.4.4 (2018-03-15), \verb|x86_64-w64-mingw32|
+  \item Locale: \verb|LC_COLLATE=English_United States.1252|, \verb|LC_CTYPE=English_United States.1252|, \verb|LC_MONETARY=English_United States.1252|, \verb|LC_NUMERIC=C|, \verb|LC_TIME=English_United States.1252|
+  \item Running under: \verb|Windows 10 x64 (build 16299)|
   \item Matrix products: default
-  \item BLAS: \verb|/usr/lib/libblas/libblas.so.3.6.0|
-  \item LAPACK: \verb|/usr/lib/lapack/liblapack.so.3.6.0|
   \item Base packages: base, datasets, graphics, grDevices,
     methods, parallel, stats, utils
   \item Other packages: bindrcpp~0.2, bitops~1.0-6, broom~0.4.3,
-    cowplot~0.9.1, dplyr~0.7.4, egg~0.2.0, extrafont~0.17,
-    fontcm~1.1, forcats~0.2.0, geosphere~1.5-7, ggmap~2.7,
-    ggplot2~2.2.1.9000, ggrepel~0.7.1, ggthemes~3.4.0,
-    gridExtra~2.3, janitor~0.3.0, jgally~1.2.9.9999, jgmcmc~1.1.1,
-    knitr~1.17, lazyeval~0.2.1, loo~1.1.0, lubridate~1.7.1,
-    magrittr~1.5, maps~3.2.0, ncdf4~1.16, pacman~0.4.6,
-    purrr~0.2.4, raster~2.6-7, RColorBrewer~1.1-2, RCurl~1.95-4.8,
-    readr~1.1.1, readxl~1.0.0, rlang~0.1.4, rstan~2.16.2,
-    shiny~1.0.5, shinystan~2.4.0, sp~1.2-5, StanHeaders~2.16.0-1,
-    stringr~1.2.0, tibble~1.3.4, tidyr~0.7.2, tidyverse~1.2.1,
-    viridis~0.4.0, viridisLite~0.2.0, xtable~1.8-2, zoo~1.8-0
-  \item Loaded via a namespace (and not attached):
-    assertthat~0.2.0, base64enc~0.1-3, bayesplot~1.4.0, bindr~0.1,
-    cellranger~1.1.0, cli~1.0.0, colorspace~1.3-2,
-    colourpicker~1.0, compiler~3.4.3, crayon~1.3.4,
-    crosstalk~1.0.0, digest~0.6.12, DT~0.2, dygraphs~1.1.1.4,
-    evaluate~0.10.1, extrafontdb~1.0, foreign~0.8-69,
-    GGally~1.3.2, glue~1.2.0, grid~3.4.3, gtable~0.2.0,
-    gtools~3.5.0, haven~1.1.0, hms~0.4.0, htmltools~0.3.6,
-    htmlwidgets~0.9, httpuv~1.3.5, httr~1.3.1, igraph~1.1.2,
-    inline~0.3.14, jpeg~0.1-8, jsonlite~1.5, lattice~0.20-35,
-    mapproj~1.2-5, markdown~0.8, matrixStats~0.52.2, mime~0.5,
-    miniUI~0.1.1, mnormt~1.5-5, modelr~0.1.1, munsell~0.4.3,
-    nlme~3.1-131, pkgconfig~2.0.1, plyr~1.8.4, png~0.1-7,
-    proto~1.0.0, psych~1.7.8, R6~2.2.2, Rcpp~0.12.14,
-    reshape~0.8.7, reshape2~1.4.2, RgoogleMaps~1.4.1,
-    rjson~0.2.15, rsconnect~0.8.5, rstudioapi~0.7.0-9000,
-    Rttf2pt1~1.3.4, rvest~0.3.2, scales~0.5.0.9000, shinyjs~0.9.1,
-    shinythemes~1.1.1, stats4~3.4.3, stringi~1.1.6, threejs~0.3.1,
-    tools~3.4.3, xml2~1.1.1, xts~0.10-0
+    cowplot~0.9.2, dplyr~0.7.4, egg~0.2.0, extrafont~0.17,
+    fontcm~1.1, forcats~0.3.0, geosphere~1.5-7, ggmap~2.6.1,
+    ggplot2~2.2.1.9000, ggrepel~0.7.0, ggthemes~3.4.0,
+    gridExtra~2.3, hms~0.4.2, janitor~0.3.1, jgally~1.2.9.9999,
+    jgmcmc~1.1.1, knitr~1.20, lazyeval~0.2.1, loo~1.1.0,
+    lubridate~1.7.3, magrittr~1.5, maps~3.2.0, ncdf4~1.16,
+    pacman~0.4.6, purrr~0.2.4, raster~2.6-7, RColorBrewer~1.1-2,
+    RCurl~1.95-4.10, readr~1.1.1, readxl~1.0.0, rlang~0.2.0.9000,
+    rstan~2.17.3, shiny~1.0.5, shinystan~2.4.0, sp~1.2-7,
+    StanHeaders~2.17.2, stringr~1.3.0, tibble~1.4.2, tidyr~0.8.0,
+    tidyverse~1.2.1, viridis~0.5.0, viridisLite~0.3.0,
+    xtable~1.8-2, zoo~1.8-1
+  \item Loaded via a namespace (and not attached): abind~1.4-5,
+    arm~1.9-3, assertthat~0.2.0, base64enc~0.1-3, bayesplot~1.4.0,
+    bindr~0.1.1, cellranger~1.1.0, cli~1.0.0, coda~0.19-1,
+    colorspace~1.3-2, colourpicker~1.0, compiler~3.4.4,
+    crayon~1.3.4, crosstalk~1.0.0, digest~0.6.15, DT~0.4,
+    dygraphs~1.1.1.4, evaluate~0.10.1, extrafontdb~1.0,
+    foreign~0.8-69, GGally~1.3.2, glue~1.2.0, grid~3.4.4,
+    gtable~0.2.0, gtools~3.5.0, haven~1.1.1, htmltools~0.3.6,
+    htmlwidgets~1.0, httpuv~1.3.6.2, httr~1.3.1, igraph~1.2.1,
+    inline~0.3.14, jpeg~0.1-8, jsonlite~1.5, labeling~0.3,
+    lattice~0.20-35, lme4~1.1-15, mapproj~1.2-5, markdown~0.8,
+    MASS~7.3-49, Matrix~1.2-12, matrixStats~0.53.1, mime~0.5,
+    miniUI~0.1.1, minqa~1.2.4, mnormt~1.5-5, modelr~0.1.1,
+    munsell~0.4.3, nlme~3.1-131.1, nloptr~1.0.4, pillar~1.2.1,
+    pkgconfig~2.0.1, plyr~1.8.4, png~0.1-7, proto~1.0.0,
+    psych~1.7.8, R6~2.2.2, Rcpp~0.12.16, reshape~0.8.7,
+    reshape2~1.4.3, RgoogleMaps~1.4.1, rjson~0.2.15,
+    rsconnect~0.8.8, rstudioapi~0.7, Rttf2pt1~1.3.6, rvest~0.3.2,
+    scales~0.5.0.9000, shinyjs~1.0, shinythemes~1.1.1,
+    splines~3.4.4, stats4~3.4.4, stringi~1.1.7, threejs~0.3.1,
+    tidyselect~0.2.4, tools~3.4.4, withr~2.1.2, xml2~1.2.0,
+    xts~0.10-2
 \end{itemize}
 
 
@@ -663,7 +962,7 @@ This paper was produced with the following R packages:
 %
 \iffalse
 %
-\section*{Captions for Large Tables S1, S2, S7--S9}
+\section*{Captions for Large Tables S1, S2, S15--S17}
 \subsection*{Table S1 Caption}
 \setcounter{table}{0}%
 \begin{table}[H]
@@ -680,24 +979,24 @@ This paper was produced with the following R packages:
 \end{table}
 
 
-\subsection*{Table S7 Caption}
-\setcounter{table}{6}%
+\subsection*{Table S15 Caption}
+\setcounter{table}{14}%
 \begin{table}[H]
 \centering
 \caption{Posterior probability distributions of regression coefficients for VWCI: mean, standard error of the mean, standard deviation of the posterior, quantiles of the posterior, and the Gelman-Rubin potential scale-reduction factor $\hat R$. $\gamma$ coefficients correspond to state-level effects, $\beta$ coefficients to MSA-level effects, $\delta$ coefficients represent state-level intercepts, $\alpha_0$ is the overall intercept, and $\phi$ characterizes the overdispersion of the beta-binomial distribution. For more detail, see Materials and Methods.}
 \end{table}
 
 
-\subsection*{Table S8 Caption}
-\setcounter{table}{7}%
+\subsection*{Table S16 Caption}
+\setcounter{table}{15}%
 \begin{table}[H]
 \centering
 \caption{Posterior probability distribution of regression coefficients for requirements}
 \end{table}
 
 
-\subsection*{Table S9 Caption}
-\setcounter{table}{8}%
+\subsection*{Table S17 Caption}
+\setcounter{table}{16}%
 \begin{table}[H]
 \centering
 \caption{Posterior probability distribution of regression coefficients for rebates}
@@ -739,6 +1038,12 @@ This paper was produced with the following R packages:
   \textit{Journal of Statistical Software}, \textit{76}, 1--32.
   \url{https://doi.org/10.18637/jss.v076.i01}.
 
+\bibitem[{\textit{Chupp}(2011)}]{chupp:environ.voting:2011}
+  Chupp, B.~A. (2011).
+  Environmental constituent interest, green electricity policies, and legislative voting.
+  \textit{Journal of Environmental Economics and Management}, \textit{62}, 254--266.
+  \url{https://doi.org/10.1016/j.jeem.2011.03.008}.
+
 \bibitem[{\textit{{CQ Press}}(2016)}]{cq:elections:2016}
 {CQ Press} (2016).
   Voting and elections collection.
@@ -774,7 +1079,7 @@ This paper was produced with the following R packages:
   A weakly informative default prior distribution for logistic and other
   regression models.
   \textit{Annals of Applied Statistics}, \textit{2}, 1360--1383.
-  \url{https:\\doi.org/10.1214/08-AOAS191}.
+  \url{https://doi.org/10.1214/08-AOAS191}.
 
 \bibitem[{\textit{Gelman et~al.}(2014)\textit{Gelman, Carlin, Stern, Dunson,
   Vehtari, and Rubin}}]{gelman:bda:2014}
@@ -788,6 +1093,14 @@ This paper was produced with the following R packages:
   Water management: {S}oft water paths.
   \textit{Nature},
   \textit{418}, 373--373, \url{https://doi.org/10.1038/418373a}.
+
+\bibitem[{\textit{Grant and Vasi}(2017)}]{grant:environ.accountability:2017}
+  Grant, D. and Vasi, I.B. (2016)
+  Civil society in an age of environmental accountability:
+  How local environmental nongovernmental organizations reduce
+  U.S. power plants' carbon dioxide emissions.
+  \textit{Sociological Forum}, \textit{32}, 94--115.
+  \url{https://doi.org/10.1111/socf.12318}.
 
 \bibitem[{\textit{Hawkins and Nosek}(2012)}]{hawkins:motivated:2012}
   Hawkins, C.~B., \& B.~A. Nosek (2012).
