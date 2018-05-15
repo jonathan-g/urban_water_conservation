@@ -223,41 +223,41 @@ vars_9 <- list(msa_vars = msa_vars_9, state_vars = state_vars_9,
                captions = captions_vars_9)
 
 #
+# Population density instead of population and omit PVI
+#
+msa_vars_10 <- c('rpi', 'log.pop.dens', 'pop.dens.growth',
+                'aridity', 'surface.water'
+)
+
+state_vars_10 <- c('state.rpi',
+                  'state.aridity', 'state.surface.water'
+)
+
+captions_vars_10 <- list( years_fig = "1985-2014 with population density and no PVI",
+                         vars_fig = "with population density and no PVI",
+                         years_tbl = "1985--2014 with pop.\\ density and no PVI",
+                         vars_tbl = "with pop.\\ density and no PVI")
+
+vars_10 <- list(msa_vars = msa_vars_10, state_vars = state_vars_10,
+               captions = captions_vars_10)
+
+
+#
 # Omit Aridity
 #
-msa_vars_10 <- c('pvi', 'rpi', 'log.pop', 'pop.growth', 'surface.water'
+msa_vars_11 <- c('pvi', 'rpi', 'log.pop', 'pop.growth', 'surface.water'
                  )
 
-state_vars_10 <- c('state.pvi', 'state.rpi', 'state.surface.water'
+state_vars_11 <- c('state.pvi', 'state.rpi', 'state.surface.water'
                    )
 
-captions_vars_10 <- list( years_fig = "1985-2014 without aridity",
+captions_vars_11 <- list( years_fig = "1985-2014 without aridity",
                           vars_fig = "without aridity",
                           years_tbl = "1985--2014 without aridity",
                           vars_tbl = "without aridity")
 
-vars_10 <- list(msa_vars = msa_vars_10, state_vars = state_vars_10,
-                captions = captions_vars_10)
-
-
-#
-# Omit Surface water
-#
-msa_vars_11 <- c('pvi', 'rpi', 'log.pop', 'pop.growth',
-                'aridity' #, 'surface.water'
-)
-
-state_vars_11 <- c('state.pvi', 'state.rpi',
-                  'state.aridity' #, 'state.surface.water'
-)
-
-captions_vars_11 <- list( years_fig = "1985-2014 without surface water",
-                         vars_fig = "with surface water",
-                         years_tbl = "1985--2014 without surface water",
-                         vars_tbl = "without surface water")
-
 vars_11 <- list(msa_vars = msa_vars_11, state_vars = state_vars_11,
-               captions = captions_vars_11)
+                captions = captions_vars_11)
 
 
 model_vars <- list(vars_1 = vars_1, vars_2 = vars_2, vars_3 = vars_3,

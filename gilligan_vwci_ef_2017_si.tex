@@ -28,7 +28,10 @@
 % file type “Supporting Information (SI)”
 
 \documentclass[draft]{agujournal}\usepackage{knitr}
+%\documentclass{agujournal}
+% \usepackage{jglucida}
 \usepackage[hyphens]{url}
+% \usepackage[hidelinks]{hyperref}
 \usepackage{amsmath}
 \usepackage{float}
 % Please type in the journal name: \journalname{<Journal Name>}
@@ -95,7 +98,6 @@
 \begin{enumerate}
 \item Captions for Datasets S1 to S4
 \item Data Analysis Scripts S1 (zip file)
-\item Captions for Large Tables S1, S2, S15--S17
 \end{enumerate}
 
 
@@ -183,12 +185,13 @@ the cities in our data set showed better agreement for the overdispersed
 $\beta$-binomial process than for a purely binomial one \citep{gelman:bda:2014}.
 
 A separate test for overdispersion, which accounts for the danger of overfitting
-by introducing new free parameters, uses the
+by introducing new free parameters, assesses the predictive accuracy of different
+models using
 Leave-One-Out cross-validation Information Criterion (LOO-IC)
 or the
 Widely Available Information Criterion (WAIC, also known as the
 Watanabe-Aikake Information Criterion),
-obtained by Pareto-smoothed importance sampling \citep{vehtari:loo:2016}.
+obtained by Pareto-smoothed importance sampling \citep{gelman:predictive:2014,vehtari:loo:2016}.
 Both information criteria favored the overdispersed beta-binomial distribution
 over a pure binomial, and also strongly favored hierarchical over single-level
 models (Tables~S\ref{tab:loo.years}--S\ref{tab:waic.vars}).
@@ -214,7 +217,9 @@ Tables~S\ref{tab:vwci_posterior}--S\ref{tab:reb_posterior}.
 We chose our explanatory variables based on theoretical considerations, as
 described in \citet{hess:drought:2016}. To test the robustness of our analysis,
 we compared the results described above to several kinds of alternate regression
-analyses for the VWCI.
+analyses for the VWCI, using the LOO-IC and WAIC information criteria to
+assess the predictive accuracy of the different analyses 
+\citep{gelman:predictive:2014,vehtari:loo:2016}.
 
 In the first series, we varied the interval over which we averaged
 the K\"oppen aridity index, considering the 30-year period 1985--2014,
@@ -278,13 +283,14 @@ were well within the 95\% highest-density
 intervals of the posterior probability distribution.
 
 In order to test that aridity and PVI were, in fact, significant We also performed
-regressions leaving out either the aridity or PVI covariates.
+regressions leaving out the aridity, leaving out PVI, and leaving out PVI
+but replacing population with population density.
 These regressions produced information criteria scores that were inferior to the
-original regression by slightly more than one standard error in the case of PVI
+original regression by slightly less than one standard error in the case of PVI
 and by about one-third of the standard error in the case of aridity.
 We also observed that removing either one of these covariates did not significantly
 change the coefficients for any of the other covariates. This reinforces the evidence
-of the pairwise correlation plots that there are no problems with
+of the pairwise correlation plots that there are no important problems with
 interdependence or multicollinearity among the covariates.
 
 In all of these analyses, the MSA-level PVI, population, and population
@@ -303,13 +309,10 @@ The results were very similar to and consistent with the original analysis.
 
 We also tested alternative regressions that used different normalizations for the
 MSA-level variables: In this alternative normalization, instead of taking the
-differences between the MSA-level variables and the state-level variables and
-scaling this difference to the state-level scales
-($x_{\text{scaled}} = (x - w) / (2 \sigma_w)$),
-we took the raw values for
+differences between the MSA-level variables and the state-level variables, and
+scaling this difference to the state-level scales, we took the raw values for
 each MSA-level variable and scaled them to have zero-mean and a standard deviation
-of 0.5 across all 195 MSAs, without referring them to the state-level variables
-($x_{\text{scaled}} = (x - \mu_x) / (2 \sigma_x)$), as described in the main text.
+of 0.5 across all of the MSAs, without referring them to the state-level variables.
 
 We repeated all of the regressions described above using this alternative scaling
 of the MSA-variables (Figures~S8--10 and Tables~9--14).
@@ -327,7 +330,7 @@ leading to the interpretation that both the state-level PVI and the difference b
 the state-level and MSA-level PVI were well corelated with the propensity to adopt
 water-conservation policies. Under the alternative scaling, the
 coefficient for state-level PVI is consistent with zero
-(with an 85\% probability of being positive)
+(with an 84\% probability of being positive)
 and the coefficient for MSA-level PVI is clearly positive, with an almost
 identical distribution as with the original scaling.
 Because the information criteria scores are only slightly different between
@@ -449,6 +452,7 @@ we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
 \subsection*{Table S1 Caption}
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{Conservation scores and covariates for  cities: VWCI = Vanderbilt Water Conservation Index (total \# of conservation measures), Req.\ = \# requirements, Reb.\ = \# rebates, PVI = Cook Partisan Voting Index, Aridity = K\"oppen aridity index, RPI\ = per-capita real personal income (thousands of regionally adjusted chained 2009 dollars), Pop.\ = population (thousands), Growth = population growth rate (2010--2014), Surf.\ W.\ = surface-water fraction.}
 \label{tab:vwci}
 \end{table}
@@ -456,6 +460,7 @@ we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
 \subsection*{Table S2 Caption}
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{State-level covariates: PVI = Cook Partisan Voting Index, RPI = per-capita real personal income (thousands of regionally-adjusted chained 2009 dollars), Aridity = the K\"oppen aridity index, Surf.\ W.\ = the surface-water fraction.}
 \label{tab:state}
 \end{table}
@@ -463,8 +468,8 @@ we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
 
 
 \subsection*{Table S3}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:34:14 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:26:22 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -472,22 +477,22 @@ we had previously chosen for theoretical reasons \citep{hess:drought:2016}.
   \hline
 Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: 1995--2014 & 1247.8 & 20.2 & -623.9 & 10.1 \\ 
-  hierarchical beta--binomial: 1985--2014 & 1248.4 & 20.5 & -624.2 & 10.3 \\ 
-  hierarchical beta--binomial: 1970--2014 & 1248.8 & 20.4 & -624.4 & 10.2 \\ 
-  hierarchical beta--binomial: 2005--2014 & 1249.2 & 20.5 & -624.6 & 10.2 \\ 
-  hierarchical binomial: 1970--2014 & 1329.3 & 44.1 & -664.6 & 22.1 \\ 
-  hierarchical binomial: 1985--2014 & 1330.8 & 44.2 & -665.4 & 22.1 \\ 
-  hierarchical binomial: 1995--2014 & 1332.1 & 44.3 & -666.1 & 22.1 \\ 
-  hierarchical binomial: 2005--2014 & 1333.4 & 44.3 & -666.7 & 22.1 \\ 
-  single-level binomial: 2005--2014 & 1585.3 & 73.7 & -792.6 & 36.8 \\ 
-  single-level binomial: 1985--2014 & 1598.0 & 76.4 & -799.0 & 38.2 \\ 
-  single-level binomial: 1970--2014 & 1599.2 & 76.5 & -799.6 & 38.2 \\ 
-  single-level binomial: 1995--2014 & 1614.8 & 78.5 & -807.4 & 39.3 \\ 
-  single-level beta--binomial: 2005--2014 & 1719.6 & 89.6 & -859.8 & 44.8 \\ 
-  single-level beta--binomial: 1985--2014 & 1730.4 & 91.5 & -865.2 & 45.8 \\ 
-  single-level beta--binomial: 1970--2014 & 1738.0 & 92.9 & -869.0 & 46.4 \\ 
-  single-level beta--binomial: 1995--2014 &  &  &  &  \\ 
+hierarchical beta--binomial: 1995--2014 & 1248.4 & 20.3 & -624.2 & 10.1 \\ 
+  hierarchical beta--binomial: 1985--2014 & 1248.6 & 20.5 & -624.3 & 10.3 \\ 
+  hierarchical beta--binomial: 1970--2014 & 1249.0 & 20.5 & -624.5 & 10.2 \\ 
+  hierarchical beta--binomial: 2005--2014 & 1250.2 & 20.6 & -625.1 & 10.3 \\ 
+  hierarchical binomial: 1985--2014 & 1328.3 & 43.9 & -664.1 & 22.0 \\ 
+  hierarchical binomial: 1995--2014 & 1328.7 & 43.8 & -664.4 & 21.9 \\ 
+  hierarchical binomial: 2005--2014 & 1329.6 & 43.6 & -664.8 & 21.8 \\ 
+  hierarchical binomial: 1970--2014 & 1332.6 & 44.2 & -666.3 & 22.1 \\ 
+  single-level binomial: 2005--2014 & 1584.3 & 73.5 & -792.2 & 36.7 \\ 
+  single-level binomial: 1985--2014 & 1598.3 & 76.5 & -799.1 & 38.2 \\ 
+  single-level binomial: 1970--2014 & 1598.6 & 76.6 & -799.3 & 38.3 \\ 
+  single-level binomial: 1995--2014 & 1614.9 & 78.6 & -807.4 & 39.3 \\ 
+  single-level beta--binomial: 2005--2014 & 1715.9 & 88.5 & -857.9 & 44.2 \\ 
+  single-level beta--binomial: 1970--2014 & 1733.9 & 91.7 & -866.9 & 45.8 \\ 
+  single-level beta--binomial: 1985--2014 & 1734.9 & 91.7 & -867.4 & 45.8 \\ 
+  single-level beta--binomial: 1995--2014 & 1757.5 & 94.4 & -878.7 & 47.2 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -496,8 +501,8 @@ hierarchical beta--binomial: 1995--2014 & 1247.8 & 20.2 & -623.9 & 10.1 \\
 \end{table}
 
 \subsection*{Table S4}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:34:14 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:26:22 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -505,20 +510,20 @@ hierarchical beta--binomial: 1995--2014 & 1247.8 & 20.2 & -623.9 & 10.1 \\
   \hline
 Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: baseline & 1248.4 & 20.5 & -624.2 & 10.3 \\ 
-  hierarchical beta--binomial: with MSA Gini coefficient & 1251.1 & 20.1 & -625.5 & 10.1 \\ 
-  hierarchical beta--binomial: with MSA area & 1252.3 & 20.6 & -626.1 & 10.3 \\ 
-  hierarchical beta--binomial: with PVI/aridity interactions & 1254.0 & 21.4 & -627.0 & 10.7 \\ 
-  hierarchical beta--binomial: without aridity & 1254.7 & 20.7 & -627.4 & 10.4 \\ 
-  hierarchical beta--binomial: with pop.\ density & 1260.9 & 23.1 & -630.4 & 11.6 \\ 
-  hierarchical beta--binomial: without PVI & 1269.2 & 21.4 & -634.6 & 10.7 \\ 
-  hierarchical binomial: without aridity & 1328.5 & 43.7 & -664.3 & 21.8 \\ 
-  hierarchical binomial: baseline & 1330.8 & 44.2 & -665.4 & 22.1 \\ 
-  hierarchical binomial: with MSA Gini coefficient & 1336.2 & 44.2 & -668.1 & 22.1 \\ 
-  hierarchical binomial: with MSA area & 1336.4 & 44.5 & -668.2 & 22.2 \\ 
-  hierarchical binomial: with PVI/aridity interactions & 1337.3 & 46.5 & -668.7 & 23.2 \\ 
-  hierarchical binomial: with pop.\ density & 1371.9 & 54.1 & -685.9 & 27.0 \\ 
-  hierarchical binomial: without PVI & 1387.4 & 50.7 & -693.7 & 25.4 \\ 
+hierarchical beta--binomial: baseline & 1248.6 & 20.5 & -624.3 & 10.3 \\ 
+  hierarchical beta--binomial: with MSA Gini coefficient & 1251.3 & 20.2 & -625.6 & 10.1 \\ 
+  hierarchical beta--binomial: with MSA area & 1253.7 & 20.7 & -626.9 & 10.4 \\ 
+  hierarchical beta--binomial: with PVI/aridity interactions & 1254.2 & 21.4 & -627.1 & 10.7 \\ 
+  hierarchical beta--binomial: with pop.\ density & 1261.4 & 23.0 & -630.7 & 11.5 \\ 
+  hierarchical beta--binomial: with pop.\ density and no PVI & 1266.4 & 23.4 & -633.2 & 11.7 \\ 
+  hierarchical beta--binomial: without PVI & 1269.0 & 21.3 & -634.5 & 10.7 \\ 
+  hierarchical binomial: baseline & 1328.3 & 43.9 & -664.1 & 22.0 \\ 
+  hierarchical binomial: with MSA Gini coefficient & 1334.5 & 43.9 & -667.2 & 22.0 \\ 
+  hierarchical binomial: with PVI/aridity interactions & 1335.6 & 46.2 & -667.8 & 23.1 \\ 
+  hierarchical binomial: with MSA area & 1338.0 & 44.3 & -669.0 & 22.2 \\ 
+  hierarchical binomial: with pop.\ density & 1371.9 & 53.9 & -685.9 & 26.9 \\ 
+  hierarchical binomial: without PVI & 1385.3 & 50.6 & -692.7 & 25.3 \\ 
+  hierarchical binomial: with pop.\ density and no PVI & 1390.9 & 57.5 & -695.5 & 28.7 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -527,8 +532,8 @@ hierarchical beta--binomial: baseline & 1248.4 & 20.5 & -624.2 & 10.3 \\
 \end{table}
 
 \subsection*{Table S5}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:34:14 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:26:22 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -536,20 +541,20 @@ hierarchical beta--binomial: baseline & 1248.4 & 20.5 & -624.2 & 10.3 \\
   \hline
 Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-single-level binomial: with PVI/aridity interactions & 1591.8 & 76.9 & -795.9 & 38.4 \\ 
-  single-level binomial: with MSA Gini coefficient & 1593.7 & 78.7 & -796.9 & 39.3 \\ 
-  single-level binomial: baseline & 1598.0 & 76.4 & -799.0 & 38.2 \\ 
-  single-level binomial: with MSA area & 1602.5 & 76.7 & -801.2 & 38.3 \\ 
-  single-level binomial: with pop.\ density & 1679.0 & 87.1 & -839.5 & 43.6 \\ 
-  single-level binomial: without PVI & 1684.5 & 89.2 & -842.3 & 44.6 \\ 
-  single-level beta--binomial: baseline & 1730.4 & 91.5 & -865.2 & 45.8 \\ 
-  single-level beta--binomial: with MSA Gini coefficient & 1745.1 & 95.5 & -872.6 & 47.8 \\ 
-  single-level beta--binomial: with PVI/aridity interactions & 1768.0 & 98.3 & -884.0 & 49.1 \\ 
-  single-level beta--binomial: with MSA area & 1806.9 & 108.4 & -903.5 & 54.2 \\ 
-  single-level beta--binomial: without PVI & 1832.9 & 101.8 & -916.5 & 50.9 \\ 
-  single-level beta--binomial: with pop.\ density & 1834.0 & 100.5 & -917.0 & 50.2 \\ 
-  single-level binomial: without aridity & 1850.3 & 112.1 & -925.2 & 56.1 \\ 
-  single-level beta--binomial: without aridity & 2080.6 & 140.2 & -1040.3 & 70.1 \\ 
+single-level binomial: with PVI/aridity interactions & 1591.4 & 76.8 & -795.7 & 38.4 \\ 
+  single-level binomial: with MSA Gini coefficient & 1592.7 & 78.6 & -796.4 & 39.3 \\ 
+  single-level binomial: baseline & 1598.3 & 76.5 & -799.1 & 38.2 \\ 
+  single-level binomial: with MSA area & 1601.9 & 76.6 & -801.0 & 38.3 \\ 
+  single-level binomial: with pop.\ density & 1679.0 & 87.2 & -839.5 & 43.6 \\ 
+  single-level binomial: without PVI & 1683.8 & 89.1 & -841.9 & 44.6 \\ 
+  single-level binomial: with pop.\ density and no PVI & 1692.5 & 89.0 & -846.2 & 44.5 \\ 
+  single-level beta--binomial: baseline & 1734.9 & 91.7 & -867.4 & 45.8 \\ 
+  single-level beta--binomial: with MSA Gini coefficient & 1750.4 & 96.9 & -875.2 & 48.4 \\ 
+  single-level beta--binomial: with PVI/aridity interactions & 1773.6 & 100.0 & -886.8 & 50.0 \\ 
+  single-level beta--binomial: with MSA area & 1797.4 & 106.3 & -898.7 & 53.2 \\ 
+  single-level beta--binomial: with pop.\ density and no PVI & 1821.1 & 97.9 & -910.6 & 48.9 \\ 
+  single-level beta--binomial: without PVI & 1824.1 & 100.9 & -912.0 & 50.5 \\ 
+  single-level beta--binomial: with pop.\ density & 1828.1 & 99.8 & -914.0 & 49.9 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -558,8 +563,8 @@ single-level binomial: with PVI/aridity interactions & 1591.8 & 76.9 & -795.9 & 
 \end{table}
 
 \subsection*{Table S6}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:34:14 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:26:22 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -567,22 +572,22 @@ single-level binomial: with PVI/aridity interactions & 1591.8 & 76.9 & -795.9 & 
   \hline
 Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: 1995--2014 & 1244.0 & 20.0 & -622.0 & 10.0 \\ 
-  hierarchical beta--binomial: 1985--2014 & 1244.1 & 20.2 & -622.1 & 10.1 \\ 
-  hierarchical beta--binomial: 1970--2014 & 1244.6 & 20.1 & -622.3 & 10.0 \\ 
+hierarchical beta--binomial: 1985--2014 & 1244.3 & 20.2 & -622.2 & 10.1 \\ 
+  hierarchical beta--binomial: 1970--2014 & 1244.5 & 20.1 & -622.2 & 10.0 \\ 
+  hierarchical beta--binomial: 1995--2014 & 1244.7 & 20.0 & -622.3 & 10.0 \\ 
   hierarchical beta--binomial: 2005--2014 & 1245.3 & 20.1 & -622.7 & 10.1 \\ 
-  hierarchical binomial: 1970--2014 & 1317.0 & 43.5 & -658.5 & 21.7 \\ 
+  hierarchical binomial: 2005--2014 & 1317.6 & 43.1 & -658.8 & 21.6 \\ 
   hierarchical binomial: 1985--2014 & 1317.7 & 43.5 & -658.9 & 21.7 \\ 
-  hierarchical binomial: 1995--2014 & 1319.1 & 43.6 & -659.5 & 21.8 \\ 
-  hierarchical binomial: 2005--2014 & 1319.1 & 43.4 & -659.5 & 21.7 \\ 
-  single-level binomial: 2005--2014 & 1584.8 & 73.5 & -792.4 & 36.8 \\ 
-  single-level binomial: 1985--2014 & 1597.5 & 76.4 & -798.8 & 38.2 \\ 
-  single-level binomial: 1970--2014 & 1598.9 & 76.5 & -799.4 & 38.2 \\ 
-  single-level binomial: 1995--2014 & 1614.0 & 78.4 & -807.0 & 39.2 \\ 
-  single-level beta--binomial: 2005--2014 & 1700.7 & 86.3 & -850.4 & 43.1 \\ 
-  single-level beta--binomial: 1985--2014 & 1716.6 & 89.5 & -858.3 & 44.8 \\ 
-  single-level beta--binomial: 1970--2014 & 1723.0 & 90.5 & -861.5 & 45.2 \\ 
-  single-level beta--binomial: 1995--2014 & 471976.3 & 79550.5 & -235988.2 & 39775.2 \\ 
+  hierarchical binomial: 1995--2014 & 1317.8 & 43.3 & -658.9 & 21.6 \\ 
+  hierarchical binomial: 1970--2014 & 1319.0 & 43.5 & -659.5 & 21.7 \\ 
+  single-level binomial: 2005--2014 & 1583.9 & 73.4 & -791.9 & 36.7 \\ 
+  single-level binomial: 1985--2014 & 1598.1 & 76.5 & -799.0 & 38.2 \\ 
+  single-level binomial: 1970--2014 & 1598.1 & 76.5 & -799.1 & 38.2 \\ 
+  single-level binomial: 1995--2014 & 1614.1 & 78.4 & -807.1 & 39.2 \\ 
+  single-level beta--binomial: 2005--2014 & 1702.7 & 86.4 & -851.3 & 43.2 \\ 
+  single-level beta--binomial: 1970--2014 & 1722.0 & 90.4 & -861.0 & 45.2 \\ 
+  single-level beta--binomial: 1985--2014 & 1724.9 & 90.6 & -862.5 & 45.3 \\ 
+  single-level beta--binomial: 1995--2014 & 1744.5 & 92.9 & -872.2 & 46.5 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -591,8 +596,8 @@ hierarchical beta--binomial: 1995--2014 & 1244.0 & 20.0 & -622.0 & 10.0 \\
 \end{table}
 
 \subsection*{Table S7}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:34:14 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:26:22 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -600,20 +605,20 @@ hierarchical beta--binomial: 1995--2014 & 1244.0 & 20.0 & -622.0 & 10.0 \\
   \hline
 Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: baseline & 1244.1 & 20.2 & -622.1 & 10.1 \\ 
-  hierarchical beta--binomial: with MSA Gini coefficient & 1247.4 & 19.8 & -623.7 & 9.9 \\ 
-  hierarchical beta--binomial: with MSA area & 1247.4 & 20.2 & -623.7 & 10.1 \\ 
-  hierarchical beta--binomial: without aridity & 1248.5 & 20.2 & -624.2 & 10.1 \\ 
-  hierarchical beta--binomial: with PVI/aridity interactions & 1248.7 & 20.9 & -624.4 & 10.5 \\ 
-  hierarchical beta--binomial: with pop.\ density & 1258.5 & 23.0 & -629.2 & 11.5 \\ 
-  hierarchical beta--binomial: without PVI & 1265.4 & 21.0 & -632.7 & 10.5 \\ 
-  hierarchical binomial: without aridity & 1315.8 & 43.2 & -657.9 & 21.6 \\ 
+hierarchical beta--binomial: baseline & 1244.3 & 20.2 & -622.2 & 10.1 \\ 
+  hierarchical beta--binomial: with MSA Gini coefficient & 1247.8 & 19.9 & -623.9 & 10.0 \\ 
+  hierarchical beta--binomial: with MSA area & 1248.0 & 20.2 & -624.0 & 10.1 \\ 
+  hierarchical beta--binomial: with PVI/aridity interactions & 1248.7 & 21.0 & -624.4 & 10.5 \\ 
+  hierarchical beta--binomial: with pop.\ density & 1258.6 & 22.9 & -629.3 & 11.4 \\ 
+  hierarchical beta--binomial: with pop.\ density and no PVI & 1264.1 & 23.3 & -632.0 & 11.6 \\ 
+  hierarchical beta--binomial: without PVI & 1265.4 & 21.1 & -632.7 & 10.5 \\ 
   hierarchical binomial: baseline & 1317.7 & 43.5 & -658.9 & 21.7 \\ 
-  hierarchical binomial: with MSA area & 1321.5 & 43.6 & -660.8 & 21.8 \\ 
-  hierarchical binomial: with MSA Gini coefficient & 1322.4 & 43.4 & -661.2 & 21.7 \\ 
-  hierarchical binomial: with PVI/aridity interactions & 1322.4 & 45.4 & -661.2 & 22.7 \\ 
-  hierarchical binomial: with pop.\ density & 1361.6 & 53.8 & -680.8 & 26.9 \\ 
-  hierarchical binomial: without PVI & 1372.7 & 49.8 & -686.3 & 24.9 \\ 
+  hierarchical binomial: with PVI/aridity interactions & 1322.8 & 45.5 & -661.4 & 22.7 \\ 
+  hierarchical binomial: with MSA Gini coefficient & 1322.9 & 43.4 & -661.5 & 21.7 \\ 
+  hierarchical binomial: with MSA area & 1323.6 & 43.6 & -661.8 & 21.8 \\ 
+  hierarchical binomial: with pop.\ density & 1361.6 & 53.6 & -680.8 & 26.8 \\ 
+  hierarchical binomial: without PVI & 1370.9 & 49.8 & -685.5 & 24.9 \\ 
+  hierarchical binomial: with pop.\ density and no PVI & 1381.4 & 57.2 & -690.7 & 28.6 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -622,8 +627,8 @@ hierarchical beta--binomial: baseline & 1244.1 & 20.2 & -622.1 & 10.1 \\
 \end{table}
 
 \subsection*{Table S8}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:34:14 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:26:22 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -631,20 +636,20 @@ hierarchical beta--binomial: baseline & 1244.1 & 20.2 & -622.1 & 10.1 \\
   \hline
 Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-single-level binomial: with PVI/aridity interactions & 1590.5 & 76.6 & -795.2 & 38.3 \\ 
-  single-level binomial: with MSA Gini coefficient & 1593.1 & 78.5 & -796.6 & 39.3 \\ 
-  single-level binomial: baseline & 1597.5 & 76.4 & -798.8 & 38.2 \\ 
-  single-level binomial: with MSA area & 1600.6 & 76.4 & -800.3 & 38.2 \\ 
-  single-level binomial: with pop.\ density & 1678.7 & 87.1 & -839.3 & 43.6 \\ 
-  single-level binomial: without PVI & 1684.2 & 89.2 & -842.1 & 44.6 \\ 
-  single-level beta--binomial: baseline & 1716.6 & 89.5 & -858.3 & 44.8 \\ 
-  single-level beta--binomial: with MSA Gini coefficient & 1726.2 & 93.0 & -863.1 & 46.5 \\ 
-  single-level beta--binomial: with PVI/aridity interactions & 1745.1 & 95.6 & -872.6 & 47.8 \\ 
-  single-level beta--binomial: with MSA area & 1769.3 & 100.0 & -884.6 & 50.0 \\ 
-  single-level beta--binomial: with pop.\ density & 1814.3 & 98.1 & -907.2 & 49.1 \\ 
-  single-level beta--binomial: without PVI & 1815.9 & 99.9 & -907.9 & 49.9 \\ 
-  single-level binomial: without aridity & 1849.6 & 112.0 & -924.8 & 56.0 \\ 
-  single-level beta--binomial: without aridity & 2058.0 & 137.5 & -1029.0 & 68.7 \\ 
+single-level binomial: with PVI/aridity interactions & 1590.9 & 76.8 & -795.5 & 38.4 \\ 
+  single-level binomial: with MSA Gini coefficient & 1591.8 & 78.4 & -795.9 & 39.2 \\ 
+  single-level binomial: baseline & 1598.1 & 76.5 & -799.0 & 38.2 \\ 
+  single-level binomial: with MSA area & 1599.3 & 76.1 & -799.6 & 38.1 \\ 
+  single-level binomial: with pop.\ density & 1678.7 & 87.2 & -839.4 & 43.6 \\ 
+  single-level binomial: without PVI & 1683.7 & 89.1 & -841.9 & 44.6 \\ 
+  single-level binomial: with pop.\ density and no PVI & 1692.2 & 89.0 & -846.1 & 44.5 \\ 
+  single-level beta--binomial: baseline & 1724.9 & 90.6 & -862.5 & 45.3 \\ 
+  single-level beta--binomial: with MSA Gini coefficient & 1732.7 & 95.0 & -866.4 & 47.5 \\ 
+  single-level beta--binomial: with PVI/aridity interactions & 1745.9 & 96.4 & -873.0 & 48.2 \\ 
+  single-level beta--binomial: with MSA area & 1768.8 & 99.8 & -884.4 & 49.9 \\ 
+  single-level beta--binomial: with pop.\ density and no PVI & 1805.5 & 96.3 & -902.8 & 48.2 \\ 
+  single-level beta--binomial: without PVI & 1809.0 & 99.4 & -904.5 & 49.7 \\ 
+  single-level beta--binomial: with pop.\ density & 1810.6 & 97.6 & -905.3 & 48.8 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -655,8 +660,8 @@ single-level binomial: with PVI/aridity interactions & 1590.5 & 76.6 & -795.2 & 
 
 
 \subsection*{Table S9}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:38:48 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:30:35 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -664,22 +669,22 @@ single-level binomial: with PVI/aridity interactions & 1590.5 & 76.6 & -795.2 & 
   \hline
 Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: 1970--2014 & 1249.1 & 20.5 & -624.5 & 10.2 \\ 
-  hierarchical beta--binomial: 1985--2014 & 1249.3 & 20.5 & -624.6 & 10.3 \\ 
-  hierarchical beta--binomial: 1995--2014 & 1249.3 & 20.4 & -624.7 & 10.2 \\ 
-  hierarchical beta--binomial: 2005--2014 & 1250.3 & 20.4 & -625.1 & 10.2 \\ 
-  hierarchical binomial: 1970--2014 & 1330.1 & 44.2 & -665.1 & 22.1 \\ 
-  hierarchical binomial: 1985--2014 & 1330.3 & 44.1 & -665.1 & 22.1 \\ 
-  hierarchical binomial: 2005--2014 & 1332.6 & 44.1 & -666.3 & 22.1 \\ 
-  hierarchical binomial: 1995--2014 & 1333.3 & 44.2 & -666.6 & 22.1 \\ 
-  single-level binomial: 2005--2014 & 1586.2 & 73.7 & -793.1 & 36.9 \\ 
-  single-level binomial: 1985--2014 & 1599.0 & 76.4 & -799.5 & 38.2 \\ 
-  single-level binomial: 1970--2014 & 1599.8 & 76.8 & -799.9 & 38.4 \\ 
-  single-level binomial: 1995--2014 & 1614.6 & 78.5 & -807.3 & 39.3 \\ 
-  single-level beta--binomial: 2005--2014 & 1722.7 & 89.5 & -861.3 & 44.7 \\ 
-  single-level beta--binomial: 1985--2014 & 1737.7 & 92.2 & -868.8 & 46.1 \\ 
-  single-level beta--binomial: 1970--2014 & 1741.7 & 93.3 & -870.9 & 46.6 \\ 
-  single-level beta--binomial: 1995--2014 & 1758.2 & 95.4 & -879.1 & 47.7 \\ 
+hierarchical beta--binomial: 2005--2014 & 1248.3 & 20.3 & -624.2 & 10.2 \\ 
+  hierarchical beta--binomial: 1995--2014 & 1248.6 & 20.4 & -624.3 & 10.2 \\ 
+  hierarchical beta--binomial: 1985--2014 & 1248.9 & 20.6 & -624.5 & 10.3 \\ 
+  hierarchical beta--binomial: 1970--2014 & 1249.0 & 20.5 & -624.5 & 10.2 \\ 
+  hierarchical binomial: 1995--2014 & 1328.3 & 43.8 & -664.1 & 21.9 \\ 
+  hierarchical binomial: 1985--2014 & 1329.1 & 44.1 & -664.6 & 22.0 \\ 
+  hierarchical binomial: 2005--2014 & 1329.5 & 43.7 & -664.7 & 21.9 \\ 
+  hierarchical binomial: 1970--2014 & 1330.8 & 44.3 & -665.4 & 22.1 \\ 
+  single-level binomial: 2005--2014 & 1585.9 & 73.7 & -793.0 & 36.9 \\ 
+  single-level binomial: 1985--2014 & 1597.7 & 76.3 & -798.8 & 38.2 \\ 
+  single-level binomial: 1970--2014 & 1599.6 & 76.7 & -799.8 & 38.3 \\ 
+  single-level binomial: 1995--2014 & 1614.8 & 78.4 & -807.4 & 39.2 \\ 
+  single-level beta--binomial: 2005--2014 & 1714.9 & 88.9 & -857.5 & 44.5 \\ 
+  single-level beta--binomial: 1985--2014 & 1726.8 & 91.6 & -863.4 & 45.8 \\ 
+  single-level beta--binomial: 1970--2014 & 1734.5 & 92.0 & -867.3 & 46.0 \\ 
+  single-level beta--binomial: 1995--2014 & 1765.4 & 95.6 & -882.7 & 47.8 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -688,8 +693,8 @@ hierarchical beta--binomial: 1970--2014 & 1249.1 & 20.5 & -624.5 & 10.2 \\
 \end{table}
 
 \subsection*{Table S10}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:38:48 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:30:35 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -697,20 +702,20 @@ hierarchical beta--binomial: 1970--2014 & 1249.1 & 20.5 & -624.5 & 10.2 \\
   \hline
 Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: baseline & 1249.3 & 20.5 & -624.6 & 10.3 \\ 
-  hierarchical beta--binomial: with MSA area & 1252.3 & 20.6 & -626.2 & 10.3 \\ 
-  hierarchical beta--binomial: with MSA Gini coefficient & 1252.8 & 20.4 & -626.4 & 10.2 \\ 
-  hierarchical beta--binomial: with PVI/aridity interactions & 1252.9 & 21.2 & -626.5 & 10.6 \\ 
-  hierarchical beta--binomial: without aridity & 1254.0 & 20.8 & -627.0 & 10.4 \\ 
-  hierarchical beta--binomial: with pop.\ density & 1262.7 & 23.1 & -631.4 & 11.5 \\ 
-  hierarchical beta--binomial: without PVI & 1268.1 & 21.2 & -634.0 & 10.6 \\ 
-  hierarchical binomial: without aridity & 1329.9 & 43.9 & -664.9 & 22.0 \\ 
-  hierarchical binomial: baseline & 1330.3 & 44.1 & -665.1 & 22.1 \\ 
-  hierarchical binomial: with PVI/aridity interactions & 1334.3 & 45.9 & -667.2 & 23.0 \\ 
-  hierarchical binomial: with MSA area & 1336.7 & 44.3 & -668.3 & 22.2 \\ 
-  hierarchical binomial: with MSA Gini coefficient & 1339.2 & 44.5 & -669.6 & 22.3 \\ 
-  hierarchical binomial: with pop.\ density & 1372.8 & 54.2 & -686.4 & 27.1 \\ 
-  hierarchical binomial: without PVI & 1386.8 & 50.6 & -693.4 & 25.3 \\ 
+hierarchical beta--binomial: baseline & 1248.9 & 20.6 & -624.5 & 10.3 \\ 
+  hierarchical beta--binomial: with MSA area & 1252.5 & 20.6 & -626.3 & 10.3 \\ 
+  hierarchical beta--binomial: with MSA Gini coefficient & 1252.6 & 20.3 & -626.3 & 10.2 \\ 
+  hierarchical beta--binomial: with PVI/aridity interactions & 1254.8 & 21.2 & -627.4 & 10.6 \\ 
+  hierarchical beta--binomial: with pop.\ density & 1262.1 & 23.0 & -631.0 & 11.5 \\ 
+  hierarchical beta--binomial: with pop.\ density and no PVI & 1266.7 & 23.4 & -633.3 & 11.7 \\ 
+  hierarchical beta--binomial: without PVI & 1269.1 & 21.3 & -634.6 & 10.6 \\ 
+  hierarchical binomial: baseline & 1329.1 & 44.1 & -664.6 & 22.0 \\ 
+  hierarchical binomial: with PVI/aridity interactions & 1332.4 & 45.9 & -666.2 & 22.9 \\ 
+  hierarchical binomial: with MSA area & 1335.4 & 44.3 & -667.7 & 22.1 \\ 
+  hierarchical binomial: with MSA Gini coefficient & 1337.5 & 44.4 & -668.8 & 22.2 \\ 
+  hierarchical binomial: with pop.\ density & 1370.5 & 54.1 & -685.3 & 27.0 \\ 
+  hierarchical binomial: without PVI & 1380.0 & 49.9 & -690.0 & 25.0 \\ 
+  hierarchical binomial: with pop.\ density and no PVI & 1388.7 & 57.4 & -694.3 & 28.7 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -720,8 +725,8 @@ hierarchical beta--binomial: baseline & 1249.3 & 20.5 & -624.6 & 10.3 \\
 
 
 \subsection*{Table S11}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:38:48 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:30:35 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -729,20 +734,20 @@ hierarchical beta--binomial: baseline & 1249.3 & 20.5 & -624.6 & 10.3 \\
   \hline
 Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-single-level binomial: with PVI/aridity interactions & 1590.9 & 76.6 & -795.4 & 38.3 \\ 
-  single-level binomial: with MSA Gini coefficient & 1591.8 & 78.2 & -795.9 & 39.1 \\ 
-  single-level binomial: baseline & 1599.0 & 76.4 & -799.5 & 38.2 \\ 
-  single-level binomial: with MSA area & 1601.9 & 76.6 & -801.0 & 38.3 \\ 
-  single-level binomial: with pop.\ density & 1678.9 & 87.2 & -839.4 & 43.6 \\ 
-  single-level binomial: without PVI & 1683.9 & 89.1 & -842.0 & 44.6 \\ 
-  single-level beta--binomial: baseline & 1737.7 & 92.2 & -868.8 & 46.1 \\ 
-  single-level beta--binomial: with MSA Gini coefficient & 1750.3 & 97.0 & -875.1 & 48.5 \\ 
-  single-level beta--binomial: with PVI/aridity interactions & 1770.8 & 99.5 & -885.4 & 49.8 \\ 
-  single-level beta--binomial: with MSA area & 1788.8 & 103.5 & -894.4 & 51.7 \\ 
-  single-level beta--binomial: without PVI & 1817.6 & 100.4 & -908.8 & 50.2 \\ 
-  single-level beta--binomial: with pop.\ density & 1833.4 & 99.9 & -916.7 & 49.9 \\ 
-  single-level binomial: without aridity & 1850.4 & 112.0 & -925.2 & 56.0 \\ 
-  single-level beta--binomial: without aridity & 2083.3 & 139.8 & -1041.7 & 69.9 \\ 
+single-level binomial: with PVI/aridity interactions & 1591.2 & 76.8 & -795.6 & 38.4 \\ 
+  single-level binomial: with MSA Gini coefficient & 1593.3 & 78.6 & -796.6 & 39.3 \\ 
+  single-level binomial: baseline & 1597.7 & 76.3 & -798.8 & 38.2 \\ 
+  single-level binomial: with MSA area & 1603.4 & 76.8 & -801.7 & 38.4 \\ 
+  single-level binomial: with pop.\ density & 1679.2 & 87.2 & -839.6 & 43.6 \\ 
+  single-level binomial: without PVI & 1683.7 & 89.1 & -841.9 & 44.6 \\ 
+  single-level binomial: with pop.\ density and no PVI & 1691.6 & 88.9 & -845.8 & 44.4 \\ 
+  single-level beta--binomial: baseline & 1726.8 & 91.6 & -863.4 & 45.8 \\ 
+  single-level beta--binomial: with MSA Gini coefficient & 1749.0 & 96.6 & -874.5 & 48.3 \\ 
+  single-level beta--binomial: with PVI/aridity interactions & 1772.6 & 99.1 & -886.3 & 49.5 \\ 
+  single-level beta--binomial: with MSA area & 1779.2 & 102.5 & -889.6 & 51.3 \\ 
+  single-level beta--binomial: with pop.\ density and no PVI & 1817.8 & 97.3 & -908.9 & 48.7 \\ 
+  single-level beta--binomial: without PVI & 1819.6 & 100.4 & -909.8 & 50.2 \\ 
+  single-level beta--binomial: with pop.\ density & 1835.9 & 100.7 & -918.0 & 50.3 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -752,8 +757,8 @@ single-level binomial: with PVI/aridity interactions & 1590.9 & 76.6 & -795.4 & 
 
 
 \subsection*{Table S12}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:38:48 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:30:35 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -761,22 +766,22 @@ single-level binomial: with PVI/aridity interactions & 1590.9 & 76.6 & -795.4 & 
   \hline
 Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: 1970--2014 & 1244.8 & 20.2 & -622.4 & 10.1 \\ 
-  hierarchical beta--binomial: 1985--2014 & 1245.1 & 20.2 & -622.5 & 10.1 \\ 
-  hierarchical beta--binomial: 1995--2014 & 1245.3 & 20.1 & -622.6 & 10.0 \\ 
-  hierarchical beta--binomial: 2005--2014 & 1246.0 & 20.0 & -623.0 & 10.0 \\ 
-  hierarchical binomial: 1985--2014 & 1317.6 & 43.4 & -658.8 & 21.7 \\ 
-  hierarchical binomial: 1970--2014 & 1317.7 & 43.5 & -658.9 & 21.7 \\ 
-  hierarchical binomial: 2005--2014 & 1319.1 & 43.3 & -659.5 & 21.7 \\ 
-  hierarchical binomial: 1995--2014 & 1319.1 & 43.4 & -659.6 & 21.7 \\ 
-  single-level binomial: 2005--2014 & 1585.3 & 73.5 & -792.6 & 36.8 \\ 
-  single-level binomial: 1985--2014 & 1598.4 & 76.3 & -799.2 & 38.2 \\ 
+hierarchical beta--binomial: 1995--2014 & 1244.4 & 20.1 & -622.2 & 10.0 \\ 
+  hierarchical beta--binomial: 2005--2014 & 1244.9 & 20.1 & -622.4 & 10.0 \\ 
+  hierarchical beta--binomial: 1970--2014 & 1244.9 & 20.2 & -622.4 & 10.1 \\ 
+  hierarchical beta--binomial: 1985--2014 & 1245.1 & 20.2 & -622.6 & 10.1 \\ 
+  hierarchical binomial: 1995--2014 & 1317.2 & 43.4 & -658.6 & 21.7 \\ 
+  hierarchical binomial: 1985--2014 & 1317.8 & 43.6 & -658.9 & 21.8 \\ 
+  hierarchical binomial: 2005--2014 & 1317.9 & 43.2 & -659.0 & 21.6 \\ 
+  hierarchical binomial: 1970--2014 & 1318.5 & 43.6 & -659.3 & 21.8 \\ 
+  single-level binomial: 2005--2014 & 1585.1 & 73.5 & -792.6 & 36.8 \\ 
+  single-level binomial: 1985--2014 & 1597.1 & 76.3 & -798.6 & 38.1 \\ 
   single-level binomial: 1970--2014 & 1599.1 & 76.6 & -799.6 & 38.3 \\ 
-  single-level binomial: 1995--2014 & 1614.1 & 78.4 & -807.0 & 39.2 \\ 
-  single-level beta--binomial: 2005--2014 & 1705.3 & 86.9 & -852.7 & 43.4 \\ 
-  single-level beta--binomial: 1985--2014 & 1721.3 & 89.8 & -860.6 & 44.9 \\ 
-  single-level beta--binomial: 1970--2014 & 1725.9 & 91.0 & -863.0 & 45.5 \\ 
-  single-level beta--binomial: 1995--2014 & 1741.8 & 92.6 & -870.9 & 46.3 \\ 
+  single-level binomial: 1995--2014 & 1614.3 & 78.4 & -807.2 & 39.2 \\ 
+  single-level beta--binomial: 2005--2014 & 1699.0 & 86.2 & -849.5 & 43.1 \\ 
+  single-level beta--binomial: 1985--2014 & 1717.4 & 90.1 & -858.7 & 45.0 \\ 
+  single-level beta--binomial: 1970--2014 & 1722.5 & 90.3 & -861.3 & 45.1 \\ 
+  single-level beta--binomial: 1995--2014 & 1751.2 & 93.9 & -875.6 & 46.9 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -785,8 +790,8 @@ hierarchical beta--binomial: 1970--2014 & 1244.8 & 20.2 & -622.4 & 10.1 \\
 \end{table}
 
 \subsection*{Table S13}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:38:48 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:30:35 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -794,20 +799,20 @@ hierarchical beta--binomial: 1970--2014 & 1244.8 & 20.2 & -622.4 & 10.1 \\
   \hline
 Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-hierarchical beta--binomial: baseline & 1245.1 & 20.2 & -622.5 & 10.1 \\ 
-  hierarchical beta--binomial: with MSA area & 1247.4 & 20.2 & -623.7 & 10.1 \\ 
-  hierarchical beta--binomial: with PVI/aridity interactions & 1247.8 & 20.8 & -623.9 & 10.4 \\ 
-  hierarchical beta--binomial: without aridity & 1248.0 & 20.3 & -624.0 & 10.1 \\ 
-  hierarchical beta--binomial: with MSA Gini coefficient & 1248.6 & 20.0 & -624.3 & 10.0 \\ 
-  hierarchical beta--binomial: with pop.\ density & 1260.1 & 22.9 & -630.0 & 11.5 \\ 
-  hierarchical beta--binomial: without PVI & 1264.6 & 21.0 & -632.3 & 10.5 \\ 
-  hierarchical binomial: without aridity & 1316.5 & 43.2 & -658.3 & 21.6 \\ 
-  hierarchical binomial: baseline & 1317.6 & 43.4 & -658.8 & 21.7 \\ 
-  hierarchical binomial: with PVI/aridity interactions & 1320.1 & 45.1 & -660.1 & 22.6 \\ 
-  hierarchical binomial: with MSA area & 1321.7 & 43.4 & -660.9 & 21.7 \\ 
-  hierarchical binomial: with MSA Gini coefficient & 1325.0 & 43.7 & -662.5 & 21.8 \\ 
-  hierarchical binomial: with pop.\ density & 1361.0 & 53.7 & -680.5 & 26.8 \\ 
-  hierarchical binomial: without PVI & 1371.9 & 49.7 & -685.9 & 24.9 \\ 
+hierarchical beta--binomial: baseline & 1245.1 & 20.2 & -622.6 & 10.1 \\ 
+  hierarchical beta--binomial: with MSA area & 1247.7 & 20.2 & -623.9 & 10.1 \\ 
+  hierarchical beta--binomial: with MSA Gini coefficient & 1248.7 & 20.0 & -624.4 & 10.0 \\ 
+  hierarchical beta--binomial: with PVI/aridity interactions & 1249.0 & 20.8 & -624.5 & 10.4 \\ 
+  hierarchical beta--binomial: with pop.\ density & 1259.1 & 22.8 & -629.6 & 11.4 \\ 
+  hierarchical beta--binomial: with pop.\ density and no PVI & 1264.5 & 23.3 & -632.3 & 11.7 \\ 
+  hierarchical beta--binomial: without PVI & 1265.3 & 21.0 & -632.7 & 10.5 \\ 
+  hierarchical binomial: baseline & 1317.8 & 43.6 & -658.9 & 21.8 \\ 
+  hierarchical binomial: with PVI/aridity interactions & 1319.8 & 45.0 & -659.9 & 22.5 \\ 
+  hierarchical binomial: with MSA area & 1321.4 & 43.6 & -660.7 & 21.8 \\ 
+  hierarchical binomial: with MSA Gini coefficient & 1324.2 & 43.5 & -662.1 & 21.8 \\ 
+  hierarchical binomial: with pop.\ density & 1360.6 & 53.7 & -680.3 & 26.9 \\ 
+  hierarchical binomial: without PVI & 1368.9 & 49.5 & -684.4 & 24.8 \\ 
+  hierarchical binomial: with pop.\ density and no PVI & 1379.5 & 57.2 & -689.7 & 28.6 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -816,8 +821,8 @@ hierarchical beta--binomial: baseline & 1245.1 & 20.2 & -622.5 & 10.1 \\
 \end{table}
 
 \subsection*{Table S14}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Sun Mar 25 23:38:48 2018
+% latex table generated in R 3.5.0 by xtable 1.8-2 package
+% Mon May 14 23:30:35 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -825,20 +830,20 @@ hierarchical beta--binomial: baseline & 1245.1 & 20.2 & -622.5 & 10.1 \\
   \hline
 Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
-single-level binomial: with PVI/aridity interactions & 1589.3 & 76.4 & -794.7 & 38.2 \\ 
-  single-level binomial: with MSA Gini coefficient & 1591.3 & 78.1 & -795.6 & 39.1 \\ 
-  single-level binomial: baseline & 1598.4 & 76.3 & -799.2 & 38.2 \\ 
-  single-level binomial: with MSA area & 1600.5 & 76.4 & -800.2 & 38.2 \\ 
-  single-level binomial: with pop.\ density & 1678.2 & 87.2 & -839.1 & 43.6 \\ 
-  single-level binomial: without PVI & 1683.6 & 89.1 & -841.8 & 44.5 \\ 
-  single-level beta--binomial: baseline & 1721.3 & 89.8 & -860.6 & 44.9 \\ 
-  single-level beta--binomial: with MSA Gini coefficient & 1730.6 & 94.3 & -865.3 & 47.2 \\ 
-  single-level beta--binomial: with PVI/aridity interactions & 1744.8 & 96.1 & -872.4 & 48.1 \\ 
-  single-level beta--binomial: with MSA area & 1761.8 & 97.6 & -880.9 & 48.8 \\ 
-  single-level beta--binomial: without PVI & 1805.8 & 99.1 & -902.9 & 49.6 \\ 
-  single-level beta--binomial: with pop.\ density & 1815.5 & 98.1 & -907.7 & 49.1 \\ 
-  single-level binomial: without aridity & 1849.3 & 111.8 & -924.7 & 55.9 \\ 
-  single-level beta--binomial: without aridity & 2056.3 & 136.4 & -1028.2 & 68.2 \\ 
+single-level binomial: with PVI/aridity interactions & 1590.2 & 76.7 & -795.1 & 38.3 \\ 
+  single-level binomial: with MSA Gini coefficient & 1592.7 & 78.5 & -796.3 & 39.3 \\ 
+  single-level binomial: baseline & 1597.1 & 76.3 & -798.6 & 38.1 \\ 
+  single-level binomial: with MSA area & 1601.6 & 76.5 & -800.8 & 38.3 \\ 
+  single-level binomial: with pop.\ density & 1678.8 & 87.2 & -839.4 & 43.6 \\ 
+  single-level binomial: without PVI & 1683.4 & 89.1 & -841.7 & 44.5 \\ 
+  single-level binomial: with pop.\ density and no PVI & 1691.4 & 88.9 & -845.7 & 44.4 \\ 
+  single-level beta--binomial: baseline & 1717.4 & 90.1 & -858.7 & 45.0 \\ 
+  single-level beta--binomial: with MSA Gini coefficient & 1731.1 & 94.3 & -865.5 & 47.2 \\ 
+  single-level beta--binomial: with PVI/aridity interactions & 1748.3 & 96.5 & -874.1 & 48.3 \\ 
+  single-level beta--binomial: with MSA area & 1761.1 & 98.6 & -880.5 & 49.3 \\ 
+  single-level beta--binomial: with pop.\ density and no PVI & 1807.0 & 96.6 & -903.5 & 48.3 \\ 
+  single-level beta--binomial: without PVI & 1807.5 & 99.1 & -903.8 & 49.5 \\ 
+  single-level beta--binomial: with pop.\ density & 1817.4 & 98.4 & -908.7 & 49.2 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -851,6 +856,7 @@ single-level binomial: with PVI/aridity interactions & 1589.3 & 76.4 & -794.7 & 
 \subsection*{Table S15 Caption}
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{Posterior probability distributions of regression coefficients for VWCI: mean, standard error of the mean, standard deviation of the posterior, quantiles of the posterior, and the Gelman-Rubin potential scale-reduction factor $\hat R$. $\gamma$ coefficients correspond to state-level effects, $\beta$ coefficients to MSA-level effects, $\delta$ coefficients represent state-level intercepts, $\alpha_0$ is the overall intercept, and $\phi$ characterizes the overdispersion of the beta-binomial distribution. For more detail, see Materials and Methods.}
 \label{tab:vwci_posterior}
 \end{table}
@@ -859,6 +865,7 @@ single-level binomial: with PVI/aridity interactions & 1589.3 & 76.4 & -794.7 & 
 \subsection*{Table S16 Caption}
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{Posterior probability distribution of regression coefficients for requirements}
 \label{tab:req_posterior}
 \end{table}
@@ -867,6 +874,7 @@ single-level binomial: with PVI/aridity interactions & 1589.3 & 76.4 & -794.7 & 
 \subsection*{Table S17 Caption}
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{Posterior probability distribution of regression coefficients for rebates}
 \label{tab:reb_posterior}
 \end{table}
@@ -876,6 +884,8 @@ single-level binomial: with PVI/aridity interactions & 1589.3 & 76.4 & -794.7 & 
 \section*{Captions for Datasets S1--S4}
 
 \subsection*{Dataset S1: MSA-Level Data}
+
+Dataset S1 is available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 
 This dataset contains MSA-level data: the FIPS (Federal Information Processing Standard) code for the MSA,
 the name of the MSA, the central city, state, latitude, longitude,
@@ -888,9 +898,13 @@ the BEA 2014 regional price parity and per-capita real personal income for the M
 
 \subsection*{Dataset S2: MSA-Level Data Codebook}
 
+Dataset S2 is available at \url{https://doi.org/10.6084/m9.figshare.5714944}
+
 This dataset contains a codebook explaining the variable corresponding to each column in Dataset S1.
 
 \subsection*{Dataset S3: State-Level Data}
+
+Dataset S3 is available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 
 This dataset contains stae-level data: the FIPS code for the state, the abbreviation and name of the state,
 the average annual precipitation (in millimeters), temperature (in Celsius), and K\"oppen aridity index for the state,
@@ -900,59 +914,64 @@ and the BEA 2014 state-level regional price parity and per-capita real personal 
 
 \subsection*{Dataset S4: State-Level Data Codebook}
 
+Dataset S4 is available at \url{https://doi.org/10.6084/m9.figshare.5714944}
+
 This dataset contains a codebook explaining the variable corresponding to each column in Dataset S3.
 
 \section*{Data Analysis Scripts S1}
 
-The zip file \verb+scripts_S1.zip+ contains R and Stan scripts to reproduce the
-regression analysis presented here.
-To reproduce the analysis, unzip the file with the scripts, copy Datasets S1
-and S3 into the \verb+data+ subdirectory, and run the scripts
-\verb+gilligan_vwci_ef_2017.R+ and \verb+gilligan_vwci_ef_si.R+ in R.
+Full R code to reproduce this analysis is available at \url{https://github.com/jonathan-g/urban_water_conservation.git}
+
+% The zip file \verb+scripts_S1.zip+ contains R and Stan scripts to reproduce the
+% regression analysis presented here.
+% To reproduce the analysis, unzip the file with the scripts, copy Datasets S1
+% and S3 into the \verb+data+ subdirectory, and run the scripts
+% \verb+gilligan_vwci_ef_2017.R+ and \verb+gilligan_vwci_ef_si.R+ in R.
 
 This paper was produced with the following R packages:
 
 \begin{itemize}\raggedright
-  \item R version 3.4.4 (2018-03-15), \verb|x86_64-w64-mingw32|
+  \item R version 3.5.0 (2018-04-23), \verb|x86_64-w64-mingw32|
   \item Locale: \verb|LC_COLLATE=English_United States.1252|, \verb|LC_CTYPE=English_United States.1252|, \verb|LC_MONETARY=English_United States.1252|, \verb|LC_NUMERIC=C|, \verb|LC_TIME=English_United States.1252|
   \item Running under: \verb|Windows 10 x64 (build 16299)|
   \item Matrix products: default
   \item Base packages: base, datasets, graphics, grDevices,
     methods, parallel, stats, utils
-  \item Other packages: bindrcpp~0.2, bitops~1.0-6, broom~0.4.3,
+  \item Other packages: bindrcpp~0.2.2, bitops~1.0-6, broom~0.4.4,
     cowplot~0.9.2, dplyr~0.7.4, egg~0.2.0, extrafont~0.17,
     fontcm~1.1, forcats~0.3.0, geosphere~1.5-7, ggmap~2.6.1,
-    ggplot2~2.2.1.9000, ggrepel~0.7.0, ggthemes~3.4.0,
-    gridExtra~2.3, hms~0.4.2, janitor~0.3.1, jgally~1.2.9.9999,
-    jgmcmc~1.1.1, knitr~1.20, lazyeval~0.2.1, loo~1.1.0,
-    lubridate~1.7.3, magrittr~1.5, maps~3.2.0, ncdf4~1.16,
+    ggplot2~2.2.1.9000, ggrepel~0.8.0, ggthemes~3.5.0,
+    gridExtra~2.3, hms~0.4.2, janitor~1.0.0, jgally~1.3.2.9999,
+    jgmcmc~1.1.1, knitr~1.20, lazyeval~0.2.1, loo~2.0.0,
+    lubridate~1.7.4, magrittr~1.5, maps~3.3.0, ncdf4~1.16,
     pacman~0.4.6, purrr~0.2.4, raster~2.6-7, RColorBrewer~1.1-2,
-    RCurl~1.95-4.10, readr~1.1.1, readxl~1.0.0, rlang~0.2.0.9000,
-    rstan~2.17.3, shiny~1.0.5, shinystan~2.4.0, sp~1.2-7,
+    RCurl~1.95-4.10, readr~1.1.1, readxl~1.1.0, rlang~0.2.0.9001,
+    rstan~2.17.3, shiny~1.0.5, shinystan~2.5.0, sp~1.2-7,
     StanHeaders~2.17.2, stringr~1.3.0, tibble~1.4.2, tidyr~0.8.0,
-    tidyverse~1.2.1, viridis~0.5.0, viridisLite~0.3.0,
+    tidyverse~1.2.1, viridis~0.5.1, viridisLite~0.3.0,
     xtable~1.8-2, zoo~1.8-1
   \item Loaded via a namespace (and not attached): abind~1.4-5,
-    arm~1.9-3, assertthat~0.2.0, base64enc~0.1-3, bayesplot~1.4.0,
-    bindr~0.1.1, cellranger~1.1.0, cli~1.0.0, coda~0.19-1,
-    colorspace~1.3-2, colourpicker~1.0, compiler~3.4.4,
-    crayon~1.3.4, crosstalk~1.0.0, digest~0.6.15, DT~0.4,
-    dygraphs~1.1.1.4, evaluate~0.10.1, extrafontdb~1.0,
-    foreign~0.8-69, GGally~1.3.2, glue~1.2.0, grid~3.4.4,
-    gtable~0.2.0, gtools~3.5.0, haven~1.1.1, htmltools~0.3.6,
-    htmlwidgets~1.0, httpuv~1.3.6.2, httr~1.3.1, igraph~1.2.1,
-    inline~0.3.14, jpeg~0.1-8, jsonlite~1.5, labeling~0.3,
-    lattice~0.20-35, lme4~1.1-15, mapproj~1.2-5, markdown~0.8,
-    MASS~7.3-49, Matrix~1.2-12, matrixStats~0.53.1, mime~0.5,
-    miniUI~0.1.1, minqa~1.2.4, mnormt~1.5-5, modelr~0.1.1,
-    munsell~0.4.3, nlme~3.1-131.1, nloptr~1.0.4, pillar~1.2.1,
-    pkgconfig~2.0.1, plyr~1.8.4, png~0.1-7, proto~1.0.0,
-    psych~1.7.8, R6~2.2.2, Rcpp~0.12.16, reshape~0.8.7,
-    reshape2~1.4.3, RgoogleMaps~1.4.1, rjson~0.2.15,
-    rsconnect~0.8.8, rstudioapi~0.7, Rttf2pt1~1.3.6, rvest~0.3.2,
+    arm~1.10-1, assertthat~0.2.0, base64enc~0.1-3,
+    bayesplot~1.5.0, bindr~0.1.1, cellranger~1.1.0, cli~1.0.0,
+    coda~0.19-1, colorspace~1.3-2, colourpicker~1.0,
+    compiler~3.5.0, crayon~1.3.4, crosstalk~1.0.0, digest~0.6.15,
+    DT~0.4, dygraphs~1.1.1.4, evaluate~0.10.1, extrafontdb~1.0,
+    foreign~0.8-70, GGally~1.3.2, ggridges~0.5.0, glue~1.2.0,
+    grid~3.5.0, gtable~0.2.0, gtools~3.5.0, haven~1.1.1,
+    htmltools~0.3.6, htmlwidgets~1.2, httpuv~1.4.2, httr~1.3.1,
+    igraph~1.2.1, inline~0.3.14, jpeg~0.1-8, jsonlite~1.5,
+    labeling~0.3, later~0.7.2, lattice~0.20-35, lme4~1.1-17,
+    mapproj~1.2.6, markdown~0.8, MASS~7.3-50, Matrix~1.2-14,
+    matrixStats~0.53.1, mime~0.5, miniUI~0.1.1, minqa~1.2.4,
+    mnormt~1.5-5, modelr~0.1.1, munsell~0.4.3, nlme~3.1-137,
+    nloptr~1.0.4, pillar~1.2.2, pkgconfig~2.0.1, plyr~1.8.4,
+    png~0.1-7, promises~1.0.1, proto~1.0.0, psych~1.8.4, R6~2.2.2,
+    Rcpp~0.12.16, reshape~0.8.7, reshape2~1.4.3,
+    RgoogleMaps~1.4.1, rjson~0.2.18, rsconnect~0.8.8,
+    rstudioapi~0.7, Rttf2pt1~1.3.6, rvest~0.3.2,
     scales~0.5.0.9000, shinyjs~1.0, shinythemes~1.1.1,
-    splines~3.4.4, stats4~3.4.4, stringi~1.1.7, threejs~0.3.1,
-    tidyselect~0.2.4, tools~3.4.4, withr~2.1.2, xml2~1.2.0,
+    splines~3.5.0, stats4~3.5.0, stringi~1.1.7, threejs~0.3.1,
+    tidyselect~0.2.4, tools~3.5.0, withr~2.1.2, xml2~1.2.0,
     xts~0.10-2
 \end{itemize}
 
@@ -967,6 +986,7 @@ This paper was produced with the following R packages:
 \setcounter{table}{0}%
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{Conservation scores and covariates for  cities: VWCI = Vanderbilt Water Conservation Index (total \# of conservation measures), Req.\ = \# requirements, Reb.\ = \# rebates, PVI = Cook Partisan Voting Index, Aridity = K\"oppen aridity index, RPI\ = per-capita real personal income (thousands of regionally adjusted chained 2009 dollars), Pop.\ = population (thousands), Growth = population growth rate (2010--2014), Surf.\ W.\ = surface-water fraction.}
 \end{table}
 
@@ -975,6 +995,7 @@ This paper was produced with the following R packages:
 \setcounter{table}{1}%
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{State-level covariates: PVI = Cook Partisan Voting Index, RPI = per-capita real personal income (thousands of regionally-adjusted chained 2009 dollars), Aridity = the K\"oppen aridity index, Surf.\ W.\ = the surface-water fraction.}
 \end{table}
 
@@ -983,6 +1004,7 @@ This paper was produced with the following R packages:
 \setcounter{table}{14}%
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{Posterior probability distributions of regression coefficients for VWCI: mean, standard error of the mean, standard deviation of the posterior, quantiles of the posterior, and the Gelman-Rubin potential scale-reduction factor $\hat R$. $\gamma$ coefficients correspond to state-level effects, $\beta$ coefficients to MSA-level effects, $\delta$ coefficients represent state-level intercepts, $\alpha_0$ is the overall intercept, and $\phi$ characterizes the overdispersion of the beta-binomial distribution. For more detail, see Materials and Methods.}
 \end{table}
 
@@ -991,6 +1013,7 @@ This paper was produced with the following R packages:
 \setcounter{table}{15}%
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{Posterior probability distribution of regression coefficients for requirements}
 \end{table}
 
@@ -999,6 +1022,7 @@ This paper was produced with the following R packages:
 \setcounter{table}{16}%
 \begin{table}[H]
 \centering
+Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 \caption{Posterior probability distribution of regression coefficients for rebates}
 \end{table}
 
@@ -1081,12 +1105,18 @@ This paper was produced with the following R packages:
   \textit{Annals of Applied Statistics}, \textit{2}, 1360--1383.
   \url{https://doi.org/10.1214/08-AOAS191}.
 
-\bibitem[{\textit{Gelman et~al.}(2014)\textit{Gelman, Carlin, Stern, Dunson,
+\bibitem[{\textit{Gelman et~al.}(2014a)\textit{Gelman, Carlin, Stern, Dunson,
   Vehtari, and Rubin}}]{gelman:bda:2014}
   Gelman, A., Carlin, J.~B., Stern, H.~S., Dunson, D.~B., Vehtari, A., \&
-  Rubin, D.~B. (2014).
+  Rubin, D.~B. (2014a).
   \textit{{B}ayesian Data Analysis}, 3rd ed.
   Boca Raton, FL: CRC.
+
+\bibitem[{\textit{Gelman et~al.}(2014b)\textit{Gelman, Hwang, and Vehtari}}]{gelman:predictive:2014}
+  Gelman, A., Hwang, J., \& Vehtari, A. (2014b).
+  Understanding predictive information criteria for Bayesian models.
+  \textit{Statistics and Computing}, \textit{24}, 997--1016.
+  \url{https://doi.org/10.1007/s11222-013-9416-2}.
 
 \bibitem[{\textit{Gleick}(2002)}]{gleick:soft.water.paths:2002}
   Gleick, P.~H. (2002).

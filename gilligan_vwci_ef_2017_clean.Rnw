@@ -2,7 +2,15 @@
 library(knitr)
 
 for_submission <- TRUE
-figures_dir <- "figures_clean/"
+if (for_submission) {
+  figures_dir <- "figures/"
+  cache_dir <- "cache/"
+  output_dir <- "output/"
+} else {
+  figures_dir <- "figures_clean/"
+  cache_dir <- "cache_clean/"
+  output_dir <- "output_clean"
+}
 
 my_tex_chunk_hook <- function(x, options) {
   ai = knitr:::output_asis(x, options)
@@ -42,7 +50,7 @@ opts_chunk$set(cache = FALSE, cache.lazy = FALSE,
                message = FALSE, warning = FALSE,
                error = FALSE, # stop knitting on errors
                out.width="0.8\\linewidth",
-               cache.path = "cache_clean/",
+               cache.path = cache_dir,
                fig.path = figures_dir)
 @
 \documentclass[draft,linenumbers]{agujournal}
@@ -119,7 +127,6 @@ theme_set(
 <<set_processing_vars, echo=F, eval=T, results='hide'>>=
 script_dir <- 'scripts'
 data_dir <- 'data'
-output_dir <- "output_clean"
 do_cache <- FALSE
 
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
@@ -198,8 +205,8 @@ process_city_aridity('data')
                    data.dir = 'data',
                    abs_rank = TRUE,
                    var_sel = c("vars_1", "vars_2", "vars_3", "vars_4", "vars_5",
-                               "vars_6", "vars_7", "vars_8", "vars_9", "vars_10"
-                               # "vars_11"
+                               "vars_6", "vars_7", "vars_8", "vars_9", "vars_10",
+                               "vars_11"
                                ),
                    beta = c(TRUE, FALSE), multilevel = c(TRUE, FALSE),
                    random_alpha = c(TRUE),
@@ -217,8 +224,8 @@ process_city_aridity('data')
                    data.dir = 'data',
                    abs_rank = TRUE,
                    var_sel = c("vars_1", "vars_2", "vars_3", "vars_4", "vars_5",
-                               "vars_6", "vars_7", "vars_8", "vars_9", "vars_10"
-                               # "vars_11"
+                               "vars_6", "vars_7", "vars_8", "vars_9", "vars_10",
+                               "vars_11"
                                ),
                    beta = c(TRUE, FALSE), multilevel = c(TRUE, FALSE),
                    random_alpha = c(TRUE),
@@ -303,9 +310,11 @@ table_captions <- c(
 %  Each must be 100 characters or less with no special characters or punctuation
 
 \begin{keypoints}
-\item Analysis of water conservation policies of \Sexpr{n_cities} cities in \Sexpr{n_states} states
+\item Analysis of water conservation policies of 195 cities in 45 states
 \item Water conservation policies correlate with both environmental and social variables
-\item Partisan voting patterns at both state and metropolitan levels account for much of the variation
+\item Correlations with partisan voting patterns explain
+much of the variation
+in policy adoption.
 \end{keypoints}
 
 %% ------------------------------------------------------------------------ %%
@@ -745,7 +754,7 @@ by its mean and the variance of the VWCI data was
 greater than a pure binomial
 distribution could account for,
 so our model uses a beta-binomial process, which allows for greater dispersion
-of scores by drawing the probabilities {$p_{im}$
+of scores by drawing the probabilities $p_{im}$
 for the different actions in city $i$ from a beta distribution with mean $p_i$
 \citep[pp.~437--38]{gelman:bda:2014}.
 
@@ -773,7 +782,7 @@ $\beta$ is a vector of MSA-level regression coefficients,
 $x$ is a matrix of MSA-level covariates,
 % ($x_{i,j}$ is the $j$th covariate for city $i$),
 % $\text{state}_i$ represents the state of city $i$,
-and {$\alpha_j$ is the intercept of the MSA-level regression
+and $\alpha_j$ is the intercept of the MSA-level regression
 for all cities in state $j$.
 %and $\epsilon_i$ represents random noise at the MSA-level, which we do not explicitly model.
 We do not include a noise term in Equation~\ref{eq:y} because random variations
@@ -798,12 +807,13 @@ accounted for by the regression model.
 We constrain $\delta$ to sum to zero in order to keep the model identifiable
 \citep[Ch.~23]{stan:manual:2015}.
 
-Standardizing independent variables to put them on a common scale serves both
+We standardized the independent variables $x$ and $w$ to put them on a common
+scale. This serves both
 to facilitate comparing the relative importance of variables whose natural scales are
 vastly different
 \citep[pp.~55--57]{gelman:prior:2008,gelman:arm:2007},
 and also to improve computational performance \citep{stan:manual:2015}.
-State-level covariates were rescaled to have means of zero and
+We rescaled the state-level covariates to have means of zero and
 standard deviations of 0.5, as recommended by \citet{gelman:prior:2008}
 and \citet[pp.~55--57]{gelman:arm:2007}:
 $w_{\text{scaled}} = (w - \mu_w) / (2 \sigma_w)$,
@@ -921,7 +931,7 @@ the Widely Applicable Information Criterion (WAIC)
 (Tables~S6--S8),
 and also by visual inspection of the distribution of posterior predictions of
 the mean, standard deviation, maximum, and minimum of VWCI over the cities in
-our data set \citep{gelman:bda:2014,vehtari:loo:2016}.
+our data set \citep{gelman:bda:2014,gelman:predictive:2014,vehtari:loo:2016}.
 All three methods favored the overdispersed beta-binomial model.
 These tests also strongly favored a
 hierarchical
@@ -1114,6 +1124,10 @@ we compared the results described above to three kinds of alternate regression
 analyses for the VWCI
 (See discussion of robustness, Figures~S5--S10, and Tables~S3--S14
 in Supporting Information).
+We compared the predictive accuracy of the different analyses using information-criteria scores
+\citep{gelman:predictive:2014,vehtari:loo:2016}
+and also considered whether the regression coefficients produced by the alternate were substantively
+different from those of the original analysis.
 
 First, we tested whether conservation policies might be more
 responsive to recent extreme events, such as drought, by varying the
@@ -1131,13 +1145,21 @@ In all of these analyses, regression coefficients $\beta$ and $\gamma$
 were consistent with the original model.
 The information criteria were also consistent with one another.
 In all of these analyses, the original set of covariates received the best
-scores by a small and insignificant margin.
+scores by a small
+margin.
 
 We also repeated the regression analysis removing either PVI or aridity
 (Figure~S7, Tables~S4 and~S7).
-Removing either of these covariates did not significantly change
-the regression coefficient of the remaining covariates, and the information
-criteria scores were worse in both cases.
+Removing either of these covariates
+reduced the quality of fit to the observations,
+as indicated by information criteria scores.
+The models with PVI removed showed the worst quality, which indicates that PVI
+made the greatest contribution to the quality of the fit and had the greatest predictive power
+of the covariates we considered.
+It is important to note that there was considerable uncertainty in the information criteria estimates, which makes it
+difficult to disentangle the specific contributions of each covariate.
+Therefore, we used information criteria scores primarily to compare the overall predictive accuracy of different
+model configurations \citep{gelman:predictive:2014}.
 
 In addition to comparing different choices of covariates, we also
 examined different structures for the regression models:
@@ -1167,9 +1189,10 @@ normalization and consistent with zero (Figures~S8--S10).
 We found an 85\% posterior probability that the coefficient of the state-level PVI
 is positive in the alternative normalization, which is suggestive but inconclusive.
 None of the other coefficients changed much.
-The information criteria for the alternate normalization were slightly,
-but not significantly, smaller than for the original normalization
-(Tables~S9--S14), so the
+The information criteria for the alternate normalization were
+slightly inferior to
+the original normalization (Tables~S9--S14),
+but the difference was negligible. The
 MSA-level PVI remains important in both schemes,
 but it is ambiguous whether it is
 better to interpret the data as indicating that both the state-level PVI
@@ -1222,6 +1245,24 @@ analysis in the study of water-conservation policy. The assumption that
 water scarcity drives water-conservation policy should be broadened to include
 the political context, at least in the U.S., where water conservation is associated
 with environmental policy and the Democratic Party.
+
+Water conservation policies are intrinsically political, so it should not be surprising
+that they correlate with partisan voting patterns. However, partisan voting patterns also
+correlate with other characteristics, such as population density and income inequality,
+so it is important to note that the strong correlation of water conservation policies with
+PVI does not imply that differences in PVI cause cities to adopt different numbers of conservation
+policies, because PVI could merely be correlated with the truly causal variables.
+We considered alternate models that incorporated the Gini coefficient of income inequality
+and the population density as well as models that omitted PVI. Those alternate models did not fit the data
+as well as the original model, and models that omitted PVI altogether showed the worst performance,
+although estimates of the information criteria, which we used to compare the models,
+were too uncertain to rule out any of the alternate models with high confidence.
+
+Because we have only observational data with no natural experiment, we do not believe
+that it would be possible to try to identify one characteristic as the primary causal factor in
+determining water conservation policy. Rather, we observe that of the different covariates we considered,
+PVI appears to be the best predictor in a statistical sense, but we emphasize that it may reflect
+complicated endogenous relationships between these variables, which we do not attempt to disaggregate.
 
 Our previous qualitative analysis of the 22~largest southwestern MSAs suggested
 that partisan differences over water conservation are more muted at the
@@ -1375,7 +1416,7 @@ from zero across all the conservation measures.
 Political preferences (how much a city or state leans toward the Democratic
 Party), are consistently significant at the MSA level, but their importance at the state
 level is ambiguous and depends on the way the statistical model is formulated.
-Economic well-being has smaller correlations with policies, but
+Prosperity has smaller correlations with policies, but
 does correlate with the
 categories of conservation policies a city is likely to favor.
 These results suggest that large, rapidly growing, and more politically liberal
@@ -1483,12 +1524,18 @@ posted publicly on github prior to publication.
   \textit{Annals of Applied Statistics}, \textit{2}, 1360--1383.
   \url{https://doi.org/10.1214/08-AOAS191}.
 
-\bibitem[{\textit{Gelman et~al.}(2014)\textit{Gelman, Carlin, Stern, Dunson,
+\bibitem[{\textit{Gelman et~al.}(2014a)\textit{Gelman, Carlin, Stern, Dunson,
   Vehtari, and Rubin}}]{gelman:bda:2014}
   Gelman, A., Carlin, J.~B., Stern, H.~S., Dunson, D.~B., Vehtari, A., \&
-  Rubin, D.~B. (2014).
+  Rubin, D.~B. (2014a).
   \textit{{B}ayesian Data Analysis}, 3rd ed.
   Boca Raton, FL: CRC.
+
+\bibitem[{\textit{Gelman et~al.}(2014b)\textit{Gelman, Hwang, and Vehtari}}]{gelman:predictive:2014}
+  Gelman, A., Hwang, J., \& Vehtari, A. (2014b).
+  Understanding predictive information criteria for Bayesian models.
+  \textit{Statistics and Computing}, \textit{24}, 997--1016.
+  \url{https://doi.org/10.1007/s11222-013-9416-2}.
 
 \bibitem[{\textit{Gleick}(2002)}]{gleick:soft.water.paths:2002}
   Gleick, P.~H. (2002).
