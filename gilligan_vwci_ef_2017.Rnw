@@ -481,7 +481,7 @@ fact of water scarcity.
 We subsequently expanded our database to the central cities in the
 \Sexpr{n_all_cities}~most populous MSAs in
 the United States \citep{hess:vwci:2017},
-which span \Sexpr{n_all_states} and comprise more than half of the 382~MSAs
+which span \Sexpr{n_all_states} \added{states} and comprise more than half of the 382~MSAs
 in the U.S.
 \citep{census:population:2015}. Here, we present the first quantitative
 analysis of the larger database, analyzing relationships between environmental
@@ -667,7 +667,7 @@ We selected explanatory variables with the goal of understanding the
 relative contribution of political-economic and hydroclimatological factors
 to policy adoption.
 We selected one political variable (the Cook Partisan Voting Index, PVI) for reasons
-described above and one economic variable (relative personal income, RPI).
+described above and one economic variable (\replaced{relative}{real} personal income, RPI).
 We calculated PVI using state- and county-level presidential votes averaged over the
 2008 and 2012 elections \citep{cook:pvi:2013,cq:elections:2016}
 (Tables~S1--S2 and Datasets~S1--S4).
@@ -682,7 +682,7 @@ or state, adjusted for inflation and the regional cost of living
 We obtained RPI for MSAs and states in 2014 from the
 \citet{bea:rpi:2016}.
 
-For the hydrological variables, we
+For the \replaced{hydrological}{hydroclimatological} variables, we
 obtained values for the MSA-level monthly average temperature ($T$) and monthly
 total precipitation ($P$) for the period 1900--2014 from the University of Delaware's
 gridded climate reanalysis
@@ -843,7 +843,7 @@ difference in water-conservation policies. This choice involved three decision c
 First, we selected the four main variables (Democratic-leaning, income, aridity, and
 surface water) on theoretical grounds described above with our goal of understanding the
 relative strength of political and economic factors and hydrogeological factors. The
-population variables were included as “controls.” This choice of variables allowed us to
+population variables were included as ``controls.'' This choice of variables allowed us to
 have a balanced approach to sociohydrological factors and to show that policy adoption is
 not a simple outcome of hydrological factors. Second, we selected the state-government
 level as the higher level for the model because water conservation policy is frequently
@@ -999,7 +999,7 @@ ggsave(file.path(output_dir, 'figures', 'fig_3.pdf'), p_cat, 'pdf', height=7.75,
 print(p_cat)
 @
 
-For all three conservation scores, the largest correlations were for state-level,
+For all three conservation scores, the largest \replaced{correlations}{effects}\explain{To be precise, this paragraph discusses effect sizes, not correlation coefficients.} were for state-level,
 as opposed to MSA-level, characteristics, but the posterior distributions show
 considerable overlap so it is important not to over-interpret the ranking of
 coefficients.
@@ -1135,7 +1135,8 @@ First, we tested whether conservation policies might be more
 responsive to recent extreme events, such as drought, by varying the
 period over which we averaged the aridity index.
 Both the regression coefficients and the information criteria were
-indistinguishable for the different averaging periods.
+indistinguishable for the different averaging periods
+\added{(Figure S5 and Tables S3 and S6)}.
 
 Second, we repeated the regression analysis
 with different sets of covariates:
@@ -1456,10 +1457,12 @@ Andrew Lockley and an anonymous reviewer.
 All data used for this paper are cited and listed in the references or
 included in the supplementary information.
 The complete VWCI data set with
-covariates is available on figshare at \url{https://doi.org/10.6084/m9.figshare.5714944},
+covariates is available on figshare at \url{https://doi.org/10.6084/m9.figshare.5714944}\replaced{,
 and \url{https://figshare.com/s/278fb7278d174163a2a9}.
 The code (R scripts and Stan models) used for this analysis, will be
-posted publicly on github prior to publication.
+posted publicly on github prior to publication.}{.
+The code (R scripts and Stan models) used for this analysis, are available at
+\url{https://github.com/jonathan-g/urban_water_conservation}.}
 %
 % Bibliography
 %\bibliography{gilligan_vwci_ef_2017}

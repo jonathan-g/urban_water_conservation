@@ -258,7 +258,7 @@ message("...finished reading pooled model fits")
 \section*{Additional Supporting Information}
 \begin{enumerate}
 \item Captions for Datasets S1 to S4
-\item Data Analysis Scripts S1 (zip file)
+\item Data Analysis Scripts S1
 \end{enumerate}
 
 
@@ -570,7 +570,7 @@ plot_vwci_pairs <- function(g) {
   g <- g %>% mutate(ParameterOriginal = str_replace_all(ParameterOriginal, '[\\[\\]_]+', '.'))
 
   pl_1 <- g %>% dplyr::select(Parameter, ParameterOriginal) %>% distinct() %>%
-    mutate(Parameter = str_replace_all(Parameter, fixed('alpha.0'), 'alpha[0]')) %>%
+    mutate(Parameter = str_replace_all(Parameter, 'alpha[._]0', 'alpha[0]')) %>%
     spread(key = ParameterOriginal, value = Parameter) %>% simplify()
 
   gs <- g  %>%
@@ -772,11 +772,12 @@ ggsave(file.path(si_output_dir, 'figures', 'fig_S6.pdf'), p_cat_vars, 'pdf', hei
 print(p_cat_vars)
 @
 
-<<vwci_pvi_cat_plots, cache=do_cache, include=TRUE, dependson="vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates.", fig.height=8, fig.width=6, out.width="6.25in">>=
+<<vwci_pvi_cat_plots, cache=do_cache, include=TRUE, dependson="vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates.", fig.height=8, fig.width=5, out.width="6.25in">>=
 p1 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
                             1, "(a)", "", TRUE,
                             "vars", "vwci") +
-  theme(legend.position = c(0.99,0.01),
+  theme(legend.position = c(0.01, 0.01),
+        legend.justification = c(0,0),
         axis.title.x = element_blank()
   )
 
@@ -787,18 +788,24 @@ p8 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
   )
 
 p9 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
-                             9, "(c)", "", FALSE,
+                             9, "(d)", "", FALSE,
                              "vars", "vwci") +
   theme(axis.title.x = element_blank()
   )
 
 p10 <- make_indexed_cat_plot(model_ggs, model_vars,  limits, param_levels,
-                             10, "(d)", "", FALSE,
+                             10, "(e)", "", FALSE,
                              "vars", "vwci")
 
-p_cat_pvi <- egg::ggarrange(p1, p8, p9, p10, ncol = 1, draw = FALSE)
+p11 <- make_indexed_cat_plot(model_ggs, model_vars, limits, param_levels,
+                             11, "(c)", "", FALSE,
+                             "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
 
-ggsave(file.path(si_output_dir, 'figures', 'fig_S7.pdf'), p_cat_pvi, 'pdf', height=9, width = 6)
+p_cat_pvi <- egg::ggarrange(p1, p8, p11, p9, p10, ncol = 1, draw = FALSE)
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S7.pdf'), p_cat_pvi, 'pdf', height=9, width = 5)
 
 print(p_cat_pvi)
 @
@@ -922,7 +929,7 @@ ggsave(file.path(si_output_dir, 'figures', 'fig_S10.pdf'), pp_cat_vars, 'pdf', h
 print(pp_cat_vars)
 @
 
-<<pooled_vwci_pvi_cat_plots, cache=do_cache, include=TRUE, dependson="pooled_vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates, using alternative scaling of MSA-level variables.", fig.height=8, fig.width=6, out.width="6.25in">>=
+<<pooled_vwci_pvi_cat_plots, cache=do_cache, include=TRUE, dependson="pooled_vwci_years_cat_plots", fig.cap="Regression coefficients for VWCI, with different covariates, using alternative scaling of MSA-level variables.", fig.height=8, fig.width=5, out.width="6.25in">>=
 pp1 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
                              1, "(a)", "(alt. scaling)", TRUE,
                              "vars", "vwci") +
@@ -937,18 +944,24 @@ pp8 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param
   )
 
 pp9 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
-                              9, "(c)", "(alt. scaling)", FALSE,
+                              9, "(d)", "(alt. scaling)", FALSE,
                               "vars", "vwci") +
   theme(axis.title.x = element_blank()
   )
 
 pp10 <- make_indexed_cat_plot(pooled_model_ggs, model_vars,  pooled_limits, param_levels,
-                              10, "(d)", "(alt. scaling)", FALSE,
-                              "vars", "vwci")
+                             10, "(e)", "(alt. scaling)", FALSE,
+                             "vars", "vwci")
 
-pp_cat_pvi <- egg::ggarrange(pp1, pp8, pp9, pp10, ncol = 1, draw = FALSE)
+pp11 <- make_indexed_cat_plot(pooled_model_ggs, model_vars, pooled_limits, param_levels,
+                             11, "(c)", "(alt. scaling)", FALSE,
+                             "vars", "vwci") +
+  theme(axis.title.x = element_blank()
+  )
 
-ggsave(file.path(si_output_dir, 'figures', 'fig_S11.pdf'), pp_cat_pvi, 'pdf', height=9, width = 6)
+pp_cat_pvi <- egg::ggarrange(pp1, pp8, pp11, pp9, pp10, ncol = 1, draw = FALSE)
+
+ggsave(file.path(si_output_dir, 'figures', 'fig_S11.pdf'), pp_cat_pvi, 'pdf', height=9, width = 5)
 
 print(pp_cat_pvi)
 @
@@ -1025,7 +1038,7 @@ model_names <- list(
 
 model_sets <- list(
   years = str_c('^sfit_', c("1", "2", "3", "4"), "_", collapse = "|"),
-  vars = str_c('^sfit_', c("1", "5", "6", "7", "8", "9", "10"), "_",
+  vars = str_c('^sfit_', c("1", "5", "6", "7", "8", "9", "10", "11"), "_",
                collapse = "|")
 )
 
@@ -1465,15 +1478,15 @@ cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n",
   \textit{Annals of Applied Statistics}, \textit{2}, 1360--1383.
   \url{https://doi.org/10.1214/08-AOAS191}.
 
-\bibitem[{\textit{Gelman et~al.}(2014a)\textit{Gelman, Carlin, Stern, Dunson,
+\bibitem[{\textit{Gelman et~al.}(2014{\natexlab{a}})\textit{Gelman, Carlin, Stern, Dunson,
   Vehtari, and Rubin}}]{gelman:bda:2014}
   Gelman, A., Carlin, J.~B., Stern, H.~S., Dunson, D.~B., Vehtari, A., \&
-  Rubin, D.~B. (2014a).
+  Rubin, D.~B. (2014{\natexlab{a}}).
   \textit{{B}ayesian Data Analysis}, 3rd ed.
   Boca Raton, FL: CRC.
 
-\bibitem[{\textit{Gelman et~al.}(2014b)\textit{Gelman, Hwang, and Vehtari}}]{gelman:predictive:2014}
-  Gelman, A., Hwang, J., \& Vehtari, A. (2014b).
+\bibitem[{\textit{Gelman et~al.}(2014{\natexlab{b}})\textit{Gelman, Hwang, and Vehtari}}]{gelman:predictive:2014}
+  Gelman, A., Hwang, J., \& Vehtari, A. (2014{\natexlab{b}}).
   Understanding predictive information criteria for Bayesian models.
   \textit{Statistics and Computing}, \textit{24}, 997--1016.
   \url{https://doi.org/10.1007/s11222-013-9416-2}.

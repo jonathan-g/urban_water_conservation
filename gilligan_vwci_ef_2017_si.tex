@@ -97,7 +97,7 @@
 \section*{Additional Supporting Information}
 \begin{enumerate}
 \item Captions for Datasets S1 to S4
-\item Data Analysis Scripts S1 (zip file)
+\item Data Analysis Scripts S1
 \end{enumerate}
 
 
@@ -218,7 +218,7 @@ We chose our explanatory variables based on theoretical considerations, as
 described in \citet{hess:drought:2016}. To test the robustness of our analysis,
 we compared the results described above to several kinds of alternate regression
 analyses for the VWCI, using the LOO-IC and WAIC information criteria to
-assess the predictive accuracy of the different analyses 
+assess the predictive accuracy of the different analyses
 \citep{gelman:predictive:2014,vehtari:loo:2016}.
 
 In the first series, we varied the interval over which we averaged
@@ -469,7 +469,7 @@ Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
 
 \subsection*{Table S3}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:26:22 2018
+% Wed May 16 00:18:48 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -502,7 +502,7 @@ hierarchical beta--binomial: 1995--2014 & 1248.4 & 20.3 & -624.2 & 10.1 \\
 
 \subsection*{Table S4}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:26:22 2018
+% Wed May 16 00:18:48 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -512,12 +512,14 @@ Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}
   \hline
 hierarchical beta--binomial: baseline & 1248.6 & 20.5 & -624.3 & 10.3 \\ 
   hierarchical beta--binomial: with MSA Gini coefficient & 1251.3 & 20.2 & -625.6 & 10.1 \\ 
+  hierarchical beta--binomial: without aridity & 1253.6 & 20.8 & -626.8 & 10.4 \\ 
   hierarchical beta--binomial: with MSA area & 1253.7 & 20.7 & -626.9 & 10.4 \\ 
   hierarchical beta--binomial: with PVI/aridity interactions & 1254.2 & 21.4 & -627.1 & 10.7 \\ 
   hierarchical beta--binomial: with pop.\ density & 1261.4 & 23.0 & -630.7 & 11.5 \\ 
   hierarchical beta--binomial: with pop.\ density and no PVI & 1266.4 & 23.4 & -633.2 & 11.7 \\ 
   hierarchical beta--binomial: without PVI & 1269.0 & 21.3 & -634.5 & 10.7 \\ 
   hierarchical binomial: baseline & 1328.3 & 43.9 & -664.1 & 22.0 \\ 
+  hierarchical binomial: without aridity & 1331.0 & 44.0 & -665.5 & 22.0 \\ 
   hierarchical binomial: with MSA Gini coefficient & 1334.5 & 43.9 & -667.2 & 22.0 \\ 
   hierarchical binomial: with PVI/aridity interactions & 1335.6 & 46.2 & -667.8 & 23.1 \\ 
   hierarchical binomial: with MSA area & 1338.0 & 44.3 & -669.0 & 22.2 \\ 
@@ -533,7 +535,7 @@ hierarchical beta--binomial: baseline & 1248.6 & 20.5 & -624.3 & 10.3 \\
 
 \subsection*{Table S5}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:26:22 2018
+% Wed May 16 00:18:48 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -555,6 +557,8 @@ single-level binomial: with PVI/aridity interactions & 1591.4 & 76.8 & -795.7 & 
   single-level beta--binomial: with pop.\ density and no PVI & 1821.1 & 97.9 & -910.6 & 48.9 \\ 
   single-level beta--binomial: without PVI & 1824.1 & 100.9 & -912.0 & 50.5 \\ 
   single-level beta--binomial: with pop.\ density & 1828.1 & 99.8 & -914.0 & 49.9 \\ 
+  single-level binomial: without aridity & 1850.9 & 112.0 & -925.4 & 56.0 \\ 
+  single-level beta--binomial: without aridity & 2068.9 & 137.1 & -1034.5 & 68.5 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -564,7 +568,7 @@ single-level binomial: with PVI/aridity interactions & 1591.4 & 76.8 & -795.7 & 
 
 \subsection*{Table S6}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:26:22 2018
+% Wed May 16 00:18:48 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -597,7 +601,7 @@ hierarchical beta--binomial: 1985--2014 & 1244.3 & 20.2 & -622.2 & 10.1 \\
 
 \subsection*{Table S7}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:26:22 2018
+% Wed May 16 00:18:48 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -606,12 +610,14 @@ hierarchical beta--binomial: 1985--2014 & 1244.3 & 20.2 & -622.2 & 10.1 \\
 Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
 hierarchical beta--binomial: baseline & 1244.3 & 20.2 & -622.2 & 10.1 \\ 
+  hierarchical beta--binomial: without aridity & 1247.7 & 20.2 & -623.9 & 10.1 \\ 
   hierarchical beta--binomial: with MSA Gini coefficient & 1247.8 & 19.9 & -623.9 & 10.0 \\ 
   hierarchical beta--binomial: with MSA area & 1248.0 & 20.2 & -624.0 & 10.1 \\ 
   hierarchical beta--binomial: with PVI/aridity interactions & 1248.7 & 21.0 & -624.4 & 10.5 \\ 
   hierarchical beta--binomial: with pop.\ density & 1258.6 & 22.9 & -629.3 & 11.4 \\ 
   hierarchical beta--binomial: with pop.\ density and no PVI & 1264.1 & 23.3 & -632.0 & 11.6 \\ 
   hierarchical beta--binomial: without PVI & 1265.4 & 21.1 & -632.7 & 10.5 \\ 
+  hierarchical binomial: without aridity & 1317.4 & 43.2 & -658.7 & 21.6 \\ 
   hierarchical binomial: baseline & 1317.7 & 43.5 & -658.9 & 21.7 \\ 
   hierarchical binomial: with PVI/aridity interactions & 1322.8 & 45.5 & -661.4 & 22.7 \\ 
   hierarchical binomial: with MSA Gini coefficient & 1322.9 & 43.4 & -661.5 & 21.7 \\ 
@@ -628,7 +634,7 @@ hierarchical beta--binomial: baseline & 1244.3 & 20.2 & -622.2 & 10.1 \\
 
 \subsection*{Table S8}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:26:22 2018
+% Wed May 16 00:18:48 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -650,6 +656,8 @@ single-level binomial: with PVI/aridity interactions & 1590.9 & 76.8 & -795.5 & 
   single-level beta--binomial: with pop.\ density and no PVI & 1805.5 & 96.3 & -902.8 & 48.2 \\ 
   single-level beta--binomial: without PVI & 1809.0 & 99.4 & -904.5 & 49.7 \\ 
   single-level beta--binomial: with pop.\ density & 1810.6 & 97.6 & -905.3 & 48.8 \\ 
+  single-level binomial: without aridity & 1850.6 & 112.0 & -925.3 & 56.0 \\ 
+  single-level beta--binomial: without aridity & 2060.8 & 137.6 & -1030.4 & 68.8 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -661,7 +669,7 @@ single-level binomial: with PVI/aridity interactions & 1590.9 & 76.8 & -795.5 & 
 
 \subsection*{Table S9}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:30:35 2018
+% Wed May 16 00:23:29 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -694,7 +702,7 @@ hierarchical beta--binomial: 2005--2014 & 1248.3 & 20.3 & -624.2 & 10.2 \\
 
 \subsection*{Table S10}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:30:35 2018
+% Wed May 16 00:23:29 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -705,11 +713,13 @@ Model & LOO-IC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{loo}}}
 hierarchical beta--binomial: baseline & 1248.9 & 20.6 & -624.5 & 10.3 \\ 
   hierarchical beta--binomial: with MSA area & 1252.5 & 20.6 & -626.3 & 10.3 \\ 
   hierarchical beta--binomial: with MSA Gini coefficient & 1252.6 & 20.3 & -626.3 & 10.2 \\ 
+  hierarchical beta--binomial: without aridity & 1252.7 & 20.7 & -626.3 & 10.4 \\ 
   hierarchical beta--binomial: with PVI/aridity interactions & 1254.8 & 21.2 & -627.4 & 10.6 \\ 
   hierarchical beta--binomial: with pop.\ density & 1262.1 & 23.0 & -631.0 & 11.5 \\ 
   hierarchical beta--binomial: with pop.\ density and no PVI & 1266.7 & 23.4 & -633.3 & 11.7 \\ 
   hierarchical beta--binomial: without PVI & 1269.1 & 21.3 & -634.6 & 10.6 \\ 
   hierarchical binomial: baseline & 1329.1 & 44.1 & -664.6 & 22.0 \\ 
+  hierarchical binomial: without aridity & 1329.6 & 43.5 & -664.8 & 21.8 \\ 
   hierarchical binomial: with PVI/aridity interactions & 1332.4 & 45.9 & -666.2 & 22.9 \\ 
   hierarchical binomial: with MSA area & 1335.4 & 44.3 & -667.7 & 22.1 \\ 
   hierarchical binomial: with MSA Gini coefficient & 1337.5 & 44.4 & -668.8 & 22.2 \\ 
@@ -726,7 +736,7 @@ hierarchical beta--binomial: baseline & 1248.9 & 20.6 & -624.5 & 10.3 \\
 
 \subsection*{Table S11}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:30:35 2018
+% Wed May 16 00:23:29 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -748,6 +758,8 @@ single-level binomial: with PVI/aridity interactions & 1591.2 & 76.8 & -795.6 & 
   single-level beta--binomial: with pop.\ density and no PVI & 1817.8 & 97.3 & -908.9 & 48.7 \\ 
   single-level beta--binomial: without PVI & 1819.6 & 100.4 & -909.8 & 50.2 \\ 
   single-level beta--binomial: with pop.\ density & 1835.9 & 100.7 & -918.0 & 50.3 \\ 
+  single-level binomial: without aridity & 1848.4 & 111.8 & -924.2 & 55.9 \\ 
+  single-level beta--binomial: without aridity & 2064.3 & 136.1 & -1032.1 & 68.1 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -758,7 +770,7 @@ single-level binomial: with PVI/aridity interactions & 1591.2 & 76.8 & -795.6 & 
 
 \subsection*{Table S12}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:30:35 2018
+% Wed May 16 00:23:29 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -791,7 +803,7 @@ hierarchical beta--binomial: 1995--2014 & 1244.4 & 20.1 & -622.2 & 10.0 \\
 
 \subsection*{Table S13}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:30:35 2018
+% Wed May 16 00:23:29 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -800,12 +812,14 @@ hierarchical beta--binomial: 1995--2014 & 1244.4 & 20.1 & -622.2 & 10.0 \\
 Model & WAIC & $\text{s.e.}_{\text{IC}}$ & $\text{ELPD}_{\text{\scshape{waic}}}$ & $\text{s.e.}_{\text{ELPD}}$ \\ 
   \hline
 hierarchical beta--binomial: baseline & 1245.1 & 20.2 & -622.6 & 10.1 \\ 
+  hierarchical beta--binomial: without aridity & 1247.4 & 20.3 & -623.7 & 10.1 \\ 
   hierarchical beta--binomial: with MSA area & 1247.7 & 20.2 & -623.9 & 10.1 \\ 
   hierarchical beta--binomial: with MSA Gini coefficient & 1248.7 & 20.0 & -624.4 & 10.0 \\ 
   hierarchical beta--binomial: with PVI/aridity interactions & 1249.0 & 20.8 & -624.5 & 10.4 \\ 
   hierarchical beta--binomial: with pop.\ density & 1259.1 & 22.8 & -629.6 & 11.4 \\ 
   hierarchical beta--binomial: with pop.\ density and no PVI & 1264.5 & 23.3 & -632.3 & 11.7 \\ 
   hierarchical beta--binomial: without PVI & 1265.3 & 21.0 & -632.7 & 10.5 \\ 
+  hierarchical binomial: without aridity & 1316.6 & 43.1 & -658.3 & 21.6 \\ 
   hierarchical binomial: baseline & 1317.8 & 43.6 & -658.9 & 21.8 \\ 
   hierarchical binomial: with PVI/aridity interactions & 1319.8 & 45.0 & -659.9 & 22.5 \\ 
   hierarchical binomial: with MSA area & 1321.4 & 43.6 & -660.7 & 21.8 \\ 
@@ -822,7 +836,7 @@ hierarchical beta--binomial: baseline & 1245.1 & 20.2 & -622.6 & 10.1 \\
 
 \subsection*{Table S14}
 % latex table generated in R 3.5.0 by xtable 1.8-2 package
-% Mon May 14 23:30:35 2018
+% Wed May 16 00:23:29 2018
 \begin{table}[H]
 \centering
 \begingroup\small
@@ -844,6 +858,8 @@ single-level binomial: with PVI/aridity interactions & 1590.2 & 76.7 & -795.1 & 
   single-level beta--binomial: with pop.\ density and no PVI & 1807.0 & 96.6 & -903.5 & 48.3 \\ 
   single-level beta--binomial: without PVI & 1807.5 & 99.1 & -903.8 & 49.5 \\ 
   single-level beta--binomial: with pop.\ density & 1817.4 & 98.4 & -908.7 & 49.2 \\ 
+  single-level binomial: without aridity & 1848.3 & 111.7 & -924.2 & 55.9 \\ 
+  single-level beta--binomial: without aridity & 2057.0 & 137.0 & -1028.5 & 68.5 \\ 
    \hline
 \end{tabular}
 \endgroup
@@ -1105,15 +1121,15 @@ Large Tables are available at \url{https://doi.org/10.6084/m9.figshare.5714944}
   \textit{Annals of Applied Statistics}, \textit{2}, 1360--1383.
   \url{https://doi.org/10.1214/08-AOAS191}.
 
-\bibitem[{\textit{Gelman et~al.}(2014a)\textit{Gelman, Carlin, Stern, Dunson,
+\bibitem[{\textit{Gelman et~al.}(2014{\natexlab{a}})\textit{Gelman, Carlin, Stern, Dunson,
   Vehtari, and Rubin}}]{gelman:bda:2014}
   Gelman, A., Carlin, J.~B., Stern, H.~S., Dunson, D.~B., Vehtari, A., \&
-  Rubin, D.~B. (2014a).
+  Rubin, D.~B. (2014{\natexlab{a}}).
   \textit{{B}ayesian Data Analysis}, 3rd ed.
   Boca Raton, FL: CRC.
 
-\bibitem[{\textit{Gelman et~al.}(2014b)\textit{Gelman, Hwang, and Vehtari}}]{gelman:predictive:2014}
-  Gelman, A., Hwang, J., \& Vehtari, A. (2014b).
+\bibitem[{\textit{Gelman et~al.}(2014{\natexlab{b}})\textit{Gelman, Hwang, and Vehtari}}]{gelman:predictive:2014}
+  Gelman, A., Hwang, J., \& Vehtari, A. (2014{\natexlab{b}}).
   Understanding predictive information criteria for Bayesian models.
   \textit{Statistics and Computing}, \textit{24}, 997--1016.
   \url{https://doi.org/10.1007/s11222-013-9416-2}.
