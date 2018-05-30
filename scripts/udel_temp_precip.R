@@ -4,9 +4,9 @@ p_load(tidyverse)
 p_load(ncdf4)
 p_load(raster)
 p_load(geosphere)
-# if (! p_isinstalled(reshape2)) {
-#   p_install(reshape2)
-# }
+if (! p_isinstalled(reshape2)) {
+ p_install(reshape2)
+}
 # if (FALSE) {
 #   p_load(reshape2)
 # }
@@ -63,7 +63,7 @@ process_city_aridity <- function(data.dir = data_dir) {
   # with a value. Some coastal cities have lat and lon closer to
   # a value in the ocean which returns NA from temp and precip
   coords <- expand.grid(lon, lat) %>% rename(lon=Var1, lat=Var2)
-  temp.true <- complete.cases(melt(temp[,,1]))
+  temp.true <- temp[,,1] %>% reshape2::melt() %>% complete.cases()
   coords <- coords[temp.true,] # temp or precip would work
 
   ## find grid index for cities and save in cities df

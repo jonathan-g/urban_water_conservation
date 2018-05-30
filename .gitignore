@@ -8,6 +8,7 @@
 .RData
 .Rhistory
 .Rproj.user
+*.Rproj
 *-concordance.tex
 *.aux
 *.bak
@@ -17,12 +18,19 @@
 *.out
 *.synctex.gz
 *.xwm
+/foo.*
+.$*$
+knitr.sty
 Exported\ Items.bib
-scripts/water_conserve_.rda
-scripts/water_conserve_.rds
-scripts/water_conserve_.Rda
-scripts/water_conserve_.Rds
+/data/model_fit_checkpoint.rds
+/data/proprietary/
 /data/proprietary/google_maps_api.csv
+/scripts/water_conserve_.rda
+/scripts/water_conserve_.rds
+/scripts/water_conserve_.Rda
+/scripts/water_conserve_.Rds
+/si_scripts/data/**/*.nc
+/si_scripts/data/proprietary/
 /si_scripts/model_fits.Rds
 /si_scripts/model.rds
 /si_scripts/model.stan
@@ -34,13 +42,6 @@ scripts/water_conserve_.Rds
 /si_scripts/vwci_parameters.pdf
 /si_scripts/vwci_residual_scatter_plot.pdf
 /si_scripts/vwci_table.tex
-/foo.*
-.$*$
-knitr.sty
-/AGU_template/agujournalsample.pdf
-/data/**/*.nc
-si_scripts/data/**/*.nc
-si_scripts/data/proprietary/
 /si_scripts_old/model_fits.Rds
 /si_scripts_old/reb_parameters.pdf
 /si_scripts_old/req_parameters.pdf
@@ -51,15 +52,13 @@ si_scripts/data/proprietary/
 /si_scripts_old/tables.tex
 /si_scripts_old/vwci_table.tex
 /si_scripts_old/model.rds
+/AGU_template/agujournalsample.pdf
+/data/**/*.nc
 AGU_SI_template/agutmpl\ -\ Supporting\ Information.pdf
 AGU_template/agusuppinfosample.pdf
 /scripts/water_conserve_[ms]l*.rds
 /si_scripts/scripts/water_conserve_[ms]l*.rds
 /si_scripts/output/
 /si_scripts/data/model_*_checkpoint.rds
-/data/model_fit_checkpoint.rds
 *~
-old.RData
-cache_clean
-test.RData
 ~*

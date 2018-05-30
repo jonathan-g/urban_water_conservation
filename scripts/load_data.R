@@ -70,7 +70,7 @@ standardize_data_pooled <- function(msa_data, state_data, scale_factor = 2.0) {
   msa_data$pvi.aridity <- msa_data$pvi * msa_data$aridity
   state_data$state.pvi.aridity <- state_data$state.pvi * state_data$state.aridity
 
-  pvi_state_aridity <- state_data %>% select(state, state.aridity) %>%
+  pvi_state_aridity <- state_data %>% dplyr::select(state, state.aridity) %>%
     right_join(msa_data, by = "state") %>%
     transmute(msa.fips, pvi.state.aridity = pvi * state.aridity)
 
@@ -141,7 +141,7 @@ standardize_data_by_state <- function(msa_data, state_data, scale_factor = 2.0) 
   msa_data$pvi.aridity <- msa_data$pvi * msa_data$aridity
   state_data$state.pvi.aridity <- state_data$state.pvi * state_data$state.aridity
 
-  pvi_state_aridity <- state_data %>% select(state, state.aridity) %>%
+  pvi_state_aridity <- state_data %>% dplyr::select(state, state.aridity) %>%
     right_join(msa_data, by = "state") %>%
     transmute(msa.fips, pvi.state.aridity = pvi * state.aridity)
 
@@ -154,38 +154,10 @@ standardize_data_by_state <- function(msa_data, state_data, scale_factor = 2.0) 
 
 
 
-process_data <- function(data.dir = data_dir, scale_factor = 2.0, pooled = FALSE,
-                         save_data = TRUE, si_data_dir = 'si_scripts/data/') {
+process_data <- function(data.dir = data_dir, scale_factor = 2.0, pooled = FALSE, save_data = TRUE) {
   msa_data <- load_data(data.dir)
-  if (!dir.exists(si_data_dir)) dir.create(si_data_dir, recursive = )
+  # if (!dir.exists(si_data_dir)) dir.create(si_data_dir, recursive = TRUE)
   state_data <- read_rds(file.path(data.dir, 'state_predictors.Rds'))
-
-  if (save_data) {
-    msa_data %>% dplyr::select(msa.fips, msa.name, city.state, city, state, lat, lon,
-                               vwci, reqtotal, rebtotal,
-                               precip, temp, aridity,
-                               precip_70, temp_70, aridity_70,
-                               precip_85, temp_85, aridity_85,
-                               precip_95, temp_95, aridity_95,
-                               precip_05, temp_05, aridity_05,
-                               pvi, gini,
-                               pop, log.pop, pop.growth,
-                               log.pop, log.pop.dens, pop.dens.growth,
-                               area, surface.water,
-                               rpp, rpi) %>%
-      write_csv(path = file.path(si_data_dir, 'msa_data.csv'))
-
-    state_data %>% dplyr::select(state.fips, state, state.name,
-                                 precip, temp, aridity,
-                                 precip_70, temp_70, aridity_70,
-                                 precip_85, temp_85, aridity_85,
-                                 precip_95, temp_95, aridity_95,
-                                 precip_05, temp_05, aridity_05,
-                                 pvi, gini,
-                                 surface.water,
-                                 rpp, rpi) %>%
-      write_csv(path = file.path(si_data_dir, 'state_covariates.csv'))
-  }
 
   filtered_data <- filter_continental(msa_data, state_data)
   if (pooled) {
