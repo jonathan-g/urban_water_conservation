@@ -1,29 +1,73 @@
 <<knitr_options, cache=F, echo=F, include=F, eval=T, message=F, warning=F, error=F, results='hide'>>=
 library(knitr)
 
-for_submission <- TRUE
+#
+# Set for_submission TRUE to produce a LaTeX file for submission to 
+# Earth's Future, with figures not included and figure captions and tables at 
+# the end of the document and FALSE to produce a preprint with figures and
+# tables integrated into the document
+#
+for_submission <- FALSE
 
 do_cache <- FALSE
 
 #
 # Set all the following variables to TRUE to recalculate all computations.
 # Setting these to FALSE re-uses previous computations in order to save
-# time. The `recalc_*` variables are part of data preparation (calculating
-# climate,  surface water, PVI, etc. for each MSA). The last four
-# (`resample_models`, `resample_test_models`, `resample_pooled_test_models`,
-#  and `force_resampling`) re-compute the regressions.
+# time. 
+# * download_data_sets: Download fresh copies of the data sets (from the supporting information) from
+#   https://doi.org/10.6084/m9.figshare.5714944. These data sets contain the VWCI scores and all the covariates 
+#   necessary to perform the regression analyses described in the paper.
+# * recalc_pvi: Recalculate the PVI scores for cities and states. This requires you to obtain the raw 
+#   state and county-level election returns for the 2008 and 2012 presidential elections
+#   (available from CQ Press, as cited in the paper). I downloaded the returns in groups, by state:
+#   * 2008_al_fl.csv and 2012_al_fl.csv for Alabama through Florida
+#   * 2008_ga_ky.csv and 2012_ga_ky.csv for Georgia through Kentucky
+#   * 2008_la_ne.csv and 2012_la_ne.csv for Louisiana through Nebraska
+#   * 2008_nv_nm.csv and 2012_nv_nm.csv for Nevada through New Mexico
+#   * 2008_ny_sd.csv and 2012_ny_sd.csv for New York through South Dakota
+#   * 2008_tn_wy.csv and 2012_tn_wy.csv for Tennessee through Wyoming
+#   These files should reside in the data/proprietary/ directory.
+# * recalc_explanatory: Build a data frame with the following explanatory variables
+#   * population
+#   * population growth rate
+#   * surface water use as a fraction of public water supply
+#   * Democratic share of the two-party vote in the 2008 and 2012 presidential elections.
+#   * National Democratic vote share.
+#   * Partisan Voting Index (PVI)
+#   * Population density
+#   * Population density growth rate
+#   * MSA area
+# * recalc_vwci: Assign FIPS codes to MSA-level VWCI scores (for geolocation).
+# * recalc_city_coords: Recalculate the geographic location of the MSAs.
+# * recalc_climate: Recalculate the average temperature, precipitation, and K&ouml;ppen aridity index for cities 
+#   and states.
+# * recalc_msa_variables: Assemble a data-frame with MSA-level variables and covariates.
+# * recalc_standardized_data: Transform raw MSA- and state-level variables into standardized forms, as described in the
+#   paper.
+# * resample_models: Run the regression analysis for VWCI, Requirements, and Rebates using the baseline regression model
+#   described in the paper (hierarchical beta-binomial, with varying intercept).
+# * resample_test_models: Run the alternate regresion models described in the "Robustness Checks" sections of the paper \
+#   and supporting information.
+# * resample_pooled_test_models: Run the baseline and alternate regression models using the alternate normalization of
+#   MSA-level covariates (normalized relative to all MSAs, as opposed to representing the difference between the MSA and
+#   the state).
+# * force_resampling: Force re-running all regression models that are selected by resample_models, 
+#   resample_test_models, and resample_pooled_test_models. This is only necessary if do_cache is set to TRUE, 
+#   which I do not recommend; if do_cache is set to FALSE, this has no effect and all selected models are 
+#   automatically re-sampled.
 #
 download_data_sets          <- TRUE
 recalc_pvi                  <- FALSE
-recalc_explanatory          <- FALSE
-recalc_vwci                 <- FALSE
-recalc_city_coords          <- FALSE
-recalc_climate              <- FALSE
-recalc_msa_variables        <- FALSE
-recalc_standardized_data    <- FALSE
+recalc_explanatory          <- TRUE
+recalc_vwci                 <- TRUE
+recalc_city_coords          <- TRUE
+recalc_climate              <- TRUE
+recalc_msa_variables        <- TRUE
+recalc_standardized_data    <- TRUE
 resample_models             <- TRUE
-resample_test_models        <- FALSE
-resample_pooled_test_models <- FALSE
+resample_test_models        <- TRUE
+resample_pooled_test_models <- TRUE
 force_resampling            <- TRUE
 
 if (for_submission) {
@@ -284,7 +328,7 @@ figure_captions <- c(
   vwci_map = "Map of cities with VWCI scores.",
   vwci_histogram = "Distribution of VWCI, requirements, and rebates.",
   vwci_cat_plot = str_c("Scaled regression coefficients for VWCI, requirements, and rebates: $\\gamma$ refer to state-level regression coefficients and $\\beta$ to MSA-level ones.\n%Coefficients are scaled  so the value on the horizontal axis represents the approximate change in the probability $p_i$ of adopting an action, corresponding to a  two-standard-deviation change in the predictor when $p_i$ is around 0.5.\nFor a scaled coefficient of 0.1, a two-standard-deviation change in the predictor corresponds to VWCI changing by about ", round(n_actions * 0.10), " for a city with a VWCI of around ", round(n_actions / 2), ", the number of requirements changing by about ", round(n_req * 0.10), " for a city with around ", round(n_req / 2), " requirements, and the number of rebates changing by about ", round(n_reb * 0.10), " for a city with around ", round(n_reb / 2), " rebates. The points represent the median of the posterior, the thick lines the ", round(100 * (thick_ci[2] - thick_ci[1])), "\\% highest-density interval (HDI), and the thin lines the ", round(100 * (thin_ci[2] - thin_ci[1])), "\\% HDI. Coefficients are grouped by state vs.\ city level and then ordered within each group by absolute value of the median for the VWCI analysis."),
-  vwci_residuals = str_c("Predicted versus actual VWCI. Cities with the ten largest residuals are labeled. Cities in California, Florida, and Texas are indicated by color (these states contain ", (basic_data$msa_data %>% mutate(CaFlTx = state %in% c("CA", "FL", "TX")) %>% group_by(CaFlTx) %>% summarize(count = n()) %>% ungroup() %>% mutate(pct = round(100 * count / sum(count))) %>% filter(CaFlTx) %>% select(pct) %>% simplify() %>% unname()), "\\% of the MSAs in our data set)")
+  vwci_residuals = str_c("Predicted versus actual VWCI. Cities with the ten largest residuals are labeled. Cities in California, Florida, and Texas are indicated by color (these states contain ", (basic_data$msa_data %>% mutate(CaFlTx = state %in% c("CA", "FL", "TX")) %>% group_by(CaFlTx) %>% summarize(count = n()) %>% ungroup() %>% mutate(pct = round(100 * count / sum(count))) %>% dplyr::filter(CaFlTx) %>% dplyr::select(pct) %>% simplify() %>% unname()), "\\% of the MSAs in our data set)")
 )
 
 table_captions <- c(
@@ -521,7 +565,7 @@ receptive a given city might be to adopting different conservation measures.
 %
 <<vwci_map, eval = T, include=!for_submission, fig.cap=figure_captions['vwci_map'], fig.height=5, fig.width=10 * 6.0 / 6.5, out.width="6.5in", fig.pos="htp", out.extra="angle=0", cache.extra=c(basic_data), results = fig_body_results>>=
 ## prepare data
-vwci <- basic_data$msa_data %>% select(lat, lon, vwci)
+vwci <- basic_data$msa_data %>% dplyr::select(lat, lon, vwci)
 state.poly <- map_data("state")
 
 p1 <- ggplot() +
@@ -1075,7 +1119,7 @@ if (TRUE) {
   p4 <- make_scatter_plot(res, color = TRUE, pt.alpha = 0.7, residual.plot = TRUE)
   # p4 <- make_scatter_plot(res, color = TRUE, pt.alpha = 1.0, residual.plot = TRUE)
   # geom_smooth(method = "lm") +
-  p_data = p4$data %>% filter(! is.na(res_label))
+  p_data = p4$data %>% dplyr::filter(! is.na(res_label))
   p4 <- p4 +  geom_text_repel(data = p_data,
                             mapping = aes(label = res_label),
                             force = 5,
