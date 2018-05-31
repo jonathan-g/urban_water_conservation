@@ -2,8 +2,8 @@
 library(knitr)
 
 #
-# Set for_submission TRUE to produce a LaTeX file for submission to 
-# Earth's Future, with figures not included and figure captions and tables at 
+# Set for_submission TRUE to produce a LaTeX file for submission to
+# Earth's Future, with figures not included and figure captions and tables at
 # the end of the document and FALSE to produce a preprint with figures and
 # tables integrated into the document
 #
@@ -14,11 +14,11 @@ do_cache <- FALSE
 #
 # Set all the following variables to TRUE to recalculate all computations.
 # Setting these to FALSE re-uses previous computations in order to save
-# time. 
+# time.
 # * download_data_sets: Download fresh copies of the data sets (from the supporting information) from
-#   https://doi.org/10.6084/m9.figshare.5714944. These data sets contain the VWCI scores and all the covariates 
+#   https://doi.org/10.6084/m9.figshare.5714944. These data sets contain the VWCI scores and all the covariates
 #   necessary to perform the regression analyses described in the paper.
-# * recalc_pvi: Recalculate the PVI scores for cities and states. This requires you to obtain the raw 
+# * recalc_pvi: Recalculate the PVI scores for cities and states. This requires you to obtain the raw
 #   state and county-level election returns for the 2008 and 2012 presidential elections
 #   (available from CQ Press, as cited in the paper). I downloaded the returns in groups, by state:
 #   * 2008_al_fl.csv and 2012_al_fl.csv for Alabama through Florida
@@ -40,7 +40,7 @@ do_cache <- FALSE
 #   * MSA area
 # * recalc_vwci: Assign FIPS codes to MSA-level VWCI scores (for geolocation).
 # * recalc_city_coords: Recalculate the geographic location of the MSAs.
-# * recalc_climate: Recalculate the average temperature, precipitation, and K&ouml;ppen aridity index for cities 
+# * recalc_climate: Recalculate the average temperature, precipitation, and K&ouml;ppen aridity index for cities
 #   and states.
 # * recalc_msa_variables: Assemble a data-frame with MSA-level variables and covariates.
 # * recalc_standardized_data: Transform raw MSA- and state-level variables into standardized forms, as described in the
@@ -52,9 +52,9 @@ do_cache <- FALSE
 # * resample_pooled_test_models: Run the baseline and alternate regression models using the alternate normalization of
 #   MSA-level covariates (normalized relative to all MSAs, as opposed to representing the difference between the MSA and
 #   the state).
-# * force_resampling: Force re-running all regression models that are selected by resample_models, 
-#   resample_test_models, and resample_pooled_test_models. This is only necessary if do_cache is set to TRUE, 
-#   which I do not recommend; if do_cache is set to FALSE, this has no effect and all selected models are 
+# * force_resampling: Force re-running all regression models that are selected by resample_models,
+#   resample_test_models, and resample_pooled_test_models. This is only necessary if do_cache is set to TRUE,
+#   which I do not recommend; if do_cache is set to FALSE, this has no effect and all selected models are
 #   automatically re-sampled.
 #
 download_data_sets          <- TRUE
@@ -721,6 +721,9 @@ considerably (Tables~\ref{tab:top_vwci}, S1)
 We selected explanatory variables with the goal of understanding the
 relative contribution of political-economic and hydroclimatological factors
 to policy adoption.
+Datasets containing these covariates and the
+VWCI data are available from
+\citet{gilligan:vwci.data:2018}.
 We selected one political variable (the Cook Partisan Voting Index, PVI) for reasons
 described above and one economic variable (real personal income, RPI).
 We calculated PVI using state- and county-level presidential votes averaged over the
@@ -1503,7 +1506,7 @@ Andrew Lockley and an anonymous reviewer.
 All data used for this paper are cited and listed in the references or
 included in the supplementary information.
 The complete VWCI data set with
-covariates is available on figshare at \url{https://doi.org/10.6084/m9.figshare.5714944}.
+covariates is available from \citet{gilligan:vwci.data:2018}.
 The code (R scripts and Stan models) used for this analysis, are available at
 \url{https://github.com/jonathan-g/urban_water_conservation}.
 %
@@ -1592,6 +1595,12 @@ The code (R scripts and Stan models) used for this analysis, are available at
   Understanding predictive information criteria for Bayesian models.
   \textit{Statistics and Computing}, \textit{24}, 997--1016.
   \url{https://doi.org/10.1007/s11222-013-9416-2}.
+
+\bibitem[{\textit{Gilligan et~al.}(2018)\textit{Gilligan, Wold, Worland, Nay, Hess, and Hornberger}}]{gilligan:vwci.data:2018}
+	Gilligan, J.~M., Wold, C.~A., Worland, S.~C., Nay, J.~J., Hess, D.~J., \& Hornberger, G.~M. (2018).
+	Vanderbilt Water Conservation Index with State and MSA Covariates.
+	Figshare.
+	\url{https://doi.org/10.6084/m9.figshare.5714944}.
 
 \bibitem[{\textit{Gleick}(2002)}]{gleick:soft.water.paths:2002}
   Gleick, P.~H. (2002).

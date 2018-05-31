@@ -988,7 +988,7 @@ vwci_caption <-   list(str_c("Conservation scores and covariates for ", nrow(tbl
 )
 
 write_csv(vwci_tbl, path = file.path(si_output_dir, 'tables', str_c("Table_S", table_counter, ".csv")))
-cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", vwci_caption[[1]], "}\n\\label{tab:vwci}\n\\end{table}\n"))
+cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", vwci_caption[[1]], "}\n\\label{tab:vwci}\n\\end{table}\n"))
 table_counter <- table_counter + 1
 @
 <<state_covar_table, include = TRUE, results="asis">>=
@@ -1007,7 +1007,7 @@ state_tbl <- state_data %>% arrange(state.name) %>%
 
 state_caption <-   list("State-level covariates: PVI = Cook Partisan Voting Index, RPI = per-capita real personal income (thousands of regionally-adjusted chained 2009 dollars), Aridity = the K\\\"oppen aridity index, Surf.\\ W.\\ = the surface-water fraction.", "State-level covariates.")
 write_csv(state_tbl, path = file.path(si_output_dir, 'tables', str_c("Table_S", state_table_num, ".csv")))
-cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", state_caption[[1]], "}\n\\label{tab:state}\n\\end{table}\n"))
+cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", state_caption[[1]], "}\n\\label{tab:state}\n\\end{table}\n"))
 table_counter <- table_counter + 1
 @
 <<loo_table_setup, cache=do_cache, include = FALSE, warning=FALSE, message=FALSE>>=
@@ -1273,7 +1273,7 @@ cat(str_c("\\subsection*{Table S", vwci_posterior_table_num, " Caption}", "\n"))
 posterior_table(model_fits$fits$sfit_1_ml_beta_alpha, vars_1, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
                 caption = vwci_posterior_caption) %>%
   write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", vwci_posterior_table_num, ".csv")))
-cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", vwci_posterior_caption[[1]], "}\n\\label{tab:vwci_posterior}\n\\end{table}\n"))
+cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", vwci_posterior_caption[[1]], "}\n\\label{tab:vwci_posterior}\n\\end{table}\n"))
 @
 
 <<req_posterior_table, echo=F, include=T, results='asis', cache=do_cache, cache.extra=c(model_fits, vars_1, std_data, summarize_fit)>>=
@@ -1287,7 +1287,7 @@ cat(str_c("\\subsection*{Table S", req_posterior_table_num, " Caption}", "\n"))
 posterior_table(model_fits$fits$sfit_1_ml_beta_alpha_req, vars_1, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
                 caption = req_posterior_caption) %>%
   write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", req_posterior_table_num, ".csv")))
-cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", req_posterior_caption[[1]], "}\n\\label{tab:req_posterior}\n\\end{table}\n"))
+cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", req_posterior_caption[[1]], "}\n\\label{tab:req_posterior}\n\\end{table}\n"))
 @
 
 <<reb_posterior_table, echo=F, include=T, results='asis', cache=do_cache, cache.extra=c(model_fits, vars_1, std_data, summarize_fit)>>=
@@ -1301,7 +1301,7 @@ cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n"))
 posterior_table(model_fits$fits$sfit_1_ml_beta_alpha_reb, vars_1, std_data, multilevel = TRUE, beta = TRUE, random_alpha = TRUE,
                     caption = reb_posterior_caption) %>%
   write_csv(path = file.path(si_output_dir, 'tables', str_c("Table_S", reb_posterior_table_num, ".csv")))
-cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", reb_posterior_caption[[1]], "}\n\\label{tab:reb_posterior}\n\\end{table}\n"))
+cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", reb_posterior_caption[[1]], "}\n\\label{tab:reb_posterior}\n\\end{table}\n"))
 @
 
 
@@ -1309,7 +1309,7 @@ cat(str_c("\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{h
 
 \subsection*{Dataset S1: MSA-Level Data}
 
-Dataset S1 is available at \url{https://doi.org/10.6084/m9.figshare.5714944}
+Dataset S1 is available from \citet{gilligan:vwci.data:2018} at \url{https://doi.org/10.6084/m9.figshare.5714944}.
 
 This dataset contains MSA-level data: the FIPS (Federal Information Processing Standard) code for the MSA,
 the name of the MSA, the central city, state, latitude, longitude,
@@ -1322,13 +1322,13 @@ the BEA \Sexpr{bea_year} regional price parity and per-capita real personal inco
 
 \subsection*{Dataset S2: MSA-Level Data Codebook}
 
-Dataset S2 is available at \url{https://doi.org/10.6084/m9.figshare.5714944}
+Dataset S2 is available from \citet{gilligan:vwci.data:2018} at \url{https://doi.org/10.6084/m9.figshare.5714944}.
 
 This dataset contains a codebook explaining the variable corresponding to each column in Dataset S1.
 
 \subsection*{Dataset S3: State-Level Data}
 
-Dataset S3 is available at \url{https://doi.org/10.6084/m9.figshare.5714944}
+Dataset S3 is available from \citet{gilligan:vwci.data:2018} at \url{https://doi.org/10.6084/m9.figshare.5714944}.
 
 This dataset contains stae-level data: the FIPS code for the state, the abbreviation and name of the state,
 the average annual precipitation (in millimeters), temperature (in Celsius), and K\"oppen aridity index for the state,
@@ -1338,7 +1338,7 @@ and the BEA \Sexpr{bea_year} state-level regional price parity and per-capita re
 
 \subsection*{Dataset S4: State-Level Data Codebook}
 
-Dataset S4 is available at \url{https://doi.org/10.6084/m9.figshare.5714944}
+Dataset S4 is available from \citet{gilligan:vwci.data:2018} at \url{https://doi.org/10.6084/m9.figshare.5714944}.
 
 This dataset contains a codebook explaining the variable corresponding to each column in Dataset S3.
 
@@ -1371,33 +1371,33 @@ toLatex(session_info)
 <<vwci_large_table, include = TRUE, dependson="vwci_table", results="asis">>=
 cat(str_c("\\subsection*{Table S", vwci_table_num, " Caption}", "\n",
           "\\setcounter{table}{", vwci_table_num - 1, "}%\n",
-          "\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", vwci_caption[[1]], "}\n\\end{table}\n"))
+          "\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", vwci_caption[[1]], "}\n\\end{table}\n"))
 @
 
 <<state_covar_large_table, include = TRUE, results="asis">>=
 cat (str_c("\\subsection*{Table S", state_table_num, " Caption}", "\n",
           "\\setcounter{table}{", state_table_num - 1, "}%\n",
-     "\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", state_caption[[1]], "}\n\\end{table}\n"))
+     "\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", state_caption[[1]], "}\n\\end{table}\n"))
 
 @
 
 <<vwci_posterior_large_table, echo=F, include=T, results='asis', cache=F, dependson='vwci_posterior_table'>>=
 cat(str_c("\\subsection*{Table S", vwci_posterior_table_num, " Caption}", "\n",
           "\\setcounter{table}{", vwci_posterior_table_num - 1, "}%\n",
-          "\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", vwci_posterior_caption[[1]], "}\n\\end{table}\n"))
+          "\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", vwci_posterior_caption[[1]], "}\n\\end{table}\n"))
 
 @
 
 <<req_posterior_large_table, echo=F, include=T, results='asis', cache=F, dependson='req_poosterior_table'>>=
 cat(str_c("\\subsection*{Table S", req_posterior_table_num, " Caption}", "\n",
           "\\setcounter{table}{", req_posterior_table_num - 1, "}%\n",
-          "\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", req_posterior_caption[[1]], "}\n\\end{table}\n"))
+          "\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", req_posterior_caption[[1]], "}\n\\end{table}\n"))
 @
 
 <<reb_posterior_large_table, echo=F, include=T, results='asis', cache=F, dependson='reb_posterior_table'>>=
 cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n",
           "\\setcounter{table}{", reb_posterior_table_num - 1, "}%\n",
-          "\\begin{table}[H]\n\\centering\nLarge Tables are available at \\url{https://doi.org/10.6084/m9.figshare.5714944}\n\\caption{", reb_posterior_caption[[1]], "}\n\\end{table}\n"))
+          "\\begin{table}[H]\n\\centering\nLarge Tables are available from \\citet{gilligan:vwci.data:2018} at \\url{https://doi.org/10.6084/m9.figshare.5714944}.\n\\caption{", reb_posterior_caption[[1]], "}\n\\end{table}\n"))
 @
 %
 \fi
@@ -1490,6 +1490,12 @@ cat(str_c("\\subsection*{Table S", reb_posterior_table_num, " Caption}", "\n",
   Understanding predictive information criteria for Bayesian models.
   \textit{Statistics and Computing}, \textit{24}, 997--1016.
   \url{https://doi.org/10.1007/s11222-013-9416-2}.
+
+\bibitem[{\textit{Gilligan et~al.}(2018)\textit{Gilligan, Wold, Worland, Nay, Hess, and Hornberger}}]{gilligan:vwci.data:2018}
+	Gilligan, J.~M., Wold, C.~A., Worland, S.~C., Nay, J.~J., Hess, D.~J., \& Hornberger, G.~M. (2018).
+	Vanderbilt Water Conservation Index with State and MSA Covariates.
+	Figshare.
+	\url{https://doi.org/10.6084/m9.figshare.5714944}.
 
 \bibitem[{\textit{Gleick}(2002)}]{gleick:soft.water.paths:2002}
   Gleick, P.~H. (2002).
