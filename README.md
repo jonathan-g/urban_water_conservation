@@ -1,3 +1,7 @@
+[![DOI](https://zenodo.org/badge/133457475.svg)](https://zenodo.org/badge/latestdoi/133457475)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
+
 # Urban Water Conservation Policies in the United States
 
 This repository contains scripts for reproducing the analysis in J.M. Gilligan _et al._, 
